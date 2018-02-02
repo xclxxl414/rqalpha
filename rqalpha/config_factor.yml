@@ -1,0 +1,43 @@
+# see more config
+# http://rqalpha.readthedocs.io/zh_CN/stable/intro/run_algorithm.html
+version: 0.1.6
+
+# 白名单，设置可以直接在策略代码中指定哪些模块的配置项目
+whitelist: [base, extra, validator, mod]
+
+base:
+  # 数据源所存储的文件路径
+  data_bundle_path: E:\evilAlpha\bundle
+  # 因子定义文件 testFactor, MarketValue
+  factor_file: E:\evilAlpha\rqalpha\rqalpha\examples\MarketValue.py
+  frequency: 1d
+  # 回测起始日期
+  start_date: 2015-05-07
+  # 回测结束日期(如果是实盘，则忽略该配置)
+  end_date: 2015-06-01
+  #收益率计算依据
+  price : close
+  # 运行类型，`p` 为预设值因子值, `r` 为实时计算。
+  run_type: r
+
+mod:
+  sys_analyser:
+    enabled: false
+  sys_simulation:
+    enabled: false
+    price_limit: false #涨跌停可以买入
+  alphaStar_factors:
+    enabled: true
+    factor_data_path: E:\evilAlpha\rqalpha\test
+    factor_data_init_date: 2017-01-01
+  sys_accounts:
+    enabled: false
+
+extra:
+  # 选择日期的输出等级，有 `verbose` | `info` | `warning` | `error` 等选项，您可以通过设置 `verbose` 来查看最详细的日志，
+  # 或者设置 `error` 只查看错误级别的日志输出
+  log_level: info
+  user_system_log_disabled: false
+  user_log_disabled: false
+  locale: zh_Hans_CN
+  logger: []
