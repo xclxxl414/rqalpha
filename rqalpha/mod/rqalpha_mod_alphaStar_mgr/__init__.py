@@ -20,6 +20,7 @@ from .admin import Admin
 from .taskMgr import TaskMgr
 from datetime import *
 from rqalpha.interface import AbstractMod
+from rqalpha.main import update_bundle
 
 class MgrMod(AbstractMod):
     '''
@@ -39,72 +40,106 @@ def load_mod():
 
 @cli.command()
 @click.help_option('-h', '--help')
-@click.option('-s', '--start-date', 'start_date', type=Date())
-@click.option('-e', '--end-date', 'end_date', type=Date())
-@click.option( '--fname', 'fname')
-@click.option( '--adminDB', 'adminDB')
-@click.option( '--ipyPath', 'ipyPath')
-@click.option( '--fDataPath', 'fDataPath')
-def callAFactor(**kwargs):
-    obj = TaskMgr(db=kwargs.get('adminDB', None),ipynbPath=kwargs.get('ipyPath', None),fdataPath=kwargs.get('fDataPath', None))
-    _startDt = kwargs.get('start_date', None)
-    _endDt = kwargs.get('end_date', None)
-    # _endDt = _startDt if _endDt is None else _endDt
-    obj.runAFactor(fname=kwargs.get('fname', None),startDt =_to_date(_startDt),endDt=_to_date(_endDt))
+@click.option('-i', '--data-init-date', 'base__data_init_date', type=Date(),help="The init date to calculate and persist factor data")
+@click.option('-e', '--end-date', 'base__end_date', type=Date())
+@click.option( '--adminDB', 'base__adminDB')
+@click.option( '--sourcePath', 'base__sourcePath',help="path where factor code files exist")
+@click.option('--config', 'config_path', type=click.STRING, help="config file path")
+def dailyProcess(**kwargs):
+    '''
+    [alphaStar_mgr] dailyProcess
+    '''
+    config_path = kwargs.get('config_path', None)
+    if config_path is not None:
+        config_path = os.path.abspath(config_path)
+        kwargs.pop('config_path')
+
+    config = _parse_config(kwargs, config_path)
+    obj = TaskMgr(db=config.base.adminDB, sourcePath=config.base.sourcePath,
+                  fdataPath=config.mod.alphaStar_factors.factor_data_path)
+    _pPath = config.base.data_bundle_path.replace("\\bundle","")
+    update_bundle(data_bundle_path=_pPath,confirm=False)
+    obj.runFactors(dataInitDt=_to_date(config.base.data_init_date),enddt=config.base.end_date)
+    obj.runStrategys(config=config)
 
 @cli.command()
 @click.help_option('-h', '--help')
-@click.option('-s', '--start-date', 'start_date', type=Date())
+@click.option('-i', '--data-init-date', 'data_init_date', type=Date(),help="The init date to calculate and persist factor data")
+@click.option('-e', '--end-date', 'end_date', type=Date())
+@click.option( '--fname', 'fname')
+@click.option( '--adminDB', 'adminDB')
+@click.option( '--sourcePath', 'sourcePath',help="path where factor code files exist")
+@click.option( '--fDataPath', 'fDataPath',help="path where factor data files exist")
+def callAFactor(**kwargs):
+    '''
+    [alphaStar_mgr] callAFactor
+    '''
+    obj = TaskMgr(db=kwargs.get('adminDB', None), sourcePath=kwargs.get('sourcePath', None), fdataPath=kwargs.get('fDataPath', None))
+    _dataInitDt = kwargs.get('data_init_date', None)
+    _endDt = kwargs.get('end_date', None)
+    # _endDt = _dataInitDt if _endDt is None else _endDt
+    obj.runAFactor(fname=kwargs.get('fname', None), dataInitDt=_to_date(_dataInitDt), endDt=_to_date(_endDt))
+
+@cli.command()
+@click.help_option('-h', '--help')
+@click.option('-i', '--data-init-date', 'data_init_date', type=Date(),help="The init date to calculate and persist factor data")
 @click.option('-e', '--end-date', 'end_date', type=Date())
 @click.option( '--adminDB', 'adminDB')
-@click.option( '--ipyPath', 'ipyPath')
-@click.option( '--fDataPath', 'fDataPath')
+@click.option( '--sourcePath', 'sourcePath',help="path where factor code files exist")
+@click.option( '--fDataPath', 'fDataPath',help="path where factor data files exist")
 def callFactors(**kwargs):
-    obj = TaskMgr(db=kwargs.get('adminDB', None),ipynbPath=kwargs.get('ipyPath', None),fdataPath=kwargs.get('fDataPath', None))
-    _startDt = kwargs.get('start_date', None)
+    '''
+    [alphaStar_mgr] callFactors
+    '''
+    obj = TaskMgr(db=kwargs.get('adminDB', None), sourcePath=kwargs.get('sourcePath', None), fdataPath=kwargs.get('fDataPath', None))
+    _dataInitDt = kwargs.get('data_init_date', None)
     _endDt = kwargs.get('end_date', None)
-    # _endDt = _startDt if _endDt is None else _endDt
-    obj.runFactors(startdt =_to_date(_startDt),enddt=_to_date(_endDt))
+    # _endDt = _dataInitDt if _endDt is None else _endDt
+    obj.runFactors(dataInitDt=_to_date(_dataInitDt), enddt=_to_date(_endDt))
 
 @cli.command()
 @click.help_option('-h', '--help')
 # -- Base Configuration
 @click.option('-e', '--end-date', 'base__end_date', type=Date())
 @click.option( '--sname', 'base__sname')
-@click.option( '--tgw-account', 'base__tgw_account')
+# @click.option( '--tgw-account', 'base__tgw_account')
 @click.option( '--adminDB', 'base__adminDB')
-@click.option( '--ipyPath', 'base__ipyPath')
-# @click.option( '--fDataPath', 'base__fDataPath')
+@click.option( '--sourcePath', 'base__sourcePath',help="path where factor code files exist")
 # -- Extra Configuration
 @click.option('--config', 'config_path', type=click.STRING, help="config file path")
 def callAStrategy(**kwargs):
+    '''
+    [alphaStar_mgr] callAStrategy
+    '''
     config_path = kwargs.get('config_path', None)
     if config_path is not None:
         config_path = os.path.abspath(config_path)
         kwargs.pop('config_path')
 
     config = _parse_config(kwargs, config_path)
-    obj = TaskMgr(db=config.base.adminDB, ipynbPath=config.base.ipyPath, fdataPath=config.mod.alphaStar_factors.factor_data_path)
+    obj = TaskMgr(db=config.base.adminDB, sourcePath=config.base.sourcePath, fdataPath=config.mod.alphaStar_factors.factor_data_path)
     obj.runAStrategy(sname=config.base.sname,config=config)
 
 @cli.command()
 @click.help_option('-h', '--help')
 # -- Base Configuration
 @click.option('-e', '--end-date', 'base__end_date', type=Date())
-@click.option( '--tgw-account', 'base__tgw_account')
+# @click.option( '--tgw-account', 'base__tgw_account')
 @click.option( '--adminDB', 'base__adminDB')
-@click.option( '--ipyPath', 'base__ipyPath')
-# @click.option( '--fDataPath', 'base__fDataPath')
+@click.option( '--sourcePath', 'base__sourcePath',help="path where factor code files exist")
 # -- Extra Configuration
 @click.option('--config', 'config_path', type=click.STRING, help="config file path")
 def callStrategys(**kwargs):
+    '''
+    [alphaStar_mgr] callStrategys
+    '''
     config_path = kwargs.get('config_path', None)
     if config_path is not None:
         config_path = os.path.abspath(config_path)
         kwargs.pop('config_path')
 
     config = _parse_config(kwargs, config_path)
-    obj = TaskMgr(db=config.base.adminDB, ipynbPath=config.base.ipyPath, fdataPath=config.mod.alphaStar_factors.factor_data_path)
+    obj = TaskMgr(db=config.base.adminDB, sourcePath=config.base.sourcePath, fdataPath=config.mod.alphaStar_factors.factor_data_path)
     obj.runStrategys(config=config)
 
 @cli.command()
@@ -114,6 +149,9 @@ def callStrategys(**kwargs):
 @click.option( '--admin-passwd', 'admin_passwd')
 @click.option( '--adminDB', 'adminDB')
 def addUser(**kwargs):
+    '''
+    [alphaStar_mgr] addUser
+    '''
     ret = Admin(db = kwargs.get('adminDB', None))\
         .addUser(uname=kwargs.get('uname', None),passwd=kwargs.get('passwd', None),adminPass=kwargs.get('admin_passwd', None))
     print(ret)
@@ -123,6 +161,9 @@ def addUser(**kwargs):
 @click.option( '--admin-passwd', 'admin_passwd')
 @click.option( '--adminDB', 'adminDB')
 def addAdminUser(**kwargs):
+    '''
+    [alphaStar_mgr] addAdminUser
+    '''
     ret = Admin(db = kwargs.get('adminDB', None)) \
         .addAdminUser(passwd=kwargs.get('admin_passwd', None))
     print(ret)
@@ -133,6 +174,9 @@ def addAdminUser(**kwargs):
 @click.option( '--admin-passwd', 'admin_passwd')
 @click.option( '--adminDB', 'adminDB')
 def delUser(**kwargs):
+    '''
+    [alphaStar_mgr] delUser
+    '''
     ret = Admin(db = kwargs.get('adminDB', None))\
         .delUser(uname=kwargs.get('uname', None),adminPass=kwargs.get('admin_passwd', None))
     print(ret)
@@ -144,6 +188,9 @@ def delUser(**kwargs):
 @click.option( '--admin-passwd', 'admin_passwd')
 @click.option( '--adminDB', 'adminDB')
 def registerFactor(**kwargs):
+    '''
+    [alphaStar_mgr] registerFactor
+    '''
     ret = Admin(db = kwargs.get('adminDB', None))\
         .registerFactor(fname = kwargs.get('fname', None),uname=kwargs.get('uname', None), adminPass=kwargs.get('admin_passwd', None))
     print(ret)
@@ -154,6 +201,9 @@ def registerFactor(**kwargs):
 @click.option( '--admin-passwd', 'admin_passwd')
 @click.option( '--adminDB', 'adminDB')
 def delFactor(**kwargs):
+    '''
+    [alphaStar_mgr] delFactor
+    '''
     ret = Admin(db = kwargs.get('adminDB', None))\
         .delFactor(fname = kwargs.get('fname', None), adminPass=kwargs.get('admin_passwd', None))
     print(ret)
@@ -165,6 +215,9 @@ def delFactor(**kwargs):
 @click.option('--admin-passwd', 'admin_passwd')
 @click.option('--adminDB', 'adminDB')
 def registerAndPublishFactor(**kwargs):
+    '''
+    [alphaStar_mgr] registerAndPublishFactor
+    '''
     ret = Admin(db=kwargs.get('adminDB', None)) \
         .registerAndPublishFactor(fname=kwargs.get('fname', None), uname=kwargs.get('uname', None),
                         adminPass=kwargs.get('admin_passwd', None))
@@ -176,6 +229,9 @@ def registerAndPublishFactor(**kwargs):
 @click.option('--admin-passwd', 'admin_passwd')
 @click.option('--adminDB', 'adminDB')
 def publishFactor(**kwargs):
+    '''
+    [alphaStar_mgr] publishFactor
+    '''
     ret = Admin(db=kwargs.get('adminDB', None)) \
         .publishFactor(fname=kwargs.get('fname', None),adminPass=kwargs.get('admin_passwd', None))
     print(ret)
@@ -186,6 +242,9 @@ def publishFactor(**kwargs):
 @click.option('--admin-passwd', 'admin_passwd')
 @click.option('--adminDB', 'adminDB')
 def unPublishFactor(**kwargs):
+    '''
+    [alphaStar_mgr] unPublishFactor
+    '''
     ret = Admin(db=kwargs.get('adminDB', None)) \
         .unPublishFactor(fname=kwargs.get('fname', None),adminPass=kwargs.get('admin_passwd', None))
     print(ret)
@@ -194,6 +253,9 @@ def unPublishFactor(**kwargs):
 @click.help_option('-h', '--help')
 @click.option('--adminDB', 'adminDB')
 def getPublishedFactors(**kwargs):
+    '''
+    [alphaStar_mgr] getPublishedFactors
+    '''
     ret = Admin(db=kwargs.get('adminDB', None)) \
         .getPublishedFactors()
     print(ret)
@@ -205,6 +267,9 @@ def getPublishedFactors(**kwargs):
 @click.option( '--admin-passwd', 'admin_passwd')
 @click.option( '--adminDB', 'adminDB')
 def registerStrategy(**kwargs):
+    '''
+    [alphaStar_mgr] registerStrategy
+    '''
     ret = Admin(db = kwargs.get('adminDB', None))\
         .registerStrategy(sname = kwargs.get('sname', None),uname=kwargs.get('uname', None), adminPass=kwargs.get('admin_passwd', None))
     print(ret)
@@ -215,6 +280,9 @@ def registerStrategy(**kwargs):
 @click.option( '--admin-passwd', 'admin_passwd')
 @click.option( '--adminDB', 'adminDB')
 def delStrategy(**kwargs):
+    '''
+    [alphaStar_mgr] delStrategy
+    '''
     ret = Admin(db = kwargs.get('adminDB', None))\
         .delStrategy(sname = kwargs.get('sname', None), adminPass=kwargs.get('admin_passwd', None))
     print(ret)
@@ -227,6 +295,9 @@ def delStrategy(**kwargs):
 @click.option('--admin-passwd', 'admin_passwd')
 @click.option('--adminDB', 'adminDB')
 def registerAndPublishStrategy(**kwargs):
+    '''
+    [alphaStar_mgr] registerAndPublishStrategy
+    '''
     ret = Admin(db=kwargs.get('adminDB', None)) \
         .registerAndPublishStrategy(sname=kwargs.get('sname', None), uname=kwargs.get('uname', None),
                         adminPass=kwargs.get('admin_passwd', None),accountID=kwargs.get('tgw_account', None))
@@ -239,6 +310,9 @@ def registerAndPublishStrategy(**kwargs):
 @click.option('--admin-passwd', 'admin_passwd')
 @click.option('--adminDB', 'adminDB')
 def publishStrategy(**kwargs):
+    '''
+    [alphaStar_mgr] publishStrategy
+    '''
     ret = Admin(db=kwargs.get('adminDB', None)) \
         .publishStrategy(sname=kwargs.get('sname', None),adminPass=kwargs.get('admin_passwd', None),accountID=kwargs.get('tgw_account', None))
     print(ret)
@@ -249,6 +323,9 @@ def publishStrategy(**kwargs):
 @click.option('--admin-passwd', 'admin_passwd')
 @click.option('--adminDB', 'adminDB')
 def unPublishStrategy(**kwargs):
+    '''
+    [alphaStar_mgr] unPublishStrategy
+    '''
     ret = Admin(db=kwargs.get('adminDB', None)) \
         .unPublishStrategy(sname=kwargs.get('sname', None),adminPass=kwargs.get('admin_passwd', None))
     print(ret)
@@ -257,6 +334,9 @@ def unPublishStrategy(**kwargs):
 @click.help_option('-h', '--help')
 @click.option('--adminDB', 'adminDB')
 def getPublishedStrategys(**kwargs):
+    '''
+    [alphaStar_mgr] getPublishedStrategys
+    '''
     ret = Admin(db=kwargs.get('adminDB', None)).getPublishedStrategys()
     print(ret)
 

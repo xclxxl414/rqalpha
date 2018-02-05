@@ -38,23 +38,24 @@ from rqalpha.main import create_base_scope,set_loggers,_adjust_start_date,_valid
 
 
 class TaskMgr():
-    def __init__(self,db= None,ipynbPath = "",fdataPath = ""):
+    def __init__(self, db= None, sourcePath ="", fdataPath =""):
         '''
         '''
         self.adminConsole = Admin(db)
-        self.ipyPath = ipynbPath
+        self.sourcePath = sourcePath
         self.factorDataPath = fdataPath
 
-    def runFactors(self,startdt = None,enddt = None):
+    def runFactors(self, dataInitDt = None, enddt = None):
         '''
         run all Published Factors
         '''
         for fname,user in self.adminConsole.getPublishedFactors():
             try:
-                self._runAFactor(fname,startdt, enddt)
+                self._runAFactor(fname, dataInitDt, enddt)
+                system_log.info("factor {0} run Finshed till {1}", fname, enddt)
             except  Exception as e:
                 system_log.error("runAFactor failed,fname;{0},error:{1}",fname,e)
-        system_log.info("runFactor Finshed for: {0},{1}",startdt,enddt)
+        system_log.info("runFactor Finshed for: {0},{1}", dataInitDt, enddt)
         return
 
     def runStrategys(self,config):
@@ -66,6 +67,7 @@ class TaskMgr():
             for sname, user,accountid in self.adminConsole.getPublishedStrategys():
                 try:
                     self._runAStrategy(sname, accountid,config,runner)
+                    system_log.info("strategy {0} run Finshed till {1}", sname, config.base.end_date)
                 except  Exception as e:
                     system_log.error("runAStrategy failed,fname;{0},error:{1}", sname, e)
             system_log.info("runStrategys Finshed for: {0}", config.base.end_date)
@@ -74,7 +76,7 @@ class TaskMgr():
             system_log.error("runStrategys failed:{0}",e)
         return
 
-    def runAFactor(self, fname,startDt, endDt):
+    def runAFactor(self, fname, dataInitDt, endDt):
         sinfo = self.adminConsole.getFactor(fname)
         if not sinfo:
             system_log.info("factor {0} not exist", fname)
@@ -82,17 +84,16 @@ class TaskMgr():
         if sinfo[2] != "published":
             system_log.info("factor {0} has not published", fname)
             return
-        self._runAFactor(fname,startDt,endDt)
+        self._runAFactor(fname, dataInitDt, endDt)
 
-    def _runAFactor(self, fname,startDt, endDt):
-        _dataObj = FactorData(fname, self.factorDataPath,defaultInitDate=startDt)
+    def _runAFactor(self, fname, dataInitDt, endDt):
+        _dataObj = FactorData(fname, self.factorDataPath, defaultInitDate=dataInitDt)
         _latestUpdt = _dataObj.getLatestDate()
         if _latestUpdt >= endDt:
             return
         _startDt = _latestUpdt + timedelta(days=1)
 
-        _file = os.path.join(self.ipyPath,fname + ".ipynb")
-        system_log.debug("_runAFactor")
+        _file = os.path.join(self.sourcePath, fname + ".ipynb")
         scope = create_base_scope()
         scope.update({
             "g": GlobalVars()
@@ -130,7 +131,7 @@ class TaskMgr():
 
     def _runAStrategy(self, sname,accountid,  config,runner):
         # print(type(sname),sname)
-        config.base.strategy_file = os.path.join(self.ipyPath,sname+".ipynb")
+        config.base.strategy_file = os.path.join(self.sourcePath, sname + ".ipynb")
         config.mod.alphaStar_tgw.combid = accountid
         config.mod.alphaStar_tgw.accountid = accountid
         config.base.start_date = config.base.end_date
