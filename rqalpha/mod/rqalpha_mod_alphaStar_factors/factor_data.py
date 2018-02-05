@@ -13,7 +13,7 @@ import shutil
 import os
 
 class FactorData():
-    def __init__(self,fname,path="",defaultInitDate = None):
+    def __init__(self,fname,path="",defaultInitDate = date(1990,1,1)):
         '''
         每年一个文件
         path， 因子数据文件目录
@@ -21,10 +21,7 @@ class FactorData():
         # print("FactorData",path,fname)
         self._factorPath = os.path.join(path,fname)
         self._name = fname
-        if defaultInitDate is not None:
-            self._defaultInitDate = defaultInitDate
-        else:
-            self._defaultInitDate = date(1990,1,1)
+        self._defaultInitDate = defaultInitDate if defaultInitDate is not None else date(1990,1,1)
         self.create()
 
     @property
@@ -88,7 +85,7 @@ class FactorData():
                 years.append(day.year)
                 _lastYear = day.year
         idxs.append(len(a))
-        print(idxs, years)
+        # print(idxs, years)
         for i in range(len(years)):
             self._appendAyear(years[i],datas.iloc[idxs[i]:idxs[i + 1]])
 
