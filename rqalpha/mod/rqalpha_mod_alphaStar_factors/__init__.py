@@ -19,6 +19,10 @@ __config__ = {
     "factor_data_init_date": "2017-01-01",
 }
 
+def load_ipython_extension(ipython):
+    """call by ipython"""
+    ipython.register_magic_function(evaluate_ipython_cell, 'line_cell', 'evaluate')
+
 def load_mod():
     from .mod import FactorDataMod
     return FactorDataMod()
@@ -57,24 +61,19 @@ def evaluate(**kwargs):
 
     source_code = kwargs.get("base__source_code")
     cfg = parse_config(kwargs, config_path=config_path, click_type=True, source_code=source_code)
-    source_code = cfg.base.source_code
     if hasattr(cfg.base, 'name'):
         fname = cfg.base.fname
     elif hasattr(cfg.base, 'factor_file'):
         fname = os.path.basename(cfg.base.factor_file).split(".")[0]
-    results = evaluateRun(fname, cfg, source_code=source_code)
+    results = evaluateRun(fname, cfg)
 
-
-@DeprecationWarning
 def evaluate_ipython_cell(line, cell=None):
-    from rqalpha.__main__ import run
     from rqalpha.utils.py2 import clear_all_cached_functions
     clear_all_cached_functions()
     args = line.split()
-    args.extend(["--source-code", cell if cell is not None else ""])
     try:
         # It raise exception every time
-        run.main(args, standalone_mode=True)
+        evaluate.main(args, standalone_mode=True)
     except SystemExit as e:
         pass
 
@@ -101,46 +100,6 @@ def evaluate_file(factor_file_path="", config=None,config_file = G_defaultConfig
     clear_all_cached_functions()
     evaluateRun(fname,config)
 
-@DeprecationWarning
-def evaluate_code(fname,code, config=None):
-    from .evaluate import evaluateRun
-    from rqalpha.utils.py2 import clear_all_cached_functions
-
-    if config is None:
-        config = {}
-    else:
-        assert isinstance(config, dict)
-        try:
-            del config["base"]["factor_file"]
-        except:
-            pass
-    config = parse_config(config,config_path=G_defaultConfig, source_code=code)
-    clear_all_cached_functions()
-    return evaluateRun(fname,config, source_code=code)
-
-@DeprecationWarning
-def evaluate_func(fname,**kwargs):
-    from rqalpha.utils import dummy_func
-    from rqalpha.utils.py2 import clear_all_cached_functions
-    from .evaluate import evaluateRun
-
-    config = kwargs.get('config', kwargs.get('__config__', None))
-
-    user_funcs = {
-        'init': kwargs.get('init', dummy_func),
-        'compute': kwargs.get('compute', dummy_func),
-    }
-    if config is None:
-        config = {}
-    else:
-        assert isinstance(config, dict)
-        try:
-            del config["base"]["factor_file"]
-        except:
-            pass
-    config = parse_config(config,config_path=G_defaultConfig, user_funcs=user_funcs)
-    clear_all_cached_functions()
-    return evaluateRun(fname, config, user_funcs=user_funcs)
 
 if __name__ == '__main__':
     cli(obj={})

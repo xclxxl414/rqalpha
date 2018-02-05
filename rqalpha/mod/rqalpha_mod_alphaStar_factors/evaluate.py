@@ -36,7 +36,7 @@ from rqalpha.utils.dict_func import deep_update
 import numpy as np
 from matplotlib import rcParams, gridspec, ticker, image as mpimg, pyplot as plt
 
-def evaluateRun(fname,config, source_code=None, user_funcs=None):
+def evaluateRun(fname,config):
     '''
     按临时定义计算数据评估, 用 stock_account计算收益率，每个票一个stock_account,或只用一个stock_account,一个票一个position,佣金、滑点
     先按天取得全部结果，用向量计算
@@ -67,7 +67,7 @@ def evaluateRun(fname,config, source_code=None, user_funcs=None):
         if config.base.run_type == "p":
             fValue = getFactorsPre(start_dt=start_dt,end_dt=config.base.end_date,fname = fname,fDataPath=config.mod.alphaStar_factors.factor_data_path)
         else:
-            fValue = getFactorsTmp(env,source_code=source_code,user_funcs=user_funcs,config=config)
+            fValue = getFactorsTmp(env,config=config)
         system_log.info("get factor value success")
         # BVs = BookValues(env)
         BVs = Prices( env)
@@ -210,7 +210,7 @@ def getFactorsPre(start_dt,end_dt,fname,fDataPath):
     from .factor_data import FactorDataInterface
     return FactorDataInterface(path=fDataPath,startDt=start_dt,endDt=end_dt).getData(fname=fname,startDt=start_dt,endDt=end_dt)
 
-def getFactorsTmp(env,source_code,user_funcs,config):
+def getFactorsTmp(env,config):
     system_log.debug(_("getFactorsTmp"))
     env.set_global_vars(GlobalVars())
     scope = create_base_scope()
@@ -220,12 +220,7 @@ def getFactorsTmp(env,source_code,user_funcs,config):
 
     apis = api_helper.get_apis()
     scope.update(apis)
-    if source_code is not None:
-        env.set_strategy_loader(SourceCodeStrategyLoader(source_code))
-    elif user_funcs is not None:
-        env.set_strategy_loader(UserFuncStrategyLoader(user_funcs))
-    else:
-        env.set_strategy_loader(FileStrategyLoader(config.base.factor_file))
+    env.set_strategy_loader(FileStrategyLoader(config.base.factor_file))
 
     scope = env.strategy_loader.load(scope)
     user_factor = Factor(scope)
