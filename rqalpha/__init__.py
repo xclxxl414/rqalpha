@@ -45,7 +45,6 @@ def load_ipython_extension(ipython):
 
     ipython.register_magic_function(run_ipython_cell, 'line_cell', 'rqalpha')
 
-
 def update_bundle(data_bundle_path=None, locale="zh_Hans_CN", confirm=True):
     from rqalpha import main
     main.update_bundle(data_bundle_path=data_bundle_path, locale=locale, confirm=confirm)

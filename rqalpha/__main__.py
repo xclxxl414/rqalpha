@@ -112,7 +112,6 @@ def run(**kwargs):
     """
     Start to run a strategy
     """
-    print("haha")
     config_path = kwargs.get('config_path', None)
     if config_path is not None:
         config_path = os.path.abspath(config_path)
