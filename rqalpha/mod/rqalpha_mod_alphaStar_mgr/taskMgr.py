@@ -93,7 +93,7 @@ class TaskMgr():
             return
         _startDt = _latestUpdt + timedelta(days=1)
 
-        _file = os.path.join(self.sourcePath, fname + ".ipynb")
+        _file = os.path.join(self.sourcePath, "/factors/"+ fname + ".ipynb")
         scope = create_base_scope()
         scope.update({
             "g": GlobalVars()
@@ -131,7 +131,7 @@ class TaskMgr():
 
     def _runAStrategy(self, sname,accountid,  config,runner):
         # print(type(sname),sname)
-        config.base.strategy_file = os.path.join(self.sourcePath, sname + ".ipynb")
+        config.base.strategy_file = os.path.join(self.sourcePath, "/strategys/"+ sname + ".ipynb")
         config.mod.alphaStar_tgw.combid = accountid
         config.mod.alphaStar_tgw.accountid = accountid
         config.base.start_date = config.base.end_date

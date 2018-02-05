@@ -78,6 +78,7 @@ def default_config():
     base = load_yaml(default_config_path)
     base['base']['source_code'] = None
     mod = load_yaml(default_mod_config_path)
+    # print(default_config_path,default_mod_config_path)
     deep_update(mod, base)
     return base
 
@@ -148,6 +149,7 @@ def set_locale(lc):
 
 def parse_config(config_args, config_path=None, click_type=False, source_code=None, user_funcs=None):
     conf = default_config()
+    # print("parse_config",conf)
     deep_update(user_config(), conf)
     deep_update(project_config(), conf)
     if config_path is not None:

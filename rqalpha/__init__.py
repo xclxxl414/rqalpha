@@ -93,6 +93,7 @@ def run_file(strategy_file_path, config=None):
                 "strategy_file": strategy_file_path
             }
     config = parse_config(config)
+    # print(config)
     clear_all_cached_functions()
     return main.run(config)
 
