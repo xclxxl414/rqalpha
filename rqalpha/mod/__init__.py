@@ -95,4 +95,5 @@ SYSTEM_MOD_LIST = [
     "alphaStar_factors",
     "alphaStar_tgw",
     "alphaStar_mgr",
+    "alphaStar_utils",
 ]

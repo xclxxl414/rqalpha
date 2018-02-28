@@ -72,7 +72,7 @@ def run_ipython_cell(line, cell=None):
         pass
 
 
-def run_file(strategy_file_path, config=None):
+def run_file(strategy_file_path, config=None,config_file=None):
     from rqalpha.utils.config import parse_config
     from rqalpha.utils.py2 import clear_all_cached_functions
     from rqalpha import main
@@ -91,7 +91,7 @@ def run_file(strategy_file_path, config=None):
             config["base"] = {
                 "strategy_file": strategy_file_path
             }
-    config = parse_config(config)
+    config = parse_config(config,config_file)
     # print(config)
     clear_all_cached_functions()
     return main.run(config)
