@@ -41,9 +41,11 @@ base:
 mod:
   alphaStar_factors:
     enabled: true
-    factor_data_path: E:\evilAlpha\rqalpha\test
+    factor_data_path: E:\evilAlpha\test
   alphaStar_tgw:
     enabled: false
+  alphaStar_utils:
+    enabled: true
   sys_simulation:
     enabled: true
 

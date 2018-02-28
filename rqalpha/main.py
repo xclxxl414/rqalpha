@@ -306,6 +306,8 @@ def run(config, source_code=None, user_funcs=None):
         code = _exception_handler(e)
         mod_handler.tear_down(code, e)
     except Exception as e:
+        # import traceback
+        # traceback.print_exc()
         if init_succeed and env.config.base.persist and persist_helper:
             persist_helper.persist()
 
