@@ -208,7 +208,7 @@ def group(_yields, fValue, groupCnt):
 def getFactorsPre(start_dt,end_dt,fname,fDataPath):
     system_log.debug(_("getFactorsPre"))
     from .factor_data import FactorDataInterface
-    return FactorDataInterface(path=fDataPath,startDt=start_dt,endDt=end_dt).getData(fname=fname,startDt=start_dt,endDt=end_dt)
+    return FactorDataInterface(path=fDataPath,defaultInitDate=start_dt,endDt=end_dt).getData(fname=fname,startDt=start_dt,endDt=end_dt)
 
 def getFactorsTmp(env,config):
     system_log.debug(_("getFactorsTmp"))
