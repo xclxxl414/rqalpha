@@ -50,14 +50,85 @@ class TaskMgr():
         '''
         run all Published Factors
         '''
-        for fname,user in self.adminConsole.getPublishedFactors():
+        _fobjs = []
+        for fname, user in self.adminConsole.getPublishedFactors():
             try:
-                self._runAFactor(fname, dataInitDt, enddt, modconf)
-                system_log.info("factor {0} run Finshed till {1}", fname, enddt)
-            except  Exception as e:
-                system_log.error("runAFactor failed,fname;{0},error:{1}",fname,e)
-        system_log.info("runFactor Finshed for: {0},{1}", dataInitDt, enddt)
+                _fobjs.append(self._factorObj(fname,modconf))
+            except Exception as e:
+                system_log.error("runAFactor failed,create facor obj failed:fname;{0},error:{1}", fname, e)
+        priQueue = self._priQueueFactor(_fobjs)
+        for listPi in priQueue:
+            for fobj in listPi:
+                try:
+                    fname = fobj.__class__.__name
+                    _dataObj = FactorData(fname, self.factorDataPath, defaultInitDate=dataInitDt)
+                    _latestUpdt = _dataObj.getLatestDate()
+                    if _latestUpdt >= enddt:
+                        continue
+                    _startDt = _latestUpdt + timedelta(days=1)
+
+                    res = fobj.compute(_startDt, enddt)
+                    if len(res) > 0:
+                        _dataObj.append(res)
+                    system_log.info("factor {0} run Finshed till {1}", fname, enddt)
+                except  Exception as e:
+                    system_log.error("runFactor failed,fname;{0},error:{1}",fname,e)
+        system_log.info("runFactors Finshed for: {0},{1}", dataInitDt, enddt)
         return
+
+    def _priQueueFactor(self,factorObjs):
+        '''
+        因子任务优先队列
+        :return: [[p0,p0,p0],[p1,p1,p1]]
+        '''
+        _child2parents = {}
+        _name2Factors = {}
+        for factor in factorObjs:
+            fname = factor.__class__.__name__
+            if len(factor.dependency()) > 0:
+                _child2parents[fname] = factor.dependency()
+            _name2Factors[fname] = factor
+        _res = []
+        #最高优先级，没有父因子的
+        _pi = 0
+        for fname in _name2Factors.keys():
+            if fname not in _child2parents:
+                _res.append((fname,_pi))
+
+        # print(len(_cid2pids))
+        while True:
+            # print("cids:",_cid2pids,_res)
+            _alreadyIn = set([id for id,pi in _res])
+            _pi += 1
+            for cid,pids in _child2parents.items():
+                if cid in _alreadyIn:
+                    continue
+                _pidsFilished = True # 所有父因子都已在高优先级？
+                for _pid in pids:
+                    if _pid not in _alreadyIn:
+                        _pidsFilished = False
+                        break
+                if _pidsFilished:
+                    _res.append((cid, _pi))
+            if len(_res) <= len(_alreadyIn): # 没有新增
+                break
+        # print(_res,_id2Name)
+        _ret = []
+        _lastPi = 0
+        _lastRes = []
+        for fname,pi in _res:
+            if pi != _lastPi:
+                if len(_lastRes) > 0:
+                    # print(_lastRes)
+                    _ret.append(_lastRes)
+                    _lastRes = [_name2Factors.get(fname)]
+                _lastPi = pi
+            else:
+                _lastRes.append(_name2Factors.get(fname))
+        if len(_lastRes) > 0:
+            # print(_lastRes)
+            _ret.append(_lastRes)
+        return _ret
 
     def runStrategys(self,config):
         '''
@@ -94,7 +165,14 @@ class TaskMgr():
             return
         _startDt = _latestUpdt + timedelta(days=1)
 
-        _file = os.path.join(self.sourcePath, "/factors/"+ fname + ".ipynb")
+        user_factor = self._factorObj(fname,modconf)
+        res = user_factor.compute(_startDt,endDt)
+        if len(res) > 0:
+            _dataObj.append(res)
+        return
+
+    def _factorObj(self,fname,modconf):
+        _file = os.path.join(self.sourcePath, "/factors/" + fname + ".ipynb")
         scope = create_base_scope()
         scope.update({
             "g": GlobalVars()
@@ -104,14 +182,7 @@ class TaskMgr():
 
         scope = FileStrategyLoader(_file).load(scope)
         user_factor = Factor(scope, FactorContext(modconf))
-
-        with run_with_user_log_disabled(disabled=False):
-            user_factor.init()
-
-        res = user_factor.compute(_startDt,endDt)
-        if len(res) > 0:
-            _dataObj.append(res)
-        return
+        return user_factor
 
     def runAStrategy(self, sname, config):
         sinfo = self.adminConsole.getStrategy(sname)
