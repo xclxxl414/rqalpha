@@ -17,8 +17,8 @@ from rqalpha.const import EXECUTION_PHASE, EXC_TYPE
 from rqalpha.environment import Environment
 
 class Factor():
-    def __init__(self, scope):
-
+    def __init__(self, scope,config):
+        self._config = config
         self._init = scope.get('init', None)
         self._compute = scope.get('compute',None)
 
@@ -27,7 +27,7 @@ class Factor():
             return
 
         with ModifyExceptionFromType(EXC_TYPE.USER_EXC):
-            self._init()
+            self._init(self._config)
 
     def compute(self, startdt,enddt):
         '''
@@ -40,5 +40,5 @@ class Factor():
                       index=[datetime(2015, 12, 1) + timedelta(days=i) for i in range(day_cnt)])
         '''
         with ModifyExceptionFromType(EXC_TYPE.USER_EXC):
-            return self._compute(startdt, enddt)
+            return self._compute(startdt, enddt,self._config)
 

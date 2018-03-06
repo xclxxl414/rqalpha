@@ -66,6 +66,8 @@ mod:
   alphaStar_factors:
     enabled: true
     factor_data_path: E:\evilAlpha\test
+    extra:
+      jydb: 172.168.1.1
 
 extra:
   # 选择日期的输出等级，有 `verbose` | `info` | `warning` | `error` 等选项，您可以通过设置 `verbose` 来查看最详细的日志，
