@@ -45,13 +45,13 @@ class TaskMgr():
         self.sourcePath = sourcePath
         self.factorDataPath = fdataPath
 
-    def runFactors(self, dataInitDt = None, enddt = None):
+    def runFactors(self, dataInitDt = None, enddt = None,fconf = None):
         '''
         run all Published Factors
         '''
         for fname,user in self.adminConsole.getPublishedFactors():
             try:
-                self._runAFactor(fname, dataInitDt, enddt)
+                self._runAFactor(fname, dataInitDt, enddt,fconf)
                 system_log.info("factor {0} run Finshed till {1}", fname, enddt)
             except  Exception as e:
                 system_log.error("runAFactor failed,fname;{0},error:{1}",fname,e)
@@ -76,7 +76,7 @@ class TaskMgr():
             system_log.error("runStrategys failed:{0}",e)
         return
 
-    def runAFactor(self, fname, dataInitDt, endDt):
+    def runAFactor(self, fname, dataInitDt, endDt,fconf):
         sinfo = self.adminConsole.getFactor(fname)
         if not sinfo:
             system_log.info("factor {0} not exist", fname)
@@ -84,9 +84,9 @@ class TaskMgr():
         if sinfo[2] != "published":
             system_log.info("factor {0} has not published", fname)
             return
-        self._runAFactor(fname, dataInitDt, endDt)
+        self._runAFactor(fname, dataInitDt, endDt,fconf)
 
-    def _runAFactor(self, fname, dataInitDt, endDt):
+    def _runAFactor(self, fname, dataInitDt, endDt,fconf):
         _dataObj = FactorData(fname, self.factorDataPath, defaultInitDate=dataInitDt)
         _latestUpdt = _dataObj.getLatestDate()
         if _latestUpdt >= endDt:
@@ -102,7 +102,7 @@ class TaskMgr():
         scope.update(apis)
 
         scope = FileStrategyLoader(_file).load(scope)
-        user_factor = Factor(scope)
+        user_factor = Factor(scope,fconf)
 
         with run_with_user_log_disabled(disabled=False):
             user_factor.init()

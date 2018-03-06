@@ -64,21 +64,28 @@ def dailyProcess(**kwargs):
 
 @cli.command()
 @click.help_option('-h', '--help')
-@click.option('-i', '--data-init-date', 'data_init_date', type=Date(),help="The init date to calculate and persist factor data")
-@click.option('-e', '--end-date', 'end_date', type=Date())
-@click.option( '--fname', 'fname')
-@click.option( '--adminDB', 'adminDB')
-@click.option( '--sourcePath', 'sourcePath',help="path where factor code files exist")
-@click.option( '--fDataPath', 'fDataPath',help="path where factor data files exist")
+@click.option('-i', '--data-init-date', 'mod__alphaStar_factors__factor_data_init_date', type=Date(),help="The init date to calculate and persist factor data")
+@click.option('-e', '--end-date', 'base__end_date', type=Date())
+@click.option( '--fname', 'base__fname')
+@click.option( '--adminDB', 'base__adminDB')
+@click.option( '--sourcePath', 'base__sourcePath',help="path where factor code files exist")
+@click.option( '--fDataPath', 'mod__alphaStar_factors__factor_data_path',help="path where factor data files exist")
+@click.option('--config', 'config_path', type=click.STRING, help="config file path")
 def callAFactor(**kwargs):
     '''
     [alphaStar_mgr] callAFactor
     '''
-    obj = TaskMgr(db=kwargs.get('adminDB', None), sourcePath=kwargs.get('sourcePath', None), fdataPath=kwargs.get('fDataPath', None))
-    _dataInitDt = kwargs.get('data_init_date', None)
-    _endDt = kwargs.get('end_date', None)
+    config_path = kwargs.get('config_path', None)
+    if config_path is not None:
+        config_path = os.path.abspath(config_path)
+        kwargs.pop('config_path')
+
+    config = _parse_config(kwargs, config_path)
+    obj = TaskMgr(db=config.base.adminDB, sourcePath=config.base.sourcePath, fdataPath=config.mod.alphaStar_factors.factor_data_path)
+    _dataInitDt = config.mod.alphaStar_factors.factor_data_init_date
+    _endDt = config.base.end_date
     # _endDt = _dataInitDt if _endDt is None else _endDt
-    obj.runAFactor(fname=kwargs.get('fname', None), dataInitDt=_to_date(_dataInitDt), endDt=_to_date(_endDt))
+    obj.runAFactor(fname=config.base.fname, dataInitDt=_to_date(_dataInitDt), endDt=_to_date(_endDt),fconf = config.mod.alphaStar_factors.extra)
 
 @cli.command()
 @click.help_option('-h', '--help')
@@ -87,15 +94,22 @@ def callAFactor(**kwargs):
 @click.option( '--adminDB', 'adminDB')
 @click.option( '--sourcePath', 'sourcePath',help="path where factor code files exist")
 @click.option( '--fDataPath', 'fDataPath',help="path where factor data files exist")
+@click.option('--config', 'config_path', type=click.STRING, help="config file path")
 def callFactors(**kwargs):
     '''
     [alphaStar_mgr] callFactors
     '''
-    obj = TaskMgr(db=kwargs.get('adminDB', None), sourcePath=kwargs.get('sourcePath', None), fdataPath=kwargs.get('fDataPath', None))
-    _dataInitDt = kwargs.get('data_init_date', None)
-    _endDt = kwargs.get('end_date', None)
+    config_path = kwargs.get('config_path', None)
+    if config_path is not None:
+        config_path = os.path.abspath(config_path)
+        kwargs.pop('config_path')
+
+    config = _parse_config(kwargs, config_path)
+    obj = TaskMgr(db=config.base.adminDB, sourcePath=config.base.sourcePath, fdataPath=config.mod.alphaStar_factors.factor_data_path)
+    _dataInitDt = config.mod.alphaStar_factors.factor_data_init_date
+    _endDt = config.base.end_date
     # _endDt = _dataInitDt if _endDt is None else _endDt
-    obj.runFactors(dataInitDt=_to_date(_dataInitDt), enddt=_to_date(_endDt))
+    obj.runFactors(dataInitDt=_to_date(_dataInitDt), enddt=_to_date(_endDt),fconf = config.mod.alphaStar_factors.extra)
 
 @cli.command()
 @click.help_option('-h', '--help')

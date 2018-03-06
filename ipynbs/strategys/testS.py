@@ -13,10 +13,8 @@ from rqalpha.api import *
 def init(context):
     logger.info("init")
 
-
 def before_trading(context):
     pass
-
 
 # 你选择的证券的数据更新将会触发此段逻辑，例如日或分钟历史数据切片或者是实时数据切片更新
 def handle_bar(context, bar_dict):
@@ -30,15 +28,9 @@ def handle_bar(context, bar_dict):
     print(buy_codes)
     equalWeight_order(buy_codes, context)
 
-
 if __name__ == "__main__":
     from rqalpha import run_file
-    config = {
-      "base": {
-        "start_date": "2017-01-01",
-        "end_date": "2017-01-31",
-      },
-    }
-
+    print("haha")
+    config = {"base": {"start_date": "2017-01-01","end_date": "2017-01-31",},"mod": {"sys_analyser": {"enabled": True,"plot": True}}}
     file_path = "./testStrategy.ipynb"
     run_file(file_path, config,config_file = "../config.yml")

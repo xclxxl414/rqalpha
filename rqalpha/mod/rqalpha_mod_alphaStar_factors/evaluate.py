@@ -83,6 +83,8 @@ def evaluateRun(fname,config):
         code = _exception_handler(e)
         mod_handler.tear_down(code, e)
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         exc_type, exc_val, exc_tb = sys.exc_info()
         user_exc = create_custom_exception(exc_type, exc_val, exc_tb, config.base.factor_file)
 
@@ -223,7 +225,7 @@ def getFactorsTmp(env,config):
     env.set_strategy_loader(FileStrategyLoader(config.base.factor_file))
 
     scope = env.strategy_loader.load(scope)
-    user_factor = Factor(scope)
+    user_factor = Factor(scope,config.mod.alphaStar_factors.extra)
 
     with run_with_user_log_disabled(disabled= False):
         user_factor.init()
@@ -298,15 +300,6 @@ def parse_config(config_args, config_path=None, click_type=False, source_code=No
     if config.base.data_bundle_path is None:
         rqalpha_path = "~/../.rqalpha"
         config.base.data_bundle_path = os.path.join(os.path.expanduser(rqalpha_path), "bundle")
-    # config.base.accounts = configpk.parse_accounts(config.base.accounts)
-    # config.base.init_positions = configpk.parse_init_positions(config.base.init_positions)
-    # config.base.persist_mode = configpk.parse_persist_mode(config.base.persist_mode)
-
-    # if config.extra.context_vars:
-    #     if isinstance(config.extra.context_vars, six.string_types):
-    #         config.extra.context_vars = json.loads(to_utf8(config.extra.context_vars))
-
-    # if config.base.frequency == "1d":
     logger.DATETIME_FORMAT = "%Y-%m-%d"
 
     return config
