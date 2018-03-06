@@ -7,27 +7,22 @@
 @description:  因子基类
 """
 
-from rqalpha.events import EVENT, Event
-from rqalpha.utils import run_when_strategy_not_hold
-from rqalpha.utils.logger import user_system_log
-from rqalpha.utils.i18n import gettext as _
 from rqalpha.utils.exception import ModifyExceptionFromType
-from rqalpha.execution_context import ExecutionContext
-from rqalpha.const import EXECUTION_PHASE, EXC_TYPE
-from rqalpha.environment import Environment
+from rqalpha.const import EXC_TYPE
 
 class Factor():
-    def __init__(self, scope,config):
-        self._config = config
-        self._init = scope.get('init', None)
+    def __init__(self, scope,ucontext):
+        self._ucontext = ucontext
+        self._dependency = scope.get('dependency', None)
         self._compute = scope.get('compute',None)
+        self._ucontext.registerDepending(self.dependency())
 
-    def init(self):
-        if not self._init:
-            return
+    def dependency(self):
+        if not self._dependency:
+            return []
 
         with ModifyExceptionFromType(EXC_TYPE.USER_EXC):
-            self._init(self._config)
+            return self._dependency()
 
     def compute(self, startdt,enddt):
         '''
@@ -40,5 +35,5 @@ class Factor():
                       index=[datetime(2015, 12, 1) + timedelta(days=i) for i in range(day_cnt)])
         '''
         with ModifyExceptionFromType(EXC_TYPE.USER_EXC):
-            return self._compute(startdt, enddt,self._config)
+            return self._compute(startdt, enddt,self._ucontext)
 

@@ -59,7 +59,7 @@ def dailyProcess(**kwargs):
                   fdataPath=config.mod.alphaStar_factors.factor_data_path)
     _pPath = config.base.data_bundle_path.replace("\\bundle","")
     update_bundle(data_bundle_path=_pPath,confirm=False)
-    obj.runFactors(dataInitDt=_to_date(config.base.data_init_date),enddt=config.base.end_date)
+    obj.runFactors(dataInitDt=_to_date(config.base.data_init_date),enddt=config.base.end_date,modconf= config.mod.alphaStar_factors)
     obj.runStrategys(config=config)
 
 @cli.command()
@@ -85,7 +85,8 @@ def callAFactor(**kwargs):
     _dataInitDt = config.mod.alphaStar_factors.factor_data_init_date
     _endDt = config.base.end_date
     # _endDt = _dataInitDt if _endDt is None else _endDt
-    obj.runAFactor(fname=config.base.fname, dataInitDt=_to_date(_dataInitDt), endDt=_to_date(_endDt),fconf = config.mod.alphaStar_factors.extra)
+    obj.runAFactor(fname=config.base.fname, dataInitDt=_to_date(_dataInitDt), endDt=_to_date(_endDt),
+                   modconf= config.mod.alphaStar_factors)
 
 @cli.command()
 @click.help_option('-h', '--help')
@@ -109,7 +110,8 @@ def callFactors(**kwargs):
     _dataInitDt = config.mod.alphaStar_factors.factor_data_init_date
     _endDt = config.base.end_date
     # _endDt = _dataInitDt if _endDt is None else _endDt
-    obj.runFactors(dataInitDt=_to_date(_dataInitDt), enddt=_to_date(_endDt),fconf = config.mod.alphaStar_factors.extra)
+    obj.runFactors(dataInitDt=_to_date(_dataInitDt), enddt=_to_date(_endDt),
+                   modconf= config.mod.alphaStar_factors)
 
 @cli.command()
 @click.help_option('-h', '--help')

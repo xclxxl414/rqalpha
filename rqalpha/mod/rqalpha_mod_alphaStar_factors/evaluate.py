@@ -35,6 +35,7 @@ from rqalpha.utils import RqAttrDict, logger
 from rqalpha.utils.dict_func import deep_update
 import numpy as np
 from matplotlib import rcParams, gridspec, ticker, image as mpimg, pyplot as plt
+from rqalpha.mod.rqalpha_mod_alphaStar_factors.factor_context import FactorContext
 
 def evaluateRun(fname,config):
     '''
@@ -225,10 +226,7 @@ def getFactorsTmp(env,config):
     env.set_strategy_loader(FileStrategyLoader(config.base.factor_file))
 
     scope = env.strategy_loader.load(scope)
-    user_factor = Factor(scope,config.mod.alphaStar_factors.extra)
-
-    with run_with_user_log_disabled(disabled= False):
-        user_factor.init()
+    user_factor = Factor(scope,FactorContext(config.mod.alphaStar_factors))
 
     res = user_factor.compute(env.trading_dt,config.base.end_date)
     return res

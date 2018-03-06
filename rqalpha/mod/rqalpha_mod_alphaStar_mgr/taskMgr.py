@@ -8,6 +8,7 @@
 """
 from .admin import Admin
 from rqalpha.mod.rqalpha_mod_alphaStar_factors.factor import Factor
+from rqalpha.mod.rqalpha_mod_alphaStar_factors.factor_context import FactorContext
 from rqalpha.mod.rqalpha_mod_alphaStar_factors.factor_data import FactorData
 from datetime import *
 import os
@@ -45,13 +46,13 @@ class TaskMgr():
         self.sourcePath = sourcePath
         self.factorDataPath = fdataPath
 
-    def runFactors(self, dataInitDt = None, enddt = None,fconf = None):
+    def runFactors(self, dataInitDt = None, enddt = None, modconf = None):
         '''
         run all Published Factors
         '''
         for fname,user in self.adminConsole.getPublishedFactors():
             try:
-                self._runAFactor(fname, dataInitDt, enddt,fconf)
+                self._runAFactor(fname, dataInitDt, enddt, modconf)
                 system_log.info("factor {0} run Finshed till {1}", fname, enddt)
             except  Exception as e:
                 system_log.error("runAFactor failed,fname;{0},error:{1}",fname,e)
@@ -76,7 +77,7 @@ class TaskMgr():
             system_log.error("runStrategys failed:{0}",e)
         return
 
-    def runAFactor(self, fname, dataInitDt, endDt,fconf):
+    def runAFactor(self, fname, dataInitDt, endDt, modconf):
         sinfo = self.adminConsole.getFactor(fname)
         if not sinfo:
             system_log.info("factor {0} not exist", fname)
@@ -84,9 +85,9 @@ class TaskMgr():
         if sinfo[2] != "published":
             system_log.info("factor {0} has not published", fname)
             return
-        self._runAFactor(fname, dataInitDt, endDt,fconf)
+        self._runAFactor(fname, dataInitDt, endDt, modconf)
 
-    def _runAFactor(self, fname, dataInitDt, endDt,fconf):
+    def _runAFactor(self, fname, dataInitDt, endDt, modconf):
         _dataObj = FactorData(fname, self.factorDataPath, defaultInitDate=dataInitDt)
         _latestUpdt = _dataObj.getLatestDate()
         if _latestUpdt >= endDt:
@@ -102,7 +103,7 @@ class TaskMgr():
         scope.update(apis)
 
         scope = FileStrategyLoader(_file).load(scope)
-        user_factor = Factor(scope,fconf)
+        user_factor = Factor(scope, FactorContext(modconf))
 
         with run_with_user_log_disabled(disabled=False):
             user_factor.init()

@@ -101,7 +101,22 @@ class FactorData():
             datas.to_hdf(_file,key="root", mode='w')
         return
 
+class DependingData():
+    def __init__(self,ucontext):
+        self._ucontext = ucontext
+        self.dependency = set(ucontext.dependency)
+
+    def getDependingData(self,fname,startdt,enddt):
+        if fname not in self.dependency:
+            raise NotImplementedError(" not regiester as dependency")
+        modconfig = self._ucontext.modconfig
+        return FactorData(fname=fname,path=modconfig.factor_data_path,defaultInitDate=modconfig.factor_data_init_date)\
+            .load(startdt,enddt)
+
 class FactorDataInterface():
+    '''
+    API getFactor的实现
+    '''
     def __init__(self,path="",defaultInitDate=datetime(2017, 1, 1).date(),endDt = datetime.now().date()):
         self._path = path
         self._defaultInitDate = defaultInitDate
