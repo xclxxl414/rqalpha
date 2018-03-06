@@ -28,7 +28,7 @@ mod:
     price_limit: false #涨跌停可以买入
   alphaStar_factors:
     enabled: true
-    factor_data_path: E:\evilAlpha\rqalpha\test
+    factor_data_path: E:\evilAlpha\test
     factor_data_init_date: 2017-01-01
     extra:
       jydb: 172.18.44.5
