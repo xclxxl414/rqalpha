@@ -148,9 +148,6 @@ class StockAccount(BaseAccount):
         self._handle_dividend_payable(trading_date)
         self._handle_split(trading_date)
 
-    def force_settlement(self,event):
-        self._on_settlement(event)
-
     def _on_settlement(self, event):
         env = Environment.get_instance()
         for position in list(self._positions.values()):
