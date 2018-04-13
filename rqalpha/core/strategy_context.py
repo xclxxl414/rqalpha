@@ -172,6 +172,13 @@ class StrategyContext(object):
         return Environment.get_instance().calendar_dt
 
     @property
+    def prev_trading_dt(self):
+        """
+        [datetime.datetime] 当前 Bar 前一交易日（若有）收盘时间
+        """
+        return Environment.get_instance().data_proxy.get_previous_trading_date(self.now)
+
+    @property
     def run_info(self):
         """
         [:class:`~RunInfo`] 运行信息

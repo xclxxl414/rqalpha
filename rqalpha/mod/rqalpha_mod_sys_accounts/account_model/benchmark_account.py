@@ -36,7 +36,7 @@ class BenchmarkAccount(StockAccount):
     def _on_bar(self, event):
         # run once
         if len(self._positions) == 0:
-            price = event.bar_dict[self.benchmark].close
+            price = event.bar_dict[self.benchmark].close if event.calendar_dt.hour >=15 else event.bar_dict[self.benchmark].open
             if np.isnan(price):
                 return
             position = self._positions.get_or_create(self.benchmark)
