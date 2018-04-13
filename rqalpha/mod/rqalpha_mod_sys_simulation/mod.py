@@ -61,7 +61,7 @@ class SimulationMod(AbstractMod):
         else:
             env.set_broker(SimulationBroker(env, mod_config))
 
-        event_source = SimulationEventSource(env)
+        event_source = SimulationEventSource(env,mod_config.matching_type)
         env.set_event_source(event_source)
 
     def tear_down(self, code, exception=None):

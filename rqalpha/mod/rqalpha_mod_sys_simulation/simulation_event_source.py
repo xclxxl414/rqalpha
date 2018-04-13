@@ -21,7 +21,7 @@ from rqalpha.events import Event, EVENT
 from rqalpha.utils import get_account_type
 from rqalpha.utils.exception import CustomException, CustomError, patch_user_exc
 from rqalpha.utils.datetime_func import convert_int_to_datetime
-from rqalpha.const import DEFAULT_ACCOUNT_TYPE
+from rqalpha.const import DEFAULT_ACCOUNT_TYPE,MATCHING_TYPE
 from rqalpha.utils.i18n import gettext as _
 
 
@@ -29,9 +29,10 @@ ONE_MINUTE = datetime.timedelta(minutes=1)
 
 
 class SimulationEventSource(AbstractEventSource):
-    def __init__(self, env):
+    def __init__(self, env,match_type):
         self._env = env
         self._config = env.config
+        self._match_type = match_type
         self._universe_changed = False
         self._env.event_bus.add_listener(EVENT.POST_UNIVERSE_CHANGED, self._on_universe_changed)
 
@@ -84,18 +85,31 @@ class SimulationEventSource(AbstractEventSource):
 
     def events(self, start_date, end_date, frequency):
         if frequency == "1d":
-            # 根据起始日期和结束日期，获取所有的交易日，然后再循环获取每一个交易日
-            for day in self._env.data_proxy.get_trading_dates(start_date, end_date):
-                date = day.to_pydatetime()
-                dt_before_trading = date.replace(hour=0, minute=0)
-                dt_bar = date.replace(hour=15, minute=0)
-                dt_after_trading = date.replace(hour=15, minute=30)
-                dt_settlement = date.replace(hour=17, minute=0)
-                yield Event(EVENT.BEFORE_TRADING, calendar_dt=dt_before_trading, trading_dt=dt_before_trading)
-                yield Event(EVENT.BAR, calendar_dt=dt_bar, trading_dt=dt_bar)
+            if MATCHING_TYPE.CURRENT_BAR_CLOSE == self._match_type:
+                # 根据起始日期和结束日期，获取所有的交易日，然后再循环获取每一个交易日
+                for day in self._env.data_proxy.get_trading_dates(start_date, end_date):
+                    date = day.to_pydatetime()
+                    dt_before_trading = date.replace(hour=0, minute=0)
+                    dt_bar = date.replace(hour=15, minute=0)
+                    dt_after_trading = date.replace(hour=15, minute=30)
+                    dt_settlement = date.replace(hour=17, minute=0)
+                    yield Event(EVENT.BEFORE_TRADING, calendar_dt=dt_before_trading, trading_dt=dt_before_trading)
+                    yield Event(EVENT.BAR, calendar_dt=dt_bar, trading_dt=dt_bar)
 
-                yield Event(EVENT.AFTER_TRADING, calendar_dt=dt_after_trading, trading_dt=dt_after_trading)
-                yield Event(EVENT.SETTLEMENT, calendar_dt=dt_settlement, trading_dt=dt_settlement)
+                    yield Event(EVENT.AFTER_TRADING, calendar_dt=dt_after_trading, trading_dt=dt_after_trading)
+                    yield Event(EVENT.SETTLEMENT, calendar_dt=dt_settlement, trading_dt=dt_settlement)
+            else:
+                for day in self._env.data_proxy.get_trading_dates(start_date, end_date):
+                    date = day.to_pydatetime()
+                    dt_before_trading = date.replace(hour=0, minute=0)
+                    dt_bar = date.replace(hour=9, minute=30)
+                    dt_after_trading = date.replace(hour=15, minute=30)
+                    dt_settlement = date.replace(hour=17, minute=0)
+                    yield Event(EVENT.BEFORE_TRADING, calendar_dt=dt_before_trading, trading_dt=dt_before_trading)
+                    yield Event(EVENT.BAR, calendar_dt=dt_bar, trading_dt=dt_after_trading)
+
+                    yield Event(EVENT.AFTER_TRADING, calendar_dt=dt_after_trading, trading_dt=dt_after_trading)
+                    yield Event(EVENT.SETTLEMENT, calendar_dt=dt_settlement, trading_dt=dt_settlement)
         elif frequency == '1m':
             for day in self._env.data_proxy.get_trading_dates(start_date, end_date):
                 before_trading_flag = True

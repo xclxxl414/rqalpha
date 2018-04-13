@@ -19,7 +19,7 @@ import jsonpickle
 from rqalpha.interface import AbstractBroker, Persistable
 from rqalpha.utils.i18n import gettext as _
 from rqalpha.events import EVENT, Event
-from rqalpha.const import MATCHING_TYPE, ORDER_STATUS
+from rqalpha.const import MATCHING_TYPE, ORDER_STATUS,DEFAULT_ACCOUNT_TYPE
 from rqalpha.model.order import Order
 
 from .matcher import Matcher
@@ -32,7 +32,8 @@ class SimulationBroker(AbstractBroker, Persistable):
         self._mod_config = mod_config
 
         self._matcher = Matcher(env, mod_config)
-        self._match_immediately = mod_config.matching_type == MATCHING_TYPE.CURRENT_BAR_CLOSE
+        self._match_immediately = mod_config.matching_type in [MATCHING_TYPE.CURRENT_BAR_CLOSE,MATCHING_TYPE.NEXT_BAR_OPEN]
+        self.matching_type = mod_config.matching_type
 
         self._open_orders = []
         self._delayed_orders = []

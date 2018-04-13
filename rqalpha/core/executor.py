@@ -60,6 +60,7 @@ class Executor(object):
                 event_bus.publish_event(POST_TICK)
             elif event.event_type == EVENT.BAR:
                 bar_dict.update_dt(event.calendar_dt)
+                PRE_BAR.calendar_dt = event.calendar_dt
                 event_bus.publish_event(PRE_BAR)
                 event.bar_dict = bar_dict
                 event_bus.publish_event(event)
