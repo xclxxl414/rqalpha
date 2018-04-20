@@ -27,8 +27,6 @@ def load_mod():
     from .mod import FactorDataMod
     return FactorDataMod()
 
-G_defaultConfig = os.path.join(os.path.dirname(__file__), '../../', 'config_factor.yml')
-
 @cli.command()
 @click.help_option('-h', '--help')
 # -- Base Configuration
@@ -77,6 +75,7 @@ def evaluate_ipython_cell(line, cell=None):
     except SystemExit as e:
         pass
 
+G_defaultConfig = os.path.join(os.path.dirname(__file__), '../../', 'config_factor.yml')
 def evaluate_file(factor_file_path="", config=None,config_file = G_defaultConfig):
     from .evaluate import evaluateRun
     from rqalpha.utils.py2 import clear_all_cached_functions

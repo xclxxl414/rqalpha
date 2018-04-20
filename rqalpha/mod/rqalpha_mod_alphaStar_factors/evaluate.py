@@ -137,7 +137,7 @@ def plot_result(fname,result,show_windows=True, savefile=None):
     width = 16
     figsize = (width, plots_area_size)
     plt.figure(title, figsize=figsize)
-    max_height = 2 * plots_area_size
+    max_height = 3 * plots_area_size
     gs = gridspec.GridSpec(max_height, width)
 
     #ICs
@@ -159,7 +159,7 @@ def plot_result(fname,result,show_windows=True, savefile=None):
 
     # Groups
     if len(group) > 0:
-        ax2 = plt.subplot(gs[plots_area_size:2 * plots_area_size, :int(width * 0.6)])
+        ax2 = plt.subplot(gs[plots_area_size:2 * plots_area_size,: ])
         ax2.set_title("Group of "+ str(group_cnt))
         ax2.get_xaxis().set_minor_locator(ticker.AutoMinorLocator())
         ax2.get_yaxis().set_minor_locator(ticker.AutoMinorLocator())
@@ -175,7 +175,7 @@ def plot_result(fname,result,show_windows=True, savefile=None):
         ax2.set_yticklabels(['{:3.2f}'.format(x) for x in vals])
 
         #group 横向柱状图
-        ax3 = plt.subplot(gs[plots_area_size:2 * plots_area_size, int(width*0.65):])
+        ax3 = plt.subplot(gs[2*plots_area_size:3 * plots_area_size,: ])
         Y = np.arange(len(group))
         Y_Str = ["Group " + str(i) for i in range(len(group))]
         X = [group[i][-1] for i in range(len(group))]
