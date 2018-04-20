@@ -40,7 +40,7 @@ def load_mod():
 
 @cli.command()
 @click.help_option('-h', '--help')
-@click.option('-i', '--data-init-date', 'base__data_init_date', type=Date(),help="The init date to calculate and persist factor data")
+@click.option('-i', '--data-init-date', 'mod__alphaStar_factors__factor_data_init_date', type=Date(),help="The init date to calculate and persist factor data")
 @click.option('-e', '--end-date', 'base__end_date', type=Date())
 @click.option( '--adminDB', 'base__adminDB')
 @click.option( '--sourcePath', 'base__sourcePath',help="path where factor code files exist")
@@ -59,7 +59,7 @@ def dailyProcess(**kwargs):
                   fdataPath=config.mod.alphaStar_factors.factor_data_path)
     _pPath = config.base.data_bundle_path.replace("\\bundle","")
     update_bundle(data_bundle_path=_pPath,confirm=False)
-    obj.runFactors(dataInitDt=_to_date(config.base.data_init_date),enddt=config.base.end_date,modconf= config.mod.alphaStar_factors)
+    obj.runFactors(dataInitDt=_to_date(config.mod.alphaStar_factors.factor_data_init_date),enddt=config.base.end_date,modconf= config.mod.alphaStar_factors)
     obj.runStrategys(config=config)
 
 @cli.command()
@@ -90,11 +90,11 @@ def callAFactor(**kwargs):
 
 @cli.command()
 @click.help_option('-h', '--help')
-@click.option('-i', '--data-init-date', 'data_init_date', type=Date(),help="The init date to calculate and persist factor data")
-@click.option('-e', '--end-date', 'end_date', type=Date())
-@click.option( '--adminDB', 'adminDB')
-@click.option( '--sourcePath', 'sourcePath',help="path where factor code files exist")
-@click.option( '--fDataPath', 'fDataPath',help="path where factor data files exist")
+@click.option('-i', '--data-init-date', 'mod__alphaStar_factors__factor_data_init_date', type=Date(),help="The init date to calculate and persist factor data")
+@click.option('-e', '--end-date', 'base__end_date', type=Date())
+@click.option( '--adminDB', 'base__adminDB')
+@click.option( '--sourcePath', 'base__sourcePath',help="path where factor code files exist")
+@click.option( '--fDataPath', 'mod__alphaStar_factors__factor_data_path',help="path where factor data files exist")
 @click.option('--config', 'config_path', type=click.STRING, help="config file path")
 def callFactors(**kwargs):
     '''
