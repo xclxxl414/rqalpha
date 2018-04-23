@@ -53,14 +53,14 @@ class TaskMgr():
         _fobjs = []
         for fname, user in self.adminConsole.getPublishedFactors():
             try:
-                _fobjs.append(self._factorObj(fname,modconf))
+                _fobjs.append((fname,self._factorObj(fname,modconf)))
             except Exception as e:
                 system_log.error("runAFactor failed,create facor obj failed:fname;{0},error:{1}", fname, e)
         priQueue = self._priQueueFactor(_fobjs)
         for listPi in priQueue:
             for fobj in listPi:
                 try:
-                    fname = fobj.__class__.__name
+                    fname = fobj.name
                     _dataObj = FactorData(fname, self.factorDataPath, defaultInitDate=dataInitDt)
                     _latestUpdt = _dataObj.getLatestDate()
                     if _latestUpdt >= enddt:
@@ -73,6 +73,8 @@ class TaskMgr():
                     system_log.info("factor {0} run Finshed till {1}", fname, enddt)
                 except  Exception as e:
                     system_log.error("runFactor failed,fname;{0},error:{1}",fname,e)
+                    import traceback
+                    traceback.print_exc()
         system_log.info("runFactors Finshed for: {0},{1}", dataInitDt, enddt)
         return
 
@@ -172,10 +174,11 @@ class TaskMgr():
         return
 
     def _factorObj(self,fname,modconf):
-        _file = os.path.join(self.sourcePath, "/factors/" + fname + ".ipynb")
+        _file = os.path.join(self.sourcePath, "factors/" + fname + ".ipynb")
         scope = create_base_scope()
         scope.update({
-            "g": GlobalVars()
+            "g": GlobalVars(),
+            "name":fname,
         })
         apis = api_helper.get_apis()
         scope.update(apis)
@@ -203,7 +206,7 @@ class TaskMgr():
 
     def _runAStrategy(self, sname,accountid,  config,runner):
         # print(type(sname),sname)
-        config.base.strategy_file = os.path.join(self.sourcePath, "/strategys/"+ sname + ".ipynb")
+        config.base.strategy_file = os.path.join(self.sourcePath, "strategys/"+ sname + ".ipynb")
         config.mod.alphaStar_tgw.combid = accountid
         config.mod.alphaStar_tgw.accountid = accountid
         config.base.start_date = config.base.end_date

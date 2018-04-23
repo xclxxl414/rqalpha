@@ -13,9 +13,14 @@ from rqalpha.const import EXC_TYPE
 class Factor():
     def __init__(self, scope,ucontext):
         self._ucontext = ucontext
+        self._name = scope.get('name', None)
         self._dependency = scope.get('dependency', None)
         self._compute = scope.get('compute',None)
         self._ucontext.registerDepending(self.dependency())
+
+    @property
+    def name(self):
+        return self._name
 
     def dependency(self):
         if not self._dependency:
