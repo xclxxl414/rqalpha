@@ -21,12 +21,11 @@ from rqalpha.utils.i18n import gettext
 
 def plot_result(result_dict, show_windows=True, savefile=None):
     import os
-    import matplotlib
-    matplotlib.use("agg")
     from matplotlib import rcParams, gridspec, ticker, image as mpimg, pyplot as plt
     from matplotlib.font_manager import findfont, FontProperties
     import numpy as np
 
+    plt.switch_backend('agg')
     rcParams['font.family'] = 'sans-serif'
     rcParams['font.sans-serif'] = [
         u'Microsoft Yahei',

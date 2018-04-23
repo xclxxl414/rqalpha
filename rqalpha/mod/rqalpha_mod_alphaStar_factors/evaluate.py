@@ -126,6 +126,7 @@ def plot_result(fname,result,show_windows=True, savefile=None):
     group_cnt = len(group)
     dates = result.get('dates')#[dt.strftime("%Y-%m-%d") for dt in result.get('dates')]
 
+    plt.switch_backend('agg')
     plt.style.use('ggplot')
 
     red = "#aa4643"
