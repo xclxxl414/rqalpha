@@ -213,7 +213,7 @@ def getFactorsPre(start_dt,end_dt,fname,fDataPath):
     from .factor_data import FactorDataInterface
     return FactorDataInterface(path=fDataPath,defaultInitDate=start_dt,endDt=end_dt).getData(fname=fname,startDt=start_dt,endDt=end_dt)
 
-def getFactorsTmp(env=None,config=None,fname =fname):
+def getFactorsTmp(env=None,config=None,fname = "name"):
     system_log.debug(_("getFactorsTmp"))
     env.set_global_vars(GlobalVars())
     scope = create_base_scope()

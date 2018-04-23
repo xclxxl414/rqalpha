@@ -53,7 +53,7 @@ class TaskMgr():
         _fobjs = []
         for fname, user in self.adminConsole.getPublishedFactors():
             try:
-                _fobjs.append((fname,self._factorObj(fname,modconf)))
+                _fobjs.append(self._factorObj(fname,modconf))
             except Exception as e:
                 system_log.error("runAFactor failed,create facor obj failed:fname;{0},error:{1}", fname, e)
         priQueue = self._priQueueFactor(_fobjs)
