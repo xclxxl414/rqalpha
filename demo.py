@@ -102,12 +102,12 @@ config_taskmgr = {
 }
 
 if __name__ == "__main__":
-  # strategy_file_path = "./rqalpha/examples/market_value.py"
-  # run_file(strategy_file_path, config)
+  strategy_file_path = "./rqalpha/examples/market_value.py"
+  run_file(strategy_file_path, config)
 
-  # factor_file = "./rqalpha/examples/pe.py"
-  # evaluate_file(factor_file_path=factor_file,config=config_factor,config_file="./ipynbs/config_factor.yml")
+  factor_file = "./rqalpha/examples/pe.py"
+  evaluate_file(factor_file_path=factor_file,config=config_factor,config_file="./ipynbs/config_factor.yml")
 
-  a=config_taskmgr.copy()
+  # a=config_taskmgr.copy()
   # a.update({"--end-date":"2018-02-01","--adminDB":"./ipynbs/admin.db"})
-  callFactors(base__end_date = "2018-02-01",base__adminDB="./ipynbs/admin.db",config_path="./ipynbs/config_taskmgr.yml")
+  # callFactors(base__end_date = "2018-02-01",base__adminDB="./ipynbs/admin.db",config_path="./ipynbs/config_taskmgr.yml")
