@@ -29,6 +29,7 @@ base:
     future: ~
   # 设置初始仓位
   init_positions: {}
+  sourcePath: ./ipynbs/
 
 mod:
   sys_analyser:
@@ -66,8 +67,14 @@ mod:
   alphaStar_factors:
     enabled: true
     factor_data_path: E:\evilAlpha\test
-    extra:
-      jydb: 172.168.1.1
+    factor_data_init_date: 2018-01-01
+    eaxtra:
+      jydb:
+        host: 172.18.44.5
+        port: 3306
+        db: jydb
+        user: liangh
+        passwd: huaxun!@#db
 
 extra:
   # 选择日期的输出等级，有 `verbose` | `info` | `warning` | `error` 等选项，您可以通过设置 `verbose` 来查看最详细的日志，
