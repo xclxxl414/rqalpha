@@ -29,8 +29,8 @@ config = {
   "mod": {
     "sys_analyser": {
       "enabled": True,
-      "plot": False,
-      "output_file":"./test.pkl"
+      "plot": True,
+      # "output_file":"./test.pkl"
     },
     "sys_simulation": {
       "enabled": True,
@@ -103,10 +103,10 @@ config_taskmgr = {
 
 if __name__ == "__main__":
   strategy_file_path = "./rqalpha/examples/market_value.py"
-  run_file(strategy_file_path, config)
+  run_file(strategy_file_path, config,config_file="./ipynbs/config.yml")
 
-  factor_file = "./rqalpha/examples/pe.py"
-  evaluate_file(factor_file_path=factor_file,config=config_factor,config_file="./ipynbs/config_factor.yml")
+  # factor_file = "./rqalpha/examples/pe.py"
+  # evaluate_file(factor_file_path=factor_file,config=config_factor,config_file="./ipynbs/config_factor.yml")
 
   # a=config_taskmgr.copy()
   # a.update({"--end-date":"2018-02-01","--adminDB":"./ipynbs/admin.db"})

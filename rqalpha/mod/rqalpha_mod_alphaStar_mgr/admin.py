@@ -123,7 +123,9 @@ class Admin():
             system_log.error("check Admin failed,please connect admin User")
             return False
         try:
-            self.cursor.execute("insert into Factors(fname,user,status,uptime) values(?,?,?,?)",(fname,uname,"published",datetime.now()))
+            self.cursor.execute("insert into Factors(fname,user,status,uptime) values(?,?,?,?)"
+                                " ON DUPLICATE KEY UPDATE status=?,uptime=?",(fname,uname,"published",datetime.now()
+                                ,"published",datetime.now()))
             self.conn.commit()
             return True
         except Exception as e:
@@ -205,7 +207,8 @@ class Admin():
             return False
         try:
             self.cursor.execute("insert into Strategys(sname,user,status,uptime,accountid) values(?,?,?,?,?)"
-                                ,(sname,uname,"published",datetime.now(),accountID))
+                                "  ON DUPLICATE KEY UPDATE status=?,uptime=?,accountid=?"
+                                ,(sname,uname,"published",datetime.now(),accountID,"published",datetime.now(),accountID))
             self.conn.commit()
             return True
         except Exception as e:
