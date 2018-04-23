@@ -68,7 +68,7 @@ def evaluateRun(fname,config):
         if config.base.run_type == "p":
             fValue = getFactorsPre(start_dt=start_dt,end_dt=config.base.end_date,fname = fname,fDataPath=config.mod.alphaStar_factors.factor_data_path)
         else:
-            fValue = getFactorsTmp(env,config=config)
+            fValue = getFactorsTmp(env,config=config,fname =fname)
         system_log.info("get factor value success")
         # BVs = BookValues(env)
         BVs = Prices( env)
@@ -213,12 +213,13 @@ def getFactorsPre(start_dt,end_dt,fname,fDataPath):
     from .factor_data import FactorDataInterface
     return FactorDataInterface(path=fDataPath,defaultInitDate=start_dt,endDt=end_dt).getData(fname=fname,startDt=start_dt,endDt=end_dt)
 
-def getFactorsTmp(env,config):
+def getFactorsTmp(env=None,config=None,fname =fname):
     system_log.debug(_("getFactorsTmp"))
     env.set_global_vars(GlobalVars())
     scope = create_base_scope()
     scope.update({
-        "g": env.global_vars
+        "g": env.global_vars,
+        "name":fname,
     })
 
     apis = api_helper.get_apis()

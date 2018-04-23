@@ -11,6 +11,7 @@
 
 from rqalpha import run_file
 from rqalpha.mod.rqalpha_mod_alphaStar_factors import evaluate_file
+from rqalpha.mod.rqalpha_mod_alphaStar_mgr import callFactors
 
 config = {
   "base": {
@@ -96,8 +97,17 @@ config_factor = {
   }
 }
 
+config_taskmgr = {
+  "--config": "./ipynbs/config_taskmgr.yml",
+}
+
 if __name__ == "__main__":
   # strategy_file_path = "./rqalpha/examples/market_value.py"
   # run_file(strategy_file_path, config)
-  factor_file = "./rqalpha/examples/pe.py"
-  evaluate_file(factor_file_path=factor_file,config=config_factor,config_file="./ipynbs/config_factor.yml")
+
+  # factor_file = "./rqalpha/examples/pe.py"
+  # evaluate_file(factor_file_path=factor_file,config=config_factor,config_file="./ipynbs/config_factor.yml")
+
+  a=config_taskmgr.copy()
+  # a.update({"--end-date":"2018-02-01","--adminDB":"./ipynbs/admin.db"})
+  callFactors(base__end_date = "2018-02-01",base__adminDB="./ipynbs/admin.db",config_path="./ipynbs/config_taskmgr.yml")
