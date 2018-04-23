@@ -25,7 +25,6 @@ def plot_result(result_dict, show_windows=True, savefile=None):
     from matplotlib.font_manager import findfont, FontProperties
     import numpy as np
 
-    plt.switch_backend('agg')
     rcParams['font.family'] = 'sans-serif'
     rcParams['font.sans-serif'] = [
         u'Microsoft Yahei',
