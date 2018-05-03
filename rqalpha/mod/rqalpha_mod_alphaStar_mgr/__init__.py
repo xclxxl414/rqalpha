@@ -42,8 +42,8 @@ def load_mod():
 @click.help_option('-h', '--help')
 @click.option('-i', '--data-init-date', 'mod__alphaStar_factors__factor_data_init_date', type=Date(),help="The init date to calculate and persist factor data")
 @click.option('-e', '--end-date', 'base__end_date', type=Date())
-@click.option( '--adminDB', 'base__adminDB')
-@click.option( '--sourcePath', 'base__sourcePath',help="path where factor code files exist")
+# @click.option( '--adminDB', 'base__adminDB')
+# @click.option( '--sourcePath', 'base__sourcePath',help="path where factor code files exist")
 @click.option('--config', 'config_path', type=click.STRING, help="config file path")
 def dailyProcess(**kwargs):
     '''
@@ -67,9 +67,9 @@ def dailyProcess(**kwargs):
 @click.option('-i', '--data-init-date', 'mod__alphaStar_factors__factor_data_init_date', type=Date(),help="The init date to calculate and persist factor data")
 @click.option('-e', '--end-date', 'base__end_date', type=Date())
 @click.option( '--fname', 'base__fname')
-@click.option( '--adminDB', 'base__adminDB')
-@click.option( '--sourcePath', 'base__sourcePath',help="path where factor code files exist")
-@click.option( '--fDataPath', 'mod__alphaStar_factors__factor_data_path',help="path where factor data files exist")
+# @click.option( '--adminDB', 'base__adminDB')
+# @click.option( '--sourcePath', 'base__sourcePath',help="path where factor code files exist")
+# @click.option( '--fDataPath', 'mod__alphaStar_factors__factor_data_path',help="path where factor data files exist")
 @click.option('--config', 'config_path', type=click.STRING, help="config file path")
 def callAFactor(**kwargs):
     '''
@@ -92,9 +92,9 @@ def callAFactor(**kwargs):
 @click.help_option('-h', '--help')
 @click.option('-i', '--data-init-date', 'mod__alphaStar_factors__factor_data_init_date', type=Date(),help="The init date to calculate and persist factor data")
 @click.option('-e', '--end-date', 'base__end_date', type=Date())
-@click.option( '--adminDB', 'base__adminDB')
-@click.option( '--sourcePath', 'base__sourcePath',help="path where factor code files exist")
-@click.option( '--fDataPath', 'mod__alphaStar_factors__factor_data_path',help="path where factor data files exist")
+# @click.option( '--adminDB', 'base__adminDB')
+# @click.option( '--sourcePath', 'base__sourcePath',help="path where factor code files exist")
+# @click.option( '--fDataPath', 'mod__alphaStar_factors__factor_data_path',help="path where factor data files exist")
 @click.option('--config', 'config_path', type=click.STRING, help="config file path")
 def callFactors(**kwargs):
     '''
@@ -119,8 +119,8 @@ def callFactors(**kwargs):
 @click.option('-e', '--end-date', 'base__end_date', type=Date())
 @click.option( '--sname', 'base__sname')
 # @click.option( '--tgw-account', 'base__tgw_account')
-@click.option( '--adminDB', 'base__adminDB')
-@click.option( '--sourcePath', 'base__sourcePath',help="path where factor code files exist")
+# @click.option( '--adminDB', 'base__adminDB')
+# @click.option( '--sourcePath', 'base__sourcePath',help="path where factor code files exist")
 # -- Extra Configuration
 @click.option('--config', 'config_path', type=click.STRING, help="config file path")
 def callAStrategy(**kwargs):
@@ -141,8 +141,8 @@ def callAStrategy(**kwargs):
 # -- Base Configuration
 @click.option('-e', '--end-date', 'base__end_date', type=Date())
 # @click.option( '--tgw-account', 'base__tgw_account')
-@click.option( '--adminDB', 'base__adminDB')
-@click.option( '--sourcePath', 'base__sourcePath',help="path where factor code files exist")
+# @click.option( '--adminDB', 'base__adminDB')
+# @click.option( '--sourcePath', 'base__sourcePath',help="path where factor code files exist")
 # -- Extra Configuration
 @click.option('--config', 'config_path', type=click.STRING, help="config file path")
 def callStrategys(**kwargs):
@@ -163,24 +163,38 @@ def callStrategys(**kwargs):
 @click.option( '--uname', 'uname')
 @click.option( '--passwd', 'passwd')
 @click.option( '--admin-passwd', 'admin_passwd')
-@click.option( '--adminDB', 'adminDB')
+# @click.option( '--adminDB', 'adminDB')
+@click.option('--config', 'config_path', type=click.STRING, help="config file path")
 def addUser(**kwargs):
     '''
     [alphaStar_mgr] addUser
     '''
-    ret = Admin(db = kwargs.get('adminDB', None))\
+    config_path = kwargs.get('config_path', None)
+    if config_path is not None:
+        config_path = os.path.abspath(config_path)
+        kwargs.pop('config_path')
+
+    config = _parse_config(kwargs, config_path)
+    ret = Admin(db = config.base.adminDB)\
         .addUser(uname=kwargs.get('uname', None),passwd=kwargs.get('passwd', None),adminPass=kwargs.get('admin_passwd', None))
     print(ret)
 
 @cli.command()
 @click.help_option('-h', '--help')
 @click.option( '--admin-passwd', 'admin_passwd')
-@click.option( '--adminDB', 'adminDB')
+# @click.option( '--adminDB', 'adminDB')
+@click.option('--config', 'config_path', type=click.STRING, help="config file path")
 def addAdminUser(**kwargs):
     '''
     [alphaStar_mgr] addAdminUser
     '''
-    ret = Admin(db = kwargs.get('adminDB', None)) \
+    config_path = kwargs.get('config_path', None)
+    if config_path is not None:
+        config_path = os.path.abspath(config_path)
+        kwargs.pop('config_path')
+
+    config = _parse_config(kwargs, config_path)
+    ret = Admin(db = config.base.adminDB) \
         .addAdminUser(passwd=kwargs.get('admin_passwd', None))
     print(ret)
 
@@ -188,12 +202,19 @@ def addAdminUser(**kwargs):
 @click.help_option('-h', '--help')
 @click.option( '--uname', 'uname')
 @click.option( '--admin-passwd', 'admin_passwd')
-@click.option( '--adminDB', 'adminDB')
+# @click.option( '--adminDB', 'adminDB')
+@click.option('--config', 'config_path', type=click.STRING, help="config file path")
 def delUser(**kwargs):
     '''
     [alphaStar_mgr] delUser
     '''
-    ret = Admin(db = kwargs.get('adminDB', None))\
+    config_path = kwargs.get('config_path', None)
+    if config_path is not None:
+        config_path = os.path.abspath(config_path)
+        kwargs.pop('config_path')
+
+    config = _parse_config(kwargs, config_path)
+    ret = Admin(db = config.base.adminDB)\
         .delUser(uname=kwargs.get('uname', None),adminPass=kwargs.get('admin_passwd', None))
     print(ret)
 
@@ -202,12 +223,19 @@ def delUser(**kwargs):
 @click.option( '--uname', 'uname')
 @click.option( '--fname', 'fname')
 @click.option( '--admin-passwd', 'admin_passwd')
-@click.option( '--adminDB', 'adminDB')
+# @click.option( '--adminDB', 'adminDB')
+@click.option('--config', 'config_path', type=click.STRING, help="config file path")
 def registerFactor(**kwargs):
     '''
     [alphaStar_mgr] registerFactor
     '''
-    ret = Admin(db = kwargs.get('adminDB', None))\
+    config_path = kwargs.get('config_path', None)
+    if config_path is not None:
+        config_path = os.path.abspath(config_path)
+        kwargs.pop('config_path')
+
+    config = _parse_config(kwargs, config_path)
+    ret = Admin(db = config.base.adminDB)\
         .registerFactor(fname = kwargs.get('fname', None),uname=kwargs.get('uname', None), adminPass=kwargs.get('admin_passwd', None))
     print(ret)
 
@@ -215,12 +243,19 @@ def registerFactor(**kwargs):
 @click.help_option('-h', '--help')
 @click.option( '--fname', 'fname')
 @click.option( '--admin-passwd', 'admin_passwd')
-@click.option( '--adminDB', 'adminDB')
+# @click.option( '--adminDB', 'adminDB')
+@click.option('--config', 'config_path', type=click.STRING, help="config file path")
 def delFactor(**kwargs):
     '''
     [alphaStar_mgr] delFactor
     '''
-    ret = Admin(db = kwargs.get('adminDB', None))\
+    config_path = kwargs.get('config_path', None)
+    if config_path is not None:
+        config_path = os.path.abspath(config_path)
+        kwargs.pop('config_path')
+
+    config = _parse_config(kwargs, config_path)
+    ret = Admin(db = config.base.adminDB)\
         .delFactor(fname = kwargs.get('fname', None), adminPass=kwargs.get('admin_passwd', None))
     print(ret)
 
@@ -229,12 +264,19 @@ def delFactor(**kwargs):
 @click.option('--uname', 'uname')
 @click.option('--fname', 'fname')
 @click.option('--admin-passwd', 'admin_passwd')
-@click.option('--adminDB', 'adminDB')
+# @click.option('--adminDB', 'adminDB')
+@click.option('--config', 'config_path', type=click.STRING, help="config file path")
 def registerAndPublishFactor(**kwargs):
     '''
     [alphaStar_mgr] registerAndPublishFactor
     '''
-    ret = Admin(db=kwargs.get('adminDB', None)) \
+    config_path = kwargs.get('config_path', None)
+    if config_path is not None:
+        config_path = os.path.abspath(config_path)
+        kwargs.pop('config_path')
+
+    config = _parse_config(kwargs, config_path)
+    ret = Admin(db=config.base.adminDB) \
         .registerAndPublishFactor(fname=kwargs.get('fname', None), uname=kwargs.get('uname', None),
                         adminPass=kwargs.get('admin_passwd', None))
     print(ret)
@@ -243,12 +285,19 @@ def registerAndPublishFactor(**kwargs):
 @click.help_option('-h', '--help')
 @click.option('--fname', 'fname')
 @click.option('--admin-passwd', 'admin_passwd')
-@click.option('--adminDB', 'adminDB')
+# @click.option('--adminDB', 'adminDB')
+@click.option('--config', 'config_path', type=click.STRING, help="config file path")
 def publishFactor(**kwargs):
     '''
     [alphaStar_mgr] publishFactor
     '''
-    ret = Admin(db=kwargs.get('adminDB', None)) \
+    config_path = kwargs.get('config_path', None)
+    if config_path is not None:
+        config_path = os.path.abspath(config_path)
+        kwargs.pop('config_path')
+
+    config = _parse_config(kwargs, config_path)
+    ret = Admin(db=config.base.adminDB) \
         .publishFactor(fname=kwargs.get('fname', None),adminPass=kwargs.get('admin_passwd', None))
     print(ret)
 
@@ -256,23 +305,37 @@ def publishFactor(**kwargs):
 @click.help_option('-h', '--help')
 @click.option('--fname', 'fname')
 @click.option('--admin-passwd', 'admin_passwd')
-@click.option('--adminDB', 'adminDB')
+# @click.option('--adminDB', 'adminDB')
+@click.option('--config', 'config_path', type=click.STRING, help="config file path")
 def unPublishFactor(**kwargs):
     '''
     [alphaStar_mgr] unPublishFactor
     '''
-    ret = Admin(db=kwargs.get('adminDB', None)) \
+    config_path = kwargs.get('config_path', None)
+    if config_path is not None:
+        config_path = os.path.abspath(config_path)
+        kwargs.pop('config_path')
+
+    config = _parse_config(kwargs, config_path)
+    ret = Admin(db=config.base.adminDB) \
         .unPublishFactor(fname=kwargs.get('fname', None),adminPass=kwargs.get('admin_passwd', None))
     print(ret)
 
 @cli.command()
 @click.help_option('-h', '--help')
-@click.option('--adminDB', 'adminDB')
+# @click.option('--adminDB', 'adminDB')
+@click.option('--config', 'config_path', type=click.STRING, help="config file path")
 def getPublishedFactors(**kwargs):
     '''
     [alphaStar_mgr] getPublishedFactors
     '''
-    ret = Admin(db=kwargs.get('adminDB', None)) \
+    config_path = kwargs.get('config_path', None)
+    if config_path is not None:
+        config_path = os.path.abspath(config_path)
+        kwargs.pop('config_path')
+
+    config = _parse_config(kwargs, config_path)
+    ret = Admin(db=config.base.adminDB) \
         .getPublishedFactors()
     print(ret)
 
@@ -281,12 +344,19 @@ def getPublishedFactors(**kwargs):
 @click.option( '--uname', 'uname')
 @click.option( '--sname', 'sname')
 @click.option( '--admin-passwd', 'admin_passwd')
-@click.option( '--adminDB', 'adminDB')
+# @click.option( '--adminDB', 'adminDB')
+@click.option('--config', 'config_path', type=click.STRING, help="config file path")
 def registerStrategy(**kwargs):
     '''
     [alphaStar_mgr] registerStrategy
     '''
-    ret = Admin(db = kwargs.get('adminDB', None))\
+    config_path = kwargs.get('config_path', None)
+    if config_path is not None:
+        config_path = os.path.abspath(config_path)
+        kwargs.pop('config_path')
+
+    config = _parse_config(kwargs, config_path)
+    ret = Admin(db = config.base.adminDB)\
         .registerStrategy(sname = kwargs.get('sname', None),uname=kwargs.get('uname', None), adminPass=kwargs.get('admin_passwd', None))
     print(ret)
 
@@ -294,12 +364,19 @@ def registerStrategy(**kwargs):
 @click.help_option('-h', '--help')
 @click.option( '--sname', 'sname')
 @click.option( '--admin-passwd', 'admin_passwd')
-@click.option( '--adminDB', 'adminDB')
+# @click.option( '--adminDB', 'adminDB')
+@click.option('--config', 'config_path', type=click.STRING, help="config file path")
 def delStrategy(**kwargs):
     '''
     [alphaStar_mgr] delStrategy
     '''
-    ret = Admin(db = kwargs.get('adminDB', None))\
+    config_path = kwargs.get('config_path', None)
+    if config_path is not None:
+        config_path = os.path.abspath(config_path)
+        kwargs.pop('config_path')
+
+    config = _parse_config(kwargs, config_path)
+    ret = Admin(db = config.base.adminDB)\
         .delStrategy(sname = kwargs.get('sname', None), adminPass=kwargs.get('admin_passwd', None))
     print(ret)
 
@@ -309,12 +386,19 @@ def delStrategy(**kwargs):
 @click.option('--sname', 'sname')
 @click.option('--account', 'tgw_account')
 @click.option('--admin-passwd', 'admin_passwd')
-@click.option('--adminDB', 'adminDB')
+# @click.option('--adminDB', 'adminDB')
+@click.option('--config', 'config_path', type=click.STRING, help="config file path")
 def registerAndPublishStrategy(**kwargs):
     '''
     [alphaStar_mgr] registerAndPublishStrategy
     '''
-    ret = Admin(db=kwargs.get('adminDB', None)) \
+    config_path = kwargs.get('config_path', None)
+    if config_path is not None:
+        config_path = os.path.abspath(config_path)
+        kwargs.pop('config_path')
+
+    config = _parse_config(kwargs, config_path)
+    ret = Admin(db=config.base.adminDB) \
         .registerAndPublishStrategy(sname=kwargs.get('sname', None), uname=kwargs.get('uname', None),
                         adminPass=kwargs.get('admin_passwd', None),accountID=kwargs.get('tgw_account', None))
     print(ret)
@@ -324,12 +408,19 @@ def registerAndPublishStrategy(**kwargs):
 @click.option('--sname', 'sname')
 @click.option('--account', 'tgw_account')
 @click.option('--admin-passwd', 'admin_passwd')
-@click.option('--adminDB', 'adminDB')
+# @click.option('--adminDB', 'adminDB')
+@click.option('--config', 'config_path', type=click.STRING, help="config file path")
 def publishStrategy(**kwargs):
     '''
     [alphaStar_mgr] publishStrategy
     '''
-    ret = Admin(db=kwargs.get('adminDB', None)) \
+    config_path = kwargs.get('config_path', None)
+    if config_path is not None:
+        config_path = os.path.abspath(config_path)
+        kwargs.pop('config_path')
+
+    config = _parse_config(kwargs, config_path)
+    ret = Admin(db=config.base.adminDB) \
         .publishStrategy(sname=kwargs.get('sname', None),adminPass=kwargs.get('admin_passwd', None),accountID=kwargs.get('tgw_account', None))
     print(ret)
 
@@ -337,23 +428,37 @@ def publishStrategy(**kwargs):
 @click.help_option('-h', '--help')
 @click.option('--sname', 'sname')
 @click.option('--admin-passwd', 'admin_passwd')
-@click.option('--adminDB', 'adminDB')
+# @click.option('--adminDB', 'adminDB')
+@click.option('--config', 'config_path', type=click.STRING, help="config file path")
 def unPublishStrategy(**kwargs):
     '''
     [alphaStar_mgr] unPublishStrategy
     '''
-    ret = Admin(db=kwargs.get('adminDB', None)) \
+    config_path = kwargs.get('config_path', None)
+    if config_path is not None:
+        config_path = os.path.abspath(config_path)
+        kwargs.pop('config_path')
+
+    config = _parse_config(kwargs, config_path)
+    ret = Admin(db=config.base.adminDB) \
         .unPublishStrategy(sname=kwargs.get('sname', None),adminPass=kwargs.get('admin_passwd', None))
     print(ret)
 
 @cli.command()
 @click.help_option('-h', '--help')
-@click.option('--adminDB', 'adminDB')
+# @click.option('--adminDB', 'adminDB')
+@click.option('--config', 'config_path', type=click.STRING, help="config file path")
 def getPublishedStrategys(**kwargs):
     '''
     [alphaStar_mgr] getPublishedStrategys
     '''
-    ret = Admin(db=kwargs.get('adminDB', None)).getPublishedStrategys()
+    config_path = kwargs.get('config_path', None)
+    if config_path is not None:
+        config_path = os.path.abspath(config_path)
+        kwargs.pop('config_path')
+
+    config = _parse_config(kwargs, config_path)
+    ret = Admin(db=config.base.adminDB).getPublishedStrategys()
     print(ret)
 
 def _parse_config(config_args, config_path=None, click_type = True):

@@ -110,7 +110,7 @@ def calc(bookValues, fValue, groupCnt = 10, win = 5):
         dates.append(fValue.index[idx])
         ics.append(_fValue_aDay.corr(_yield_nextWin, method='spearman', min_periods=100))
 
-        system_log.info("%s, factorValue len:%d, yieldData len:%d"%(dates[-1],len(_fValue_aDay),len(_yield_nextWin)))
+        system_log.debug("%s, factorValue len:%d, yieldData len:%d"%(dates[-1],len(_fValue_aDay),len(_yield_nextWin)))
         gRes = group(_yield_nextWin,_fValue_aDay,groupCnt)
         # print(len(gRes),_yield_nextWin)
         for i in range(groupCnt):
@@ -302,43 +302,3 @@ def parse_config(config_args, config_path=None, click_type=False, source_code=No
     logger.DATETIME_FORMAT = "%Y-%m-%d"
 
     return config
-
-'''
-def code_config(config, source_code=None,file_key="factor_file"):
-    try:
-        if source_code is None:
-            _file = config["base"]["factor_file"]
-            if os.path.basename(_file).split(".")[1] == "ipynb":
-                import io
-                from nbformat import read
-                from IPython.core.interactiveshell import InteractiveShell
-                with io.open(_file, 'r', encoding='utf-8') as f:
-                    nb = read(f, 4)
-                try:
-                    for cell in nb.cells:
-                        if cell.cell_type == 'code':
-                            source_code = InteractiveShell.instance().input_transformer_manager.transform_cell(cell.source)
-                            # print(type(source_code),source_code)
-                            # print(type(cell.source),cell.source)
-                            break  # 只取第一个cell,
-                except Exception as e:
-                    system_log.error(_(u"load ipynb {file} failed, exception: {e}").format(file=_file,e=e))
-            else:
-                with codecs.open(_file, encoding="utf-8") as f:
-                    source_code = f.read()
-                    # print(source_code)
-
-        # FIXME: hardcode for parametric mod
-        def noop(*args, **kwargs):
-            pass
-        scope = {'define_parameter': noop}
-
-        code = compile(source_code,config["base"]["factor_file"] , 'exec')
-        print(code)
-        six.exec_(code, scope)
-
-        return scope.get('__config__', {})
-    except Exception as e:
-        system_log.error(_(u"in parse_user_config, exception: {e}").format(e=e))
-        return {}
-'''
