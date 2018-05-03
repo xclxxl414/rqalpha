@@ -47,7 +47,7 @@ def load_mod():
 @click.option('--config', 'config_path', type=click.STRING, help="config file path")
 def dailyProcess(**kwargs):
     '''
-    [alphaStar_mgr] dailyProcess
+    [alphaStar_mgr] dailyProcess,update_bundle and callFactors
     '''
     config_path = kwargs.get('config_path', None)
     if config_path is not None:
@@ -60,7 +60,7 @@ def dailyProcess(**kwargs):
     _pPath = config.base.data_bundle_path.replace("\\bundle","")
     update_bundle(data_bundle_path=_pPath,confirm=False)
     obj.runFactors(dataInitDt=_to_date(config.mod.alphaStar_factors.factor_data_init_date),enddt=config.base.end_date,modconf= config.mod.alphaStar_factors)
-    obj.runStrategys(config=config)
+    # obj.runStrategys(config=config)
 
 @cli.command()
 @click.help_option('-h', '--help')
