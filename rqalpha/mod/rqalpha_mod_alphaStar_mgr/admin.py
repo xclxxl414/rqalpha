@@ -108,17 +108,25 @@ class Admin():
             system_log.error("registerFactor failed:{0}", e)
             return False
 
-    def delFactor(self,fname,adminPass):
+    def delFactor(self,fname,adminPass,datapath):
         if not self.checkAdmin(adminPass):
             system_log.error("check Admin failed,please connect admin User")
             return False
         try:
             self.cursor.execute("delete from Factors where fname=%s",(fname,))
             self.conn.commit()
+            self._clearFactorData(fname,datapath)
             return True
         except Exception as e:
             system_log.error("delFactor failed:{0}", e)
             return False
+
+    def _clearFactorData(self,fname,datapath):
+        import shutil,os
+        src = os.path.join(datapath,fname)
+        dst = os.path.join(datapath,fname + "_unpublished_at_"+ datetime.now().strftime("%Y%m%d_%H-%M-%S"))
+        shutil.move(src,dst)
+        return
 
     def registerAndPublishFactor(self,fname,uname,adminPass):
         if not self.checkAdmin(adminPass):
@@ -146,13 +154,14 @@ class Admin():
             system_log.error("publishFactor failed:{0}", e)
             return False
 
-    def unPublishFactor(self,fname,adminPass):
+    def unPublishFactor(self,fname,adminPass,datapath):
         if not self.checkAdmin(adminPass):
             system_log.error("check Admin failed,please connect admin User")
             return False
         try:
             self.cursor.execute("update Factors set status='unPublished',uptime=%s where fname = %s",(datetime.now(),fname))
             self.conn.commit()
+            self._clearFactorData(fname, datapath)
             return True
         except Exception as e:
             system_log.error("unPublishFactor failed:{0}", e)
