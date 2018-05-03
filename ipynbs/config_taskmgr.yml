@@ -30,6 +30,7 @@ base:
   # 设置初始仓位
   init_positions: {}
   sourcePath: ./ipynbs/
+  adminDB: {"host":"172.18.44.231","port": 3306,"db": "Test","user": "sAdmin","passwd": "hxSA"}
 
 mod:
   sys_analyser:
@@ -41,7 +42,8 @@ mod:
   alphaStar_tgw:
     enabled: true
     # 淘股王调仓借口url
-    tgwurl: "http://www.tgwtest.com/tgwapi/myapp/Trade"
+    tgwurl: "http://www.tgw360.com/tgwapi/myapp/Trade/"
+    #"http://www.tgw360.com/tgwapi/myapp/Trade/"
     #"http://www.tgwtest.com/tgwapi/myapp/Trade"
     secretId: "commonkey"
     #"commonkey"
@@ -56,8 +58,8 @@ mod:
     #"B123456789"
 
     # 账户信息
-    uid: 15154
-    #665
+    uid: 63790
+    #15154
     combid: ~
     #665
     accountid: ~
@@ -68,13 +70,8 @@ mod:
     enabled: true
     factor_data_path: E:\evilAlpha\test
     factor_data_init_date: 2018-01-01
-    eaxtra:
-      jydb:
-        host: 172.18.44.5
-        port: 3306
-        db: jydb
-        user: liangh
-        passwd: huaxun!@#db
+    extra:
+      jydb: {"host":"172.18.44.5","port": 3306,"db": "jydb","user": "liangh","passwd": "huaxun!@#db"}
 
 extra:
   # 选择日期的输出等级，有 `verbose` | `info` | `warning` | `error` 等选项，您可以通过设置 `verbose` 来查看最详细的日志，

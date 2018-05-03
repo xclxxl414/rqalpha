@@ -37,7 +37,7 @@ config = {
       "matching_type": "next_bar",
     },
     "alphaStar_factors": {
-      "enabled": False
+      "enabled": True
     },
     "alphaStar_mgr": {
       "enabled": False
@@ -46,7 +46,7 @@ config = {
       "enabled": False
     },
     "alphaStar_utils": {
-      "enabled": False
+      "enabled": True
     }
   }
 }
@@ -102,8 +102,23 @@ config_taskmgr = {
 }
 
 if __name__ == "__main__":
-  strategy_file_path = "./rqalpha/examples/market_value.py"
-  run_file(strategy_file_path, config,config_file="./ipynbs/config.yml")
+  from rqalpha import run_file
+
+  config = {
+    "base": {
+      "start_date": "2017-01-01",
+      "end_date": "2017-01-31",
+    },
+    "mod": {
+      "sys_analyser": {
+        "enabled": True,
+        "plot": True
+      }
+    }
+  }
+  file_path = "./ipynbs/strategys/testStrategy.ipynb"
+  run_file(file_path, config,config_file="./ipynbs/config.yml")
+
 
   # factor_file = "./rqalpha/examples/pe.py"
   # evaluate_file(factor_file_path=factor_file,config=config_factor,config_file="./ipynbs/config_factor.yml")

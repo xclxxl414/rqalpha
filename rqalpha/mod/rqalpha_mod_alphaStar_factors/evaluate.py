@@ -110,7 +110,7 @@ def calc(bookValues, fValue, groupCnt = 10, win = 5):
         dates.append(fValue.index[idx])
         ics.append(_fValue_aDay.corr(_yield_nextWin, method='spearman', min_periods=100))
 
-        system_log.info("%s, factorValue len:%d, yieldData len:%d"%(dates[-1],len(_fValue_aDay),len(_yield_nextWin)))
+        system_log.debug("%s, factorValue len:%d, yieldData len:%d"%(dates[-1],len(_fValue_aDay),len(_yield_nextWin)))
         gRes = group(_yield_nextWin,_fValue_aDay,groupCnt)
         # print(len(gRes),_yield_nextWin)
         for i in range(groupCnt):

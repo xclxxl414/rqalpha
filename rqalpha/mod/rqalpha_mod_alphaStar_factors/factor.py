@@ -9,6 +9,7 @@
 
 from rqalpha.utils.exception import ModifyExceptionFromType
 from rqalpha.const import EXC_TYPE
+from rqalpha.utils.logger import user_system_log
 
 class Factor():
     def __init__(self, scope,ucontext):
@@ -39,6 +40,7 @@ class Factor():
                       columns=list(["code" + str(i) for i in range(code_cnt)]),
                       index=[datetime(2015, 12, 1) + timedelta(days=i) for i in range(day_cnt)])
         '''
+        user_system_log.info("factor:{} compute,startdt:{},enddt:{}", self.name, startdt, enddt)
         with ModifyExceptionFromType(EXC_TYPE.USER_EXC):
             return self._compute(startdt, enddt,self._ucontext)
 

@@ -7,7 +7,8 @@
 @description: 
 """
 
-import sqlite3
+import pymysql
+from sqlalchemy import engine
 from rqalpha.utils.logger import system_log, basic_system_log, user_system_log, user_detail_log
 from datetime import *
 
@@ -15,23 +16,24 @@ class Admin():
     def __init__(self,db= None):
         '''
         '''
-        self.conn = sqlite3.connect(db)
+        self.conn = pymysql.connect(host=db.host, user=db.user, password=db.passwd,
+                 database=db.db, port=db.port, charset='utf8')
         self.cursor = self.conn.cursor()
 
         _createUser = '''CREATE TABLE IF NOT EXISTS User(
-                `name` varchar(20) primary key,
+                `name` varchar(64) primary key,
                 `passwd` varchar(64) DEFAULT NULL
                 )'''
         _createFactor = '''CREATE TABLE IF NOT EXISTS Factors(
                 `fname` varchar(64) primary key,
-                `user` TEXT NOT NULL,
+                `user` varchar(64) NOT NULL,
                 `status` varchar(20) NOT NULL,
                 `uptime` timestamp NOT NULL,
                 FOREIGN KEY(user) REFERENCES User(name)
                 )'''
         _createStrategy = '''CREATE TABLE IF NOT EXISTS Strategys(
                 `sname` varchar(64) primary key,
-                `user` TEXT NOT NULL,
+                `user` varchar(64) NOT NULL,
                 `status` varchar(20) NOT NULL,
                 `uptime` timestamp NOT NULL,
                 `accountid` INTEGER NOT NULL,
@@ -49,7 +51,7 @@ class Admin():
             return False
         try:
             _sigPass = self._signaturePass(passwd)
-            self.cursor.execute("insert into User(name,passwd) values(?,?)", (uname,_sigPass))
+            self.cursor.execute("insert into User(name,passwd) values(%s,%s)", (uname,_sigPass))
             self.conn.commit()
             return True
         except Exception as e:
@@ -61,7 +63,7 @@ class Admin():
             system_log.error("check Admin failed,please connect admin User")
             return False
         try:
-            self.cursor.execute("delete from User where name=?",(uname,))
+            self.cursor.execute("delete from User where name=%s",(uname,))
             self.conn.commit()
             return True
         except Exception as e:
@@ -71,7 +73,7 @@ class Admin():
     def addAdminUser(self,passwd):
         _sigPass = self._signaturePass(passwd)
         try:
-            self.cursor.execute("insert into User(name,passwd) values(?,?)",("admin",_sigPass))
+            self.cursor.execute("insert into User(name,passwd) values(%s,%s)",("admin",_sigPass))
             self.conn.commit()
             return True
         except Exception as e:
@@ -99,7 +101,7 @@ class Admin():
             system_log.error("check Admin failed,please connect admin User")
             return False
         try:
-            self.cursor.execute("insert into Factors(fname,user,status,uptime) values(?,?,?,?)",(fname,uname,"new",datetime.now()))
+            self.cursor.execute("insert into Factors(fname,user,status,uptime) values(%s,%s,%s,%s)",(fname,uname,"new",datetime.now()))
             self.conn.commit()
             return True
         except Exception as e:
@@ -111,7 +113,7 @@ class Admin():
             system_log.error("check Admin failed,please connect admin User")
             return False
         try:
-            self.cursor.execute("delete from Factors where fname=?",(fname,))
+            self.cursor.execute("delete from Factors where fname=%s",(fname,))
             self.conn.commit()
             return True
         except Exception as e:
@@ -123,9 +125,9 @@ class Admin():
             system_log.error("check Admin failed,please connect admin User")
             return False
         try:
-            self.cursor.execute("insert into Factors(fname,user,status,uptime) values(?,?,?,?)"
-                                " ON DUPLICATE KEY UPDATE status=?,uptime=?",(fname,uname,"published",datetime.now()
-                                ,"published",datetime.now()))
+            self.cursor.execute("insert into Factors(fname,user,status,uptime) values(%(fname)s,%(user)s,%(status)s,%(uptime)s)"
+                                " ON DUPLICATE KEY UPDATE status=%(status)s,uptime=%(uptime)s"
+                                ,{"fname":fname,"user":uname,"status":"published","uptime":datetime.now()})
             self.conn.commit()
             return True
         except Exception as e:
@@ -137,7 +139,7 @@ class Admin():
             system_log.error("check Admin failed,please connect admin User")
             return False
         try:
-            self.cursor.execute("update Factors set status='published',uptime=? where fname = ?",(datetime.now(),fname))
+            self.cursor.execute("update Factors set status='published',uptime=%s where fname = %s",(datetime.now(),fname))
             self.conn.commit()
             return True
         except Exception as e:
@@ -149,7 +151,7 @@ class Admin():
             system_log.error("check Admin failed,please connect admin User")
             return False
         try:
-            self.cursor.execute("update Factors set status='unPublished',uptime=? where fname = ?",(datetime.now(),fname))
+            self.cursor.execute("update Factors set status='unPublished',uptime=%s where fname = %s",(datetime.now(),fname))
             self.conn.commit()
             return True
         except Exception as e:
@@ -169,7 +171,7 @@ class Admin():
 
     def getFactor(self,fname):
         try:
-            self.cursor.execute("select fname,user,status from Factors where fname=?",(fname,))
+            self.cursor.execute("select fname,user,status from Factors where fname=%s",(fname,))
             for row in self.cursor:
                 return row
             return None
@@ -182,7 +184,7 @@ class Admin():
             system_log.error("check Admin failed,please connect admin User")
             return False
         try:
-            self.cursor.execute("insert into Strategys(sname,user,status,uptime) values(?,?,?,?)",(sname,uname,"new",datetime.now()))
+            self.cursor.execute("insert into Strategys(sname,user,status,uptime) values(%s,%s,%s,%s)",(sname,uname,"new",datetime.now()))
             self.conn.commit()
             return True
         except Exception as e:
@@ -194,7 +196,7 @@ class Admin():
             system_log.error("check Admin failed,please connect admin User")
             return False
         try:
-            self.cursor.execute("delete from Strategys where sname=?", (sname,))
+            self.cursor.execute("delete from Strategys where sname=%s", (sname,))
             self.conn.commit()
             return True
         except Exception as e:
@@ -206,9 +208,9 @@ class Admin():
             system_log.error("check Admin failed,please connect admin User")
             return False
         try:
-            self.cursor.execute("insert into Strategys(sname,user,status,uptime,accountid) values(?,?,?,?,?)"
-                                "  ON DUPLICATE KEY UPDATE status=?,uptime=?,accountid=?"
-                                ,(sname,uname,"published",datetime.now(),accountID,"published",datetime.now(),accountID))
+            self.cursor.execute("insert into Strategys(sname,user,status,uptime,accountid) values(%(sname)s,%(user)s,%(status)s,%(uptime)s,%(accountid)s)"
+                                "  ON DUPLICATE KEY UPDATE status=%(status)s,uptime=%(uptime)s,accountid=%(accountid)s"
+                                ,{"sname":sname,"user":uname,"status":"published","uptime":datetime.now(),"accountid":accountID})
             self.conn.commit()
             return True
         except Exception as e:
@@ -220,7 +222,7 @@ class Admin():
             system_log.error("check Admin failed,please connect admin User")
             return False
         try:
-            self.cursor.execute("update Strategys set status='published',uptime=?,accountid=? where sname = ?"
+            self.cursor.execute("update Strategys set status='published',uptime=%s,accountid=%s where sname = %s"
                                 ,(datetime.now(),accountID,sname))
             self.conn.commit()
             return True
@@ -233,7 +235,7 @@ class Admin():
             system_log.error("check Admin failed,please connect admin User")
             return False
         try:
-            self.cursor.execute("update Strategys set status='unPublished',uptime=? where sname = ?",(datetime.now(),sname))
+            self.cursor.execute("update Strategys set status='unPublished',uptime=%s where sname = %s",(datetime.now(),sname))
             self.conn.commit()
             return True
         except Exception as e:
@@ -253,7 +255,7 @@ class Admin():
 
     def getStrategy(self,sname):
         try:
-            self.cursor.execute("select sname,user,accountid,status from Strategys where sname=?",(sname,))
+            self.cursor.execute("select sname,user,accountid,status from Strategys where sname=%s",(sname,))
             for row in self.cursor:
                 return row
             return None

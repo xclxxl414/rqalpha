@@ -31,7 +31,7 @@ mod:
     factor_data_path: E:\evilAlpha\test
     factor_data_init_date: 2017-01-01
     extra:
-      jydb: 172.18.44.5
+      jydb: {"host":"172.18.44.5","port": 3306,"db": "jydb","user": "liangh","passwd": "huaxun!@#db"}
   sys_accounts:
     enabled: false
 
