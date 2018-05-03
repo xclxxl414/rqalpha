@@ -40,8 +40,8 @@ def load_mod():
 
 @cli.command()
 @click.help_option('-h', '--help')
-@click.option('-i', '--data-init-date', 'mod__alphaStar_factors__factor_data_init_date', type=Date(),help="The init date to calculate and persist factor data")
-@click.option('-e', '--end-date', 'base__end_date', type=Date())
+# @click.option('-i', '--data-init-date', 'mod__alphaStar_factors__factor_data_init_date', type=Date(),help="The init date to calculate and persist factor data")
+# @click.option('-e', '--end-date', 'base__end_date', type=Date())
 # @click.option( '--adminDB', 'base__adminDB')
 # @click.option( '--sourcePath', 'base__sourcePath',help="path where factor code files exist")
 @click.option('--config', 'config_path', type=click.STRING, help="config file path")
@@ -55,10 +55,26 @@ def dailyProcess(**kwargs):
         kwargs.pop('config_path')
 
     config = _parse_config(kwargs, config_path)
+
+    _file = os.path.join(config.base.data_bundle_path,"stocks.bcolz")
+    mtime_bundle = datetime.fromtimestamp(os.stat(_file).st_mtime)
+    _now = datetime.now()
+    _now_base = _now.replace(hour=19,minute=15,second=0,microsecond=0)
+    _delta = _now - mtime_bundle
+    if _delta.days < 0:
+        pass
+    elif _delta.days < 1:
+        if (_now-_now_base).total_seconds() > 600 and mtime_bundle.day != _now.day:
+            _pPath = config.base.data_bundle_path.replace("bundle", "")
+            update_bundle(data_bundle_path=_pPath, confirm=False)
+        else:
+            pass
+    else:
+        _pPath = config.base.data_bundle_path.replace("bundle","")
+        update_bundle(data_bundle_path=_pPath,confirm=False)
+
     obj = TaskMgr(db=config.base.adminDB, sourcePath=config.base.sourcePath,
                   fdataPath=config.mod.alphaStar_factors.factor_data_path)
-    _pPath = config.base.data_bundle_path.replace("\\bundle","")
-    update_bundle(data_bundle_path=_pPath,confirm=False)
     obj.runFactors(dataInitDt=_to_date(config.mod.alphaStar_factors.factor_data_init_date),enddt=config.base.end_date,modconf= config.mod.alphaStar_factors)
     # obj.runStrategys(config=config)
 
