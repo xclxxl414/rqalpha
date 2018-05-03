@@ -73,6 +73,7 @@ def dailyProcess(**kwargs):
         _pPath = config.base.data_bundle_path.replace("bundle","")
         update_bundle(data_bundle_path=_pPath,confirm=False)
 
+    config.base.end_date = _now.date()
     obj = TaskMgr(db=config.base.adminDB, sourcePath=config.base.sourcePath,
                   fdataPath=config.mod.alphaStar_factors.factor_data_path)
     obj.runFactors(dataInitDt=_to_date(config.mod.alphaStar_factors.factor_data_init_date),enddt=config.base.end_date,modconf= config.mod.alphaStar_factors)
