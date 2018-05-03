@@ -256,7 +256,7 @@ def delFactor(**kwargs):
 
     config = _parse_config(kwargs, config_path)
     ret = Admin(db = config.base.adminDB)\
-        .delFactor(fname = kwargs.get('fname', None), adminPass=kwargs.get('admin_passwd', None))
+        .delFactor(fname = kwargs.get('fname', None), adminPass=kwargs.get('admin_passwd', None),datapath=config.mod.alphaStar_factors.factor_data_path)
     print(ret)
 
 @cli.command()
@@ -318,7 +318,7 @@ def unPublishFactor(**kwargs):
 
     config = _parse_config(kwargs, config_path)
     ret = Admin(db=config.base.adminDB) \
-        .unPublishFactor(fname=kwargs.get('fname', None),adminPass=kwargs.get('admin_passwd', None))
+        .unPublishFactor(fname=kwargs.get('fname', None),adminPass=kwargs.get('admin_passwd', None),datapath=config.mod.alphaStar_factors.factor_data_path)
     print(ret)
 
 @cli.command()
