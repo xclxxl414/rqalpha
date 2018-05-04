@@ -133,8 +133,8 @@ class FactorDataInterface():
             return datas.loc[startDt:endDt]
 
 if __name__ == "__main__":
-    obj = FactorData("testFactor", "E:\\evilAlpha\\rqalpha\\test")
-    data = obj.load(datetime(2017, 1,25), datetime(2017, 12, 31))
+    obj = FactorData("pe", "Z:\\factor_datas")#"E:\\evilAlpha\\test")
+    data = obj.load(datetime(2017, 1,25), datetime(2018, 12, 31))
     print(data)
 
     # obj = FactorData("testF1","E:\\evilAlpha\\rqalpha\\test")

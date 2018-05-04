@@ -11,7 +11,7 @@ base:
   # 回测起始日期
   start_date: 2015-06-01
   # 回测结束日期(如果是实盘，则忽略该配置)
-  end_date: 2015-07-01
+  end_date: 2018-05-03
   # 目前支持 `1d` (日线回测) 和 `1m` (分钟线回测)，如果要进行分钟线，请注意是否拥有对应的数据源，目前开源版本是不提供对应的数据源的。
   frequency: 1d
   # Benchmark，如果不设置，默认没有基准参照。
@@ -29,7 +29,7 @@ base:
     future: ~
   # 设置初始仓位
   init_positions: {}
-  sourcePath: ./ipynbs/
+  sourcePath: E:\evilAlpha\staralpha\ipynbs
   adminDB: {"host":"172.18.44.231","port": 3306,"db": "Test","user": "sAdmin","passwd": "hxSA"}
 
 mod:

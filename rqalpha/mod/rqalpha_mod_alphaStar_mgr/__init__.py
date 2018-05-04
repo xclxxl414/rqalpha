@@ -76,6 +76,7 @@ def dailyProcess(**kwargs):
     config.base.end_date = _now.date()
     obj = TaskMgr(db=config.base.adminDB, sourcePath=config.base.sourcePath,
                   fdataPath=config.mod.alphaStar_factors.factor_data_path)
+
     obj.runFactors(dataInitDt=_to_date(config.mod.alphaStar_factors.factor_data_init_date),enddt=config.base.end_date,modconf= config.mod.alphaStar_factors)
     # obj.runStrategys(config=config)
 
@@ -117,6 +118,9 @@ def callFactors(**kwargs):
     '''
     [alphaStar_mgr] callFactors
     '''
+    _callFactors(kwargs)
+
+def _callFactors(**kwargs):
     config_path = kwargs.get('config_path', None)
     if config_path is not None:
         config_path = os.path.abspath(config_path)

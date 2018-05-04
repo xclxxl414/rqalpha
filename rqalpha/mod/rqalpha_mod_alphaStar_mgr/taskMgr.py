@@ -86,7 +86,7 @@ class TaskMgr():
         _child2parents = {}
         _name2Factors = {}
         for factor in factorObjs:
-            fname = factor.__class__.__name__
+            fname = factor.name
             if len(factor.dependency()) > 0:
                 _child2parents[fname] = factor.dependency()
             _name2Factors[fname] = factor
