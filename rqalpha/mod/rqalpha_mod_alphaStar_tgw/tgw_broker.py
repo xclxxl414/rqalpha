@@ -98,7 +98,6 @@ class TgwBroker(AbstractBroker):
         return []
 
     def submit_order(self, order):
-        system_log.info("tgw_broker submit order:{},quantity:{},side:{}",order.order_book_id,order.quantity,order.side)
         account = self._env.get_account(order.order_book_id)
         self._env.event_bus.publish_event(Event(EVENT.ORDER_PENDING_NEW, account=account, order=copy(order)))
         if order.is_final():
@@ -270,6 +269,7 @@ class TgwAccount():
         self._openOrders.append((code,volume))
 
     def afterTrading(self):
+        system_log.info("push order:{} to TGW account:{} ", str(self._openOrders),self._accountid)
         self._orderShare(self._openOrders)
         self._openOrders = []
 
