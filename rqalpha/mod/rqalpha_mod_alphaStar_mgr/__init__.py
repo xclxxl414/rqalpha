@@ -49,6 +49,9 @@ def dailyProcess(**kwargs):
     '''
     [alphaStar_mgr] dailyProcess,update_bundle and callFactors
     '''
+    _dailyProcess(kwargs)
+
+def _dailyProcess(**kwargs):
     config_path = kwargs.get('config_path', None)
     if config_path is not None:
         config_path = os.path.abspath(config_path)
@@ -93,6 +96,9 @@ def callAFactor(**kwargs):
     '''
     [alphaStar_mgr] callAFactor
     '''
+    _callAFactor(kwargs)
+
+def _callAFactor(**kwargs):
     config_path = kwargs.get('config_path', None)
     if config_path is not None:
         config_path = os.path.abspath(config_path)
@@ -148,6 +154,9 @@ def callAStrategy(**kwargs):
     '''
     [alphaStar_mgr] callAStrategy
     '''
+    _callAStrategy(kwargs)
+
+def _callAStrategy(**kwargs):
     config_path = kwargs.get('config_path', None)
     if config_path is not None:
         config_path = os.path.abspath(config_path)
@@ -170,6 +179,9 @@ def callStrategys(**kwargs):
     '''
     [alphaStar_mgr] callStrategys
     '''
+    _callStrategys(kwargs)
+
+def _callStrategys(**kwargs):
     config_path = kwargs.get('config_path', None)
     if config_path is not None:
         config_path = os.path.abspath(config_path)
@@ -190,6 +202,9 @@ def addUser(**kwargs):
     '''
     [alphaStar_mgr] addUser
     '''
+    _addUser(kwargs)
+
+def _addUser(**kwargs):
     config_path = kwargs.get('config_path', None)
     if config_path is not None:
         config_path = os.path.abspath(config_path)
@@ -209,6 +224,9 @@ def addAdminUser(**kwargs):
     '''
     [alphaStar_mgr] addAdminUser
     '''
+    _addAdminUser(kwargs)
+
+def _addAdminUser(**kwargs):
     config_path = kwargs.get('config_path', None)
     if config_path is not None:
         config_path = os.path.abspath(config_path)
@@ -229,6 +247,9 @@ def delUser(**kwargs):
     '''
     [alphaStar_mgr] delUser
     '''
+    _delUser(kwargs)
+
+def _delUser(**kwargs):
     config_path = kwargs.get('config_path', None)
     if config_path is not None:
         config_path = os.path.abspath(config_path)
@@ -250,6 +271,9 @@ def registerFactor(**kwargs):
     '''
     [alphaStar_mgr] registerFactor
     '''
+    _registerFactor(kwargs)
+
+def _registerFactor(**kwargs):
     config_path = kwargs.get('config_path', None)
     if config_path is not None:
         config_path = os.path.abspath(config_path)
@@ -270,6 +294,9 @@ def delFactor(**kwargs):
     '''
     [alphaStar_mgr] delFactor
     '''
+    _delFactor(kwargs)
+
+def _delFactor(**kwargs):
     config_path = kwargs.get('config_path', None)
     if config_path is not None:
         config_path = os.path.abspath(config_path)
@@ -291,6 +318,9 @@ def registerAndPublishFactor(**kwargs):
     '''
     [alphaStar_mgr] registerAndPublishFactor
     '''
+    _registerAndPublishFactor(kwargs)
+
+def _registerAndPublishFactor(**kwargs):
     config_path = kwargs.get('config_path', None)
     if config_path is not None:
         config_path = os.path.abspath(config_path)
@@ -312,6 +342,9 @@ def publishFactor(**kwargs):
     '''
     [alphaStar_mgr] publishFactor
     '''
+    _publishFactor(kwargs)
+
+def _publishFactor(**kwargs):
     config_path = kwargs.get('config_path', None)
     if config_path is not None:
         config_path = os.path.abspath(config_path)
@@ -332,6 +365,9 @@ def unPublishFactor(**kwargs):
     '''
     [alphaStar_mgr] unPublishFactor
     '''
+    _unPublishFactor(kwargs)
+
+def _unPublishFactor(**kwargs):
     config_path = kwargs.get('config_path', None)
     if config_path is not None:
         config_path = os.path.abspath(config_path)
@@ -350,6 +386,9 @@ def getPublishedFactors(**kwargs):
     '''
     [alphaStar_mgr] getPublishedFactors
     '''
+    _getPublishedFactors(kwargs)
+
+def _getPublishedFactors(**kwargs):
     config_path = kwargs.get('config_path', None)
     if config_path is not None:
         config_path = os.path.abspath(config_path)
@@ -371,6 +410,9 @@ def registerStrategy(**kwargs):
     '''
     [alphaStar_mgr] registerStrategy
     '''
+    _registerStrategy(kwargs)
+
+def _registerStrategy(**kwargs):
     config_path = kwargs.get('config_path', None)
     if config_path is not None:
         config_path = os.path.abspath(config_path)
@@ -391,6 +433,9 @@ def delStrategy(**kwargs):
     '''
     [alphaStar_mgr] delStrategy
     '''
+    _delStrategy(kwargs)
+
+def _delStrategy(**kwargs):
     config_path = kwargs.get('config_path', None)
     if config_path is not None:
         config_path = os.path.abspath(config_path)
@@ -413,6 +458,9 @@ def registerAndPublishStrategy(**kwargs):
     '''
     [alphaStar_mgr] registerAndPublishStrategy
     '''
+    _registerAndPublishStrategy(kwargs)
+
+def _registerAndPublishStrategy(**kwargs):
     config_path = kwargs.get('config_path', None)
     if config_path is not None:
         config_path = os.path.abspath(config_path)
@@ -435,6 +483,9 @@ def publishStrategy(**kwargs):
     '''
     [alphaStar_mgr] publishStrategy
     '''
+    _publishStrategy(kwargs)
+
+def _publishStrategy(**kwargs):
     config_path = kwargs.get('config_path', None)
     if config_path is not None:
         config_path = os.path.abspath(config_path)
@@ -455,6 +506,9 @@ def unPublishStrategy(**kwargs):
     '''
     [alphaStar_mgr] unPublishStrategy
     '''
+    _unPublishStrategy(kwargs)
+
+def _unPublishStrategy(**kwargs):
     config_path = kwargs.get('config_path', None)
     if config_path is not None:
         config_path = os.path.abspath(config_path)
@@ -473,6 +527,9 @@ def getPublishedStrategys(**kwargs):
     '''
     [alphaStar_mgr] getPublishedStrategys
     '''
+    _getPublishedStrategys(kwargs)
+
+def _getPublishedStrategys(**kwargs):
     config_path = kwargs.get('config_path', None)
     if config_path is not None:
         config_path = os.path.abspath(config_path)

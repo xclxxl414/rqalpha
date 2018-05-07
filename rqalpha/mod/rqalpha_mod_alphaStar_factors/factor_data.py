@@ -133,7 +133,7 @@ class FactorDataInterface():
             return datas.loc[startDt:endDt]
 
 if __name__ == "__main__":
-    obj = FactorData("pe", "Z:\\factor_datas")#"E:\\evilAlpha\\test")
+    obj = FactorData("market_value_log","E:\\evilAlpha\\test" )#)"Z:\\factor_datas"
     data = obj.load(datetime(2017, 1,25), datetime(2018, 12, 31))
     print(data)
 

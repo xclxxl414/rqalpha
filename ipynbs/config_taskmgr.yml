@@ -39,6 +39,8 @@ mod:
     enabled: false
   sys_accounts:
     enabled: true
+  alphaStar_utils:
+    enabled: true
   alphaStar_tgw:
     enabled: true
     # 淘股王调仓借口url
@@ -59,9 +61,7 @@ mod:
 
     # 账户信息
     uid: 63790
-    #15154
     combid: ~
-    #665
     accountid: ~
     starting_cash: 10000000
 #  alphaStar_mgr:

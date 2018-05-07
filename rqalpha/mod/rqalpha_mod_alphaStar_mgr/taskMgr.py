@@ -216,6 +216,9 @@ class TaskMgr():
         runner.run(config)
 
 class StrategyRunner():
+    '''
+    策略运行，向淘股王账号发送调仓信息
+    '''
     def __init__(self,config):
         self._config = config
         env = Environment(config)
@@ -279,6 +282,7 @@ class StrategyRunner():
 
         broker = env.broker
         assert broker is not None
+        broker.setAccount(config.mod.alphaStar_tgw)
         env.portfolio = broker.get_portfolio()
         env.benchmark_portfolio = create_benchmark_portfolio(env)
 

@@ -34,11 +34,15 @@ def testEvaluateFile():
     factor_file = "E:\\evilAlpha\\staralpha\\rqalpha\\examples\\pe.py"
     evaluate_file(factor_file_path=factor_file, config=None, config_file=conf_file_factor)
 
-def testRunFactor():
+def testCallFactor():
     from rqalpha.mod.rqalpha_mod_alphaStar_mgr import _callFactors
     _callFactors(config_path="E:\\evilAlpha\\staralpha\\ipynbs\config_taskmgr.yml", base__end_date="2018-05-04")
 
+def testCallStrategys():
+    from rqalpha.mod.rqalpha_mod_alphaStar_mgr import _callStrategys
+    _callStrategys(config_path="E:\\evilAlpha\\staralpha\\ipynbs\config_taskmgr.yml", base__end_date="2018-05-03")
+
 if __name__ == "__main__":
-    testRunFactor()
+    testCallStrategys()
 
 

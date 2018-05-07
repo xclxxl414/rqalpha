@@ -30,9 +30,12 @@ class TgwBroker(AbstractBroker):
     def __init__(self, env, mod_config):
         self._env = env
         self.mod_config = mod_config
-        self._tgwAccont = TgwAccount(tradeUrl = mod_config.tgwurl,tickUrl=mod_config.tickurl
-                                     ,secretId_TICK=mod_config.secretId_TICK,secretKey_TICK=mod_config.secretKey_TICK
-                                     ,secretId = mod_config.secretId,secretKey = mod_config.secretKey)
+
+    def setAccount(self,mod_config):
+        self.mod_config = mod_config
+        self._tgwAccont = TgwAccount(tradeUrl=mod_config.tgwurl, tickUrl=mod_config.tickurl
+                                     , secretId_TICK=mod_config.secretId_TICK, secretKey_TICK=mod_config.secretKey_TICK
+                                     , secretId=mod_config.secretId, secretKey=mod_config.secretKey,uid=mod_config.uid,accountid = mod_config.accountid)
 
     def get_portfolio(self):
         accounts = {}
@@ -57,10 +60,16 @@ class TgwBroker(AbstractBroker):
                     _(u'instrument {} in initial positions is not listing').format(code))
 
             price = self._getLatestPrice(code)
-            trade = self._fake_trade(code, item['HoldingVolume'], price)
+            # trade = self._fake_trade(code, item['HoldingVolume'], price)
             if code not in positions:
-                positions[code] = position_model(code)
-            positions[code].apply_trade(trade)
+                obj = position_model(code)
+                obj.set_state({"order_book_id":code,"quantity":item['HoldingVolume']
+                    ,"avg_price":item['HoldingCost'],"non_closable":0
+                    ,"frozen":item['HoldingVolume'] - item['CanSellVolume'],"transaction_cost":0})
+                positions[code] = obj
+                # positions[code].apply_trade(trade)
+            else:
+                system_log.error("tgw position err,duplicate,account:{},code:{}",self.mod_config.combid,code)
             # FIXME
             positions[code]._last_price = price
 
@@ -91,7 +100,7 @@ class TgwBroker(AbstractBroker):
             return
         order.active()
         self._env.event_bus.publish_event(Event(EVENT.ORDER_CREATION_PASS, account=account, order=copy(order)))
-        self._tgwAccont.orderShare(uid=self.mod_config.uid,accountid=self.mod_config.accountid
+        self._tgwAccont.orderShare(uid=self.mod_config.uid,accountid=self.mod_config .accountid
                                    ,combid = self.mod_config.combid,code_Cnt=[(order.order_book_id,order.quantity if order.side == SIDE.BUY else -1 * order.quantity)])
 
     def cancel_order(self, order):
@@ -106,10 +115,13 @@ class HoldingType(Enum):
 class TgwAccount():
     def __init__(self, tradeUrl = "http://www.tgwtest.com/tgwapi/myapp/Trade"
                  ,tickUrl = "http://tgw360.com/webapi/myapp/WxInterface/GetQueInfo"
-                 ,secretId_TICK="dianziqianzhang",secretKey_TICK="B123456789",secretId="commonkey",secretKey="TGW_COMMONKEY"): #):
+                 ,secretId_TICK="dianziqianzhang",secretKey_TICK="B123456789",secretId="commonkey"
+                 ,secretKey="TGW_COMMONKEY",uid = None,accountid = None): #):
         # print(tradeUrl,tickUrl,secretId_TICK,secretKey_TICK,secretId,secretKey)
         self._tradeRootUrl = tradeUrl
         self._apiInfo = {"secretId": secretId, "secretKey": secretKey}
+        self._uid = uid
+        self._accountid = accountid
         self._tickUrl = tickUrl
         self._tickApiInfo = {"secretId": secretId_TICK, "secretKey": secretKey_TICK}
         # 市场类型  65537【上海】  131073【深圳】  65545【上证指数】  131081【深证，创业】
@@ -162,7 +174,7 @@ class TgwAccount():
         for item in a:item.update({"SecuCode":self.codeConvert_Oddly2Rqalpha(item['SecuCode'],item['MarketType']),"MarketType":self._marketMap_oddly_STD.get(item['MarketType'])})
         return a
 
-    def _getHoldsList_APage(self, holdingType = 1, uid=15154, combid = 666, pageNo = 0, perPage = 10): # accountid = 123456
+    def _getHoldsList_APage(self, holdingType = 1, uid=None, combid = None, pageNo = 0, perPage = 10):
         _param = {"secretId":self._apiInfo.get("secretId")
                      ,"time":str(round(time.time()))
                      ,"ServiceID":uid
@@ -183,14 +195,13 @@ class TgwAccount():
             system_log.error("GetHoldsList failed:{0},{1},pageInfo:{2},{3},info:{4}",uid,combid,pageNo,perPage,e)
             return None
 
-    def getHoldsList(self,holdingType = HoldingType.Holding,uid=15154,combid = 666): # accountid = 123456,
-        # print(holdingType,uid,combid)
+    def getHoldsList(self,holdingType = HoldingType.Holding):
         perPage = 100
         idx = 0
         _res = []
         while True:
             try:
-                _resAPage = self._getHoldsList_APage(holdingType = holdingType.value, uid=uid, combid=combid, pageNo=idx, perPage=perPage)
+                _resAPage = self._getHoldsList_APage(holdingType = holdingType.value, uid=self._uid, combid=self._accountid, pageNo=idx, perPage=perPage)
                 if _resAPage is None:
                     break
                 # print(_resAPage)
@@ -205,11 +216,11 @@ class TgwAccount():
                 break
         return _res
 
-    def earningsData(self, uid=15154, combid = 666): # accountid = 123456,
+    def earningsData(self):
         _param = {"secretId":self._apiInfo.get("secretId")
                      ,"time":str(round(time.time()))
-                     ,"ServiceID":uid
-                     ,"CombID":combid}
+                     ,"ServiceID":self._uid
+                     ,"CombID":self._accountid}
         _secretStr = "&".join([str(k)+"="+str(v) for k,v in sorted(_param.items(),key=lambda x:x[0])])
         ss = hmac.new(key = bytes(self._apiInfo['secretKey'], "utf8"), msg=bytes(_secretStr, "utf8"), digestmod="sha1").digest()
         s1 = base64.b64encode(ss)
@@ -217,14 +228,14 @@ class TgwAccount():
         try:
             _res = self._get(self._tradeRootUrl + "/EarningsData", _param)
             if _res is None or _res['data']["code"] != 0:
-                system_log.error("EarningsData failed:{0},{1},return code：{2}", uid, combid, _res['date']["code"])
+                system_log.error("EarningsData failed:{0},{1},return code：{2}", self._uid, self._accountid, _res['date']["code"])
                 return None
             return _res["data"]["info"]
         except Exception as e:
-            system_log.error("EarningsData failed:{0},{1},info:{2}",uid,combid,e)
+            system_log.error("EarningsData failed:{0},{1},info:{2}",self._uid,self._accountid,e)
             return None
 
-    def _BatchDelteGateOrder(self, userType = 2, uid=15154, accountid = 666, combid = 666, DeltegateList = None, Periods = 1): #
+    def _BatchDelteGateOrder(self, userType = 2, uid=None, accountid = None, combid = None, DeltegateList = None, Periods = 1): #
         _param = {"UserType":userType,
                  "UserID":uid,
                   "AccountID":accountid,
@@ -250,7 +261,7 @@ class TgwAccount():
             traceback.print_exc()
             return None
 
-    def orderShare(self, uid=15154, accountid=666, combid=666, code_Cnt=[]):
+    def orderShare(self, code_Cnt=[]):
         _orderList = []
         _ticks = self.getTick([code for code,volume in code_Cnt])
         _code2Ticks = dict((item['SecuCode'],item) for item in _ticks)
@@ -258,15 +269,15 @@ class TgwAccount():
             _tgwcode,market = self.codeConvert_Rqalpha2Oddly(code)
             _orderList.append({"SecuCode": _tgwcode, "Market": market, "Volume": abs(volume)
                             , "Price": _code2Ticks.get(code)['NowPrice'], "Direct": 1 if volume > 0 else 2,"EntrustType": 2})
-        return self._BatchDelteGateOrder(uid=uid, accountid=accountid, combid=combid,
+        return self._BatchDelteGateOrder(uid=self._uid, accountid=self._accountid, combid=self._accountid,
                                          DeltegateList=json.dumps(_orderList))
 
-    def orderToPercent(self, uid=15154, accountid=666, combid=666, code_weights=[]):  #
+    def orderToPercent(self,code_weights=[]):  #
         '''[{"SecuCode":"股票代码","Market":"市场类型","Volume":"委托数量","Price":"委托价格","Direct":"买卖方向,1-买入，2-卖出","EntrustType":"委托类型,1-限价 2-市价","ItemExtend":"扩展字段"}]'''
-        _account = self.earningsData(uid=uid, combid=combid)
+        _account = self.earningsData()
         _totalBalance = _account.get("BalanceAmount") + _account.get("marketValue")
         _avalableBalance = _account.get("BalanceAmount")
-        _holding = self.getHoldsList(holdingType=HoldingType.Holding,uid = uid,combid = combid)
+        _holding = self.getHoldsList(holdingType=HoldingType.Holding)
         _positions = {}
         for item in _holding:
             _positions[self.codeConvert_Oddly2Rqalpha(item['secucode'],item['Market'])] = item
@@ -321,7 +332,7 @@ class TgwAccount():
                         _avalableBalance -= _buyVolume * _tick['NowPrice']
 
         print(_orderList)
-        return self._BatchDelteGateOrder(uid=uid,accountid=accountid,combid=combid,DeltegateList=json.dumps(_orderList))
+        return self._BatchDelteGateOrder(uid=self._uid,accountid=self._accountid,combid=self._accountid,DeltegateList=json.dumps(_orderList))
 
 if __name__ == "__main__":
     obj = TgwAccount()#tradeUrl = "http://www.tgw360.com/tgwapi/myapp/Trade")
@@ -329,14 +340,7 @@ if __name__ == "__main__":
     # print(res)
     # res = obj.orderToPercent(code_weights=[("150008.OF",0.2),("300047.XSHE",0.1),("600081.XSHG",0.2),("002387.XSHE",0.2),("600570.XSHG",0.3)],combid=665)  # uid=63790 ,combid=938)
     # print(res)
-    res = obj.getHoldsList(combid=665)#uid=63790 ,combid=938)
+    res = obj.getHoldsList()#uid=63790 ,combid=938)
     print(res)
     # res = obj.EarningsData()#uid=63790 ,combid=938)
     # print(res)
-    '''
-    665  成长反转狙击
-666  动态多因子二号
-667  策略3号
-668  量化策略4号
-673  猪哥亮10号
-    '''
