@@ -49,7 +49,7 @@ class TgwBroker(AbstractBroker):
         position_model = self._env.get_position_model(account_type)
         positions = Positions(position_model)
 
-        _hodings = self._tgwAccont.getHoldsList(holdingType=HoldingType.Holding,uid=self.mod_config.uid,combid = self.mod_config.combid)
+        _hodings = self._tgwAccont.getHoldsList(holdingType=HoldingType.Holding)
         for item in _hodings:
             code = self._tgwAccont.codeConvert_Oddly2Rqalpha(item['secucode'],item['Market'])
             instrument = self._env.get_instrument(code)
@@ -73,7 +73,7 @@ class TgwBroker(AbstractBroker):
             # FIXME
             positions[code]._last_price = price
 
-        _earning = self._tgwAccont.earningsData(uid=self.mod_config.uid, combid=self.mod_config.combid)
+        _earning = self._tgwAccont.earningsData()
         _availableCash = _earning.get("BalanceAmount")
         account = account_model(_availableCash, positions)
         accounts[account_type] = account
@@ -100,8 +100,7 @@ class TgwBroker(AbstractBroker):
             return
         order.active()
         self._env.event_bus.publish_event(Event(EVENT.ORDER_CREATION_PASS, account=account, order=copy(order)))
-        self._tgwAccont.orderShare(uid=self.mod_config.uid,accountid=self.mod_config .accountid
-                                   ,combid = self.mod_config.combid,code_Cnt=[(order.order_book_id,order.quantity if order.side == SIDE.BUY else -1 * order.quantity)])
+        self._tgwAccont.orderShare(code_Cnt=[(order.order_book_id,order.quantity if order.side == SIDE.BUY else -1 * order.quantity)])
 
     def cancel_order(self, order):
         system_log.error(_(u"cancel_order function is not supported in signal mode"))
