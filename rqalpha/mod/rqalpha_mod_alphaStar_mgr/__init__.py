@@ -58,7 +58,17 @@ def _dailyProcess(**kwargs):
         kwargs.pop('config_path')
 
     config = _parse_config(kwargs, config_path)
+    _now = datetime.now()
 
+    #verify tradingday
+    config.base.end_date = _now.date()
+    from rqalpha.data.base_data_source import BaseDataSource
+    from rqalpha.data.data_proxy import DataProxy
+    from .taskMgr import StrategyRunner
+    _dp = DataProxy(BaseDataSource(config.base.data_bundle_path))
+    StrategyRunner.verifyLatestTradingDay(_dp,config)
+
+    #check bundle update
     _file = os.path.join(config.base.data_bundle_path,"stocks.bcolz")
     mtime_bundle = datetime.fromtimestamp(os.stat(_file).st_mtime)
     _now = datetime.now()
@@ -76,7 +86,7 @@ def _dailyProcess(**kwargs):
         _pPath = config.base.data_bundle_path.replace("bundle","")
         update_bundle(data_bundle_path=_pPath,confirm=False)
 
-    config.base.end_date = _now.date()
+    #run factor
     obj = TaskMgr(db=config.base.adminDB, sourcePath=config.base.sourcePath,
                   fdataPath=config.mod.alphaStar_factors.factor_data_path)
 

@@ -239,7 +239,7 @@ class StrategyRunner():
             env.set_data_proxy(DataProxy(env.data_source))
 
             # TODO 校验交易日
-            config.base.end_date = self._verifyLatestTradingDay(env,config)
+            config.base.end_date = self.verifyLatestTradingDay(env.data_proxy, config)
             config.base.start_date = config.base.end_date
 
             Scheduler.set_trading_dates_(env.data_source.get_trading_calendar())
@@ -268,9 +268,12 @@ class StrategyRunner():
             code = _exception_handler(user_exc)
             mod_handler.tear_down(code, user_exc)
 
-    def _verifyLatestTradingDay(self,env,config):
+    @classmethod
+    def verifyLatestTradingDay(cls, dataproxy, config):
         _start = config.base.end_date + timedelta(days = -20)
-        b = env.data_proxy.get_trading_dates(_start, config.base.end_date)
+        b = dataproxy.get_trading_dates(_start, config.base.end_date)
+        if b[-1].date() != config.base.end_date:
+            raise CustomException("enddate is not TradingDay")
         return b[-2].date()
 
     def clear(self):
