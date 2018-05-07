@@ -40,7 +40,7 @@ def testCallFactor():
 
 def testCallStrategys():
     from rqalpha.mod.rqalpha_mod_alphaStar_mgr import _callStrategys
-    _callStrategys(config_path="E:\\evilAlpha\\staralpha\\ipynbs\config_taskmgr.yml", base__end_date="2018-05-03")
+    _callStrategys(config_path="E:\\evilAlpha\\staralpha\\ipynbs\config_taskmgr.yml", base__end_date="2018-05-07")
 
 if __name__ == "__main__":
     testCallStrategys()

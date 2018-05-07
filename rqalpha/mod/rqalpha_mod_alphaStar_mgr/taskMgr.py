@@ -209,7 +209,6 @@ class TaskMgr():
         config.base.strategy_file = os.path.join(self.sourcePath, "strategys/"+ sname + ".ipynb")
         config.mod.alphaStar_tgw.combid = accountid
         config.mod.alphaStar_tgw.accountid = accountid
-        config.base.start_date = config.base.end_date
 
         config.base.accounts ={"STOCK":config.mod.alphaStar_tgw.starting_cash}
         config.base.init_positions = {}
@@ -230,6 +229,7 @@ class StrategyRunner():
             set_loggers(config)
             basic_system_log.debug("\n" + pformat(config.convert_to_dict()))
 
+
             env.set_global_vars(GlobalVars())
             mod_handler.set_env(env)
             mod_handler.start_up()
@@ -237,6 +237,10 @@ class StrategyRunner():
             if not env.data_source:
                 env.set_data_source(BaseDataSource(config.base.data_bundle_path))
             env.set_data_proxy(DataProxy(env.data_source))
+
+            # TODO 校验交易日
+            config.base.end_date = self._verifyLatestTradingDay(env,config)
+            config.base.start_date = config.base.end_date
 
             Scheduler.set_trading_dates_(env.data_source.get_trading_calendar())
             scheduler = Scheduler(config.base.frequency)
@@ -263,6 +267,11 @@ class StrategyRunner():
 
             code = _exception_handler(user_exc)
             mod_handler.tear_down(code, user_exc)
+
+    def _verifyLatestTradingDay(self,env,config):
+        _start = config.base.end_date + timedelta(days = -20)
+        b = env.data_proxy.get_trading_dates(_start, config.base.end_date)
+        return b[-2].date()
 
     def clear(self):
         result = self.mod_handler.tear_down(const.EXIT_CODE.EXIT_SUCCESS)

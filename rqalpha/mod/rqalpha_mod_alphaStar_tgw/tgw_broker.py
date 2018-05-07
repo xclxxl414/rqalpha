@@ -30,12 +30,17 @@ class TgwBroker(AbstractBroker):
     def __init__(self, env, mod_config):
         self._env = env
         self.mod_config = mod_config
+        self._tgwAccont = None
+        self._env.event_bus.add_listener(EVENT.AFTER_TRADING, self.afterTrading)
 
     def setAccount(self,mod_config):
         self.mod_config = mod_config
         self._tgwAccont = TgwAccount(tradeUrl=mod_config.tgwurl, tickUrl=mod_config.tickurl
                                      , secretId_TICK=mod_config.secretId_TICK, secretKey_TICK=mod_config.secretKey_TICK
                                      , secretId=mod_config.secretId, secretKey=mod_config.secretKey,uid=mod_config.uid,accountid = mod_config.accountid)
+
+    def afterTrading(self,event):
+        self._tgwAccont.afterTrading()
 
     def get_portfolio(self):
         accounts = {}
@@ -93,14 +98,14 @@ class TgwBroker(AbstractBroker):
         return []
 
     def submit_order(self, order):
-        system_log.info("tgw_broker submit order:{0},quantity:{1}",order.order_book_id,order.quantity)
+        system_log.info("tgw_broker submit order:{},quantity:{},side:{}",order.order_book_id,order.quantity,order.side)
         account = self._env.get_account(order.order_book_id)
         self._env.event_bus.publish_event(Event(EVENT.ORDER_PENDING_NEW, account=account, order=copy(order)))
         if order.is_final():
             return
         order.active()
         self._env.event_bus.publish_event(Event(EVENT.ORDER_CREATION_PASS, account=account, order=copy(order)))
-        self._tgwAccont.orderShare(code_Cnt=[(order.order_book_id,order.quantity if order.side == SIDE.BUY else -1 * order.quantity)])
+        self._tgwAccont.orderPending(order.order_book_id, order.quantity if order.side == SIDE.BUY else -1 * order.quantity)
 
     def cancel_order(self, order):
         system_log.error(_(u"cancel_order function is not supported in signal mode"))
@@ -126,6 +131,7 @@ class TgwAccount():
         # 市场类型  65537【上海】  131073【深圳】  65545【上证指数】  131081【深证，创业】
         self._marketMap_oddly_STD = {65537: "XSHG", 131073: "XSHE",131075:"OF"}
         self._marketMap_STD_oddly = {v: k for k, v in self._marketMap_oddly_STD.items()}
+        self._openOrders = []
 
     def codeConvert_Oddly2Rqalpha(self,code,market):
         # print(code,market)
@@ -260,7 +266,14 @@ class TgwAccount():
             traceback.print_exc()
             return None
 
-    def orderShare(self, code_Cnt=[]):
+    def orderPending(self,code,volume):
+        self._openOrders.append((code,volume))
+
+    def afterTrading(self):
+        self._orderShare(self._openOrders)
+        self._openOrders = []
+
+    def _orderShare(self, code_Cnt=[]):
         _orderList = []
         _ticks = self.getTick([code for code,volume in code_Cnt])
         _code2Ticks = dict((item['SecuCode'],item) for item in _ticks)
@@ -271,6 +284,7 @@ class TgwAccount():
         return self._BatchDelteGateOrder(uid=self._uid, accountid=self._accountid, combid=self._accountid,
                                          DeltegateList=json.dumps(_orderList))
 
+    @DeprecationWarning
     def orderToPercent(self,code_weights=[]):  #
         '''[{"SecuCode":"股票代码","Market":"市场类型","Volume":"委托数量","Price":"委托价格","Direct":"买卖方向,1-买入，2-卖出","EntrustType":"委托类型,1-限价 2-市价","ItemExtend":"扩展字段"}]'''
         _account = self.earningsData()
