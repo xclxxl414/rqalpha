@@ -86,7 +86,7 @@ class TaskMgr():
         _child2parents = {}
         _name2Factors = {}
         for factor in factorObjs:
-            fname = factor.__class__.__name__
+            fname = factor.name
             if len(factor.dependency()) > 0:
                 _child2parents[fname] = factor.dependency()
             _name2Factors[fname] = factor
@@ -209,13 +209,15 @@ class TaskMgr():
         config.base.strategy_file = os.path.join(self.sourcePath, "strategys/"+ sname + ".ipynb")
         config.mod.alphaStar_tgw.combid = accountid
         config.mod.alphaStar_tgw.accountid = accountid
-        config.base.start_date = config.base.end_date
 
         config.base.accounts ={"STOCK":config.mod.alphaStar_tgw.starting_cash}
         config.base.init_positions = {}
         runner.run(config)
 
 class StrategyRunner():
+    '''
+    策略运行，向淘股王账号发送调仓信息
+    '''
     def __init__(self,config):
         self._config = config
         env = Environment(config)
@@ -227,6 +229,7 @@ class StrategyRunner():
             set_loggers(config)
             basic_system_log.debug("\n" + pformat(config.convert_to_dict()))
 
+
             env.set_global_vars(GlobalVars())
             mod_handler.set_env(env)
             mod_handler.start_up()
@@ -234,6 +237,10 @@ class StrategyRunner():
             if not env.data_source:
                 env.set_data_source(BaseDataSource(config.base.data_bundle_path))
             env.set_data_proxy(DataProxy(env.data_source))
+
+            # TODO 校验交易日
+            config.base.end_date = self.verifyLatestTradingDay(env.data_proxy, config)
+            config.base.start_date = config.base.end_date
 
             Scheduler.set_trading_dates_(env.data_source.get_trading_calendar())
             scheduler = Scheduler(config.base.frequency)
@@ -261,6 +268,14 @@ class StrategyRunner():
             code = _exception_handler(user_exc)
             mod_handler.tear_down(code, user_exc)
 
+    @classmethod
+    def verifyLatestTradingDay(cls, dataproxy, config):
+        _start = config.base.end_date + timedelta(days = -20)
+        b = dataproxy.get_trading_dates(_start, config.base.end_date)
+        if b[-1].date() != config.base.end_date:
+            raise CustomException("enddate is not TradingDay")
+        return b[-2].date()
+
     def clear(self):
         result = self.mod_handler.tear_down(const.EXIT_CODE.EXIT_SUCCESS)
         system_log.debug(_(u"strategy run successfully, normal exit"))
@@ -279,6 +294,7 @@ class StrategyRunner():
 
         broker = env.broker
         assert broker is not None
+        broker.setAccount(config.mod.alphaStar_tgw)
         env.portfolio = broker.get_portfolio()
         env.benchmark_portfolio = create_benchmark_portfolio(env)
 
