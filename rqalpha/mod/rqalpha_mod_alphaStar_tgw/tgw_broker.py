@@ -256,11 +256,11 @@ class TgwAccount():
             _res = self._get(self._tradeRootUrl + "/BatchDelteGateOrder", _param)
             # print(_res)
             if _res is None or _res['data']["code"] != 0:
-                system_log.error("BatchDelteGateOrder failed:{0},{1},return code：{4}", uid, combid, _res['date']["code"])
+                system_log.error("BatchDelteGateOrder failed:{},{},return ：{},{}", uid, combid, _res['data']["code"],_res)
                 return None
             return _res["data"]["info"]
         except Exception as e:
-            system_log.error("BatchDelteGateOrder failed:{0},{1},info:{2}",uid,combid,e)
+            system_log.error("BatchDelteGateOrder failed:{},{},info:{}",uid,combid,e)
             import traceback
             traceback.print_exc()
             return None
