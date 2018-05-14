@@ -8,7 +8,7 @@
 """
 
 from rqalpha.interface import AbstractMod
-from rqalpha.utils.logger import system_log
+from rqalpha.utils.logger import system_log,user_system_log
 import pandas as pd
 from rqalpha.api import *
 
@@ -35,6 +35,7 @@ class UtilsMod(AbstractMod):
                                         EXECUTION_PHASE.AFTER_TRADING,
                                         EXECUTION_PHASE.SCHEDULED)
         def equalWeight_order(tobe_holding_codes=[], context=None):
+            user_system_log.info("equalWeight_order:{}",str(tobe_holding_codes))
             if len(tobe_holding_codes) < 1:
                 for code, pos in context.portfolio.positions.items():
                     if pos.sellable > 0:

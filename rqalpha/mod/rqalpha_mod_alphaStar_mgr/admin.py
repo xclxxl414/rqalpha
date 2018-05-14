@@ -39,9 +39,18 @@ class Admin():
                 `accountid` INTEGER NOT NULL,
                 FOREIGN KEY(user) REFERENCES User(name)
                 )'''
+        _createStrategyLog = '''CREATE TABLE IF NOT EXISTS StrategyLog(
+                        `id` bigint primary key auto_increment,
+                        `sname` varchar(64) NOT NULL,
+                        `log` TEXT NOT NULL,
+                        `tradetime` timestamp NOT NULL,
+                        `uptime` timestamp NOT NULL,
+                        FOREIGN KEY(sname) REFERENCES Strategys(sname)
+                        )'''
         self.cursor.execute(_createUser)
         self.cursor.execute(_createFactor)
         self.cursor.execute(_createStrategy)
+        self.cursor.execute(_createStrategyLog)
         self.conn.commit()
 
 
@@ -271,6 +280,15 @@ class Admin():
         except Exception as e:
             system_log.error("getStrategy failed:{0}", e)
             return None
+
+    def dumpStrategyLog(self,sname,tradingDt,log):
+        try:
+            self.cursor.execute("insert into StrategyLog(sname,tradetime,log,uptime) values(%s,%s,%s,%s)",(sname,tradingDt,log,datetime.now()))
+            self.conn.commit()
+            return True
+        except Exception as e:
+            system_log.error("dumpStrategyLog failed:{0}", e)
+            return False
 
 if __name__ == "__main__":
     obj = Admin(db=":memory:")

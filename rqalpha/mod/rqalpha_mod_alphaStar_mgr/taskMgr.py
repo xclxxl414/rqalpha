@@ -141,9 +141,9 @@ class TaskMgr():
             for sname, user,accountid in self.adminConsole.getPublishedStrategys():
                 try:
                     self._runAStrategy(sname, accountid,config,runner)
-                    system_log.info("strategy {0} run Finshed till {1}", sname, config.base.end_date)
+                    system_log.info("strategy {} run Finshed till {}", sname, config.base.end_date)
                 except  Exception as e:
-                    system_log.error("runAStrategy failed,fname;{0},error:{1}", sname, e)
+                    system_log.error("_runAStrategy failed,fname;{0},error:{1}", sname, e)
             system_log.info("runStrategys Finshed for: {0}", config.base.end_date)
             runner.clear()
         except Exception as e:
@@ -159,6 +159,7 @@ class TaskMgr():
             system_log.info("factor {0} has not published", fname)
             return
         self._runAFactor(fname, dataInitDt, endDt, modconf)
+        system_log.info("factor {0} run Finshed till {1}", fname, endDt)
 
     def _runAFactor(self, fname, dataInitDt, endDt, modconf):
         _dataObj = FactorData(fname, self.factorDataPath, defaultInitDate=dataInitDt)
@@ -198,6 +199,7 @@ class TaskMgr():
         try:
             obj = StrategyRunner(config)
             self._runAStrategy(sname,sinfo[2],config,obj)
+            system_log.info("strategy {} run Finshed till {}", sname, config.base.end_date)
             obj.clear()
         except Exception as e:
             import traceback
@@ -212,7 +214,9 @@ class TaskMgr():
 
         config.base.accounts ={"STOCK":config.mod.alphaStar_tgw.starting_cash}
         config.base.init_positions = {}
-        runner.run(config)
+        orders = runner.run(config)
+        self.adminConsole.dumpStrategyLog(sname,config.base.end_date,str(orders))
+        return orders
 
 class StrategyRunner():
     '''
@@ -336,3 +340,6 @@ class StrategyRunner():
 
         from rqalpha.core.executor import Executor
         Executor(env).run(self.bar_dict)
+        return env.broker.get_open_orders()
+
+
