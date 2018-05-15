@@ -46,7 +46,11 @@ def testDailyProcess():
     from rqalpha.mod.rqalpha_mod_alphaStar_mgr import _dailyProcess
     _dailyProcess(config_path="E:\\evilAlpha\\staralpha\\ipynbs\config_taskmgr.yml")
 
+def testMonitor():
+    from rqalpha.mod.rqalpha_mod_alphaStar_mgr import _monitor
+    _monitor(config_path="E:\\evilAlpha\\staralpha\\ipynbs\config_taskmgr.yml")
+
 if __name__ == "__main__":
-    testCallStrategys()
+    testMonitor()
 
 
