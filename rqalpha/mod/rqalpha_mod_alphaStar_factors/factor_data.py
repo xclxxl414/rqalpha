@@ -38,7 +38,7 @@ class FactorData():
             os.mkdir(self._factorPath)
 
     def getLatestDate(self):
-        df = pd.DataFrame()
+        # df = pd.DataFrame()
         _fileList = []
         for i in os.listdir(self._factorPath):
             _absPath = os.path.join(self._factorPath, i)

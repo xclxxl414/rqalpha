@@ -39,9 +39,18 @@ class Admin():
                 `accountid` INTEGER NOT NULL,
                 FOREIGN KEY(user) REFERENCES User(name)
                 )'''
+        _createStrategyLog = '''CREATE TABLE IF NOT EXISTS StrategyLog(
+                        `id` bigint primary key auto_increment,
+                        `sname` varchar(64) NOT NULL,
+                        `log` TEXT NOT NULL,
+                        `tradetime` timestamp NOT NULL,
+                        `uptime` timestamp NOT NULL,
+                        FOREIGN KEY(sname) REFERENCES Strategys(sname)
+                        )'''
         self.cursor.execute(_createUser)
         self.cursor.execute(_createFactor)
         self.cursor.execute(_createStrategy)
+        self.cursor.execute(_createStrategyLog)
         self.conn.commit()
 
 
@@ -271,6 +280,29 @@ class Admin():
         except Exception as e:
             system_log.error("getStrategy failed:{0}", e)
             return None
+
+    def dumpStrategyLog(self,sname,tradingDt,log):
+        try:
+            self.cursor.execute("insert into StrategyLog(sname,tradetime,log,uptime) values(%s,%s,%s,%s)",(sname,tradingDt,log,datetime.now()))
+            self.conn.commit()
+            return True
+        except Exception as e:
+            system_log.error("dumpStrategyLog failed:{0}", e)
+            return False
+
+    def getStrategyLog(self,tradingDt=datetime(2015,1,1).date()):
+        res = []
+        try:
+            _start = tradingDt.strftime("%Y-%m-%d")
+            _end = (tradingDt + timedelta(days=1)).strftime("%Y-%m-%d")
+            self.cursor.execute("select a.sname,a.log,a.uptime,b.user from StrategyLog as a "
+                                "inner join Strategys as b on a.sname=b.sname where a.tradetime between %s and %s",(_start,_end))
+            for row in self.cursor:
+                res.append((row[0],row[1],row[2],row[3]))
+            return res
+        except Exception as e:
+            system_log.error("getStrategyLog failed:{0}", e)
+            return res
 
 if __name__ == "__main__":
     obj = Admin(db=":memory:")

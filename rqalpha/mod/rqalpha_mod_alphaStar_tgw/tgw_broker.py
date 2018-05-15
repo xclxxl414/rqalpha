@@ -32,12 +32,16 @@ class TgwBroker(AbstractBroker):
         self.mod_config = mod_config
         self._tgwAccont = None
         self._env.event_bus.add_listener(EVENT.AFTER_TRADING, self.afterTrading)
+        self._env.event_bus.add_listener(EVENT.BEFORE_TRADING, self.beforeTrading)
 
     def setAccount(self,mod_config):
         self.mod_config = mod_config
         self._tgwAccont = TgwAccount(tradeUrl=mod_config.tgwurl, tickUrl=mod_config.tickurl
                                      , secretId_TICK=mod_config.secretId_TICK, secretKey_TICK=mod_config.secretKey_TICK
                                      , secretId=mod_config.secretId, secretKey=mod_config.secretKey,uid=mod_config.uid,accountid = mod_config.accountid)
+
+    def beforeTrading(self, event):
+        self._tgwAccont.beforeTrading()
 
     def afterTrading(self,event):
         self._tgwAccont.afterTrading()
@@ -95,7 +99,7 @@ class TgwBroker(AbstractBroker):
                                      POSITION_EFFECT.OPEN, order_book_id)
 
     def get_open_orders(self, order_book_id=None):
-        return []
+        return self._tgwAccont.openOrders()
 
     def submit_order(self, order):
         account = self._env.get_account(order.order_book_id)
@@ -265,13 +269,18 @@ class TgwAccount():
             traceback.print_exc()
             return None
 
+    def beforeTrading(self):
+        self._openOrders = []
+
     def orderPending(self,code,volume):
         self._openOrders.append((code,volume))
+
+    def openOrders(self):
+        return self._openOrders
 
     def afterTrading(self):
         system_log.info("push order:{} to TGW account:{} ", str(self._openOrders),self._accountid)
         self._orderShare(self._openOrders)
-        self._openOrders = []
 
     def _orderShare(self, code_Cnt=[]):
         _orderList = []

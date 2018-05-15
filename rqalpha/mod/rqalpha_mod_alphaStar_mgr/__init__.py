@@ -493,7 +493,7 @@ def publishStrategy(**kwargs):
     '''
     [alphaStar_mgr] publishStrategy
     '''
-    _publishStrategy(kwargs)
+    _publishStrategy(**kwargs)
 
 def _publishStrategy(**kwargs):
     config_path = kwargs.get('config_path', None)
@@ -516,7 +516,7 @@ def unPublishStrategy(**kwargs):
     '''
     [alphaStar_mgr] unPublishStrategy
     '''
-    _unPublishStrategy(kwargs)
+    _unPublishStrategy(**kwargs)
 
 def _unPublishStrategy(**kwargs):
     config_path = kwargs.get('config_path', None)
@@ -537,7 +537,7 @@ def getPublishedStrategys(**kwargs):
     '''
     [alphaStar_mgr] getPublishedStrategys
     '''
-    _getPublishedStrategys(kwargs)
+    _getPublishedStrategys(**kwargs)
 
 def _getPublishedStrategys(**kwargs):
     config_path = kwargs.get('config_path', None)
@@ -548,6 +548,55 @@ def _getPublishedStrategys(**kwargs):
     config = _parse_config(kwargs, config_path)
     ret = Admin(db=config.base.adminDB).getPublishedStrategys()
     print(ret)
+
+@cli.command()
+@click.help_option('-h', '--help')
+@click.option('--config', 'config_path', type=click.STRING, help="config file path")
+def monitor(**kwargs):
+    _monitor(**kwargs)
+
+def _monitor(**kwargs):
+    config_path = kwargs.get('config_path', None)
+    if config_path is not None:
+        config_path = os.path.abspath(config_path)
+        kwargs.pop('config_path')
+
+    config = _parse_config(kwargs, config_path)
+    _now = datetime.now()
+
+    # verify tradingday
+    config.base.end_date = _now.date()
+    from rqalpha.data.base_data_source import BaseDataSource
+    from rqalpha.data.data_proxy import DataProxy
+    from .taskMgr import StrategyRunner
+    _dp = DataProxy(BaseDataSource(config.base.data_bundle_path))
+    StrategyRunner.verifyLatestTradingDay(_dp, config)
+
+    _admin = Admin(db=config.base.adminDB)
+    from .sendMail import SendMail
+    _mail = SendMail(smtpserver=config.base.monitorMail.host, username=config.base.monitorMail.uname,
+                     passwd=config.base.monitorMail.passwd)
+    #factormonitor
+    _factorList = _admin.getPublishedFactors()
+    _factorStatus = []
+    from rqalpha.mod.rqalpha_mod_alphaStar_factors.factor_data import FactorData
+    for fname, user in _factorList:
+        _fdata =FactorData(fname = fname,path=config.mod.alphaStar_factors.factor_data_path
+                           ,defaultInitDate=_to_date(config.mod.alphaStar_factors.factor_data_init_date))
+        latestDt = _fdata.getLatestDate()
+        _factorStatus.append("\t".join([str(latestDt),fname,user]))
+    _content = "已发布因子数：%d\n\n最新因子数据截止日：\n最新数据日\t因子\t开发者\n"%(len(_factorList),) \
+               + "\n".join(_factorStatus)
+    _mail.SendTo(to=list(config.base.monitorMail.group),subject="因子运行监控",
+                 content = _content, attaches=[])
+
+    # strategymonitor
+    _strategyList = _admin.getPublishedStrategys()
+    _strategyStatus = _admin.getStrategyLog(_now.date())
+    _content = "已发布策略数：%d\n\n今日策略信号：\n策略\t开发者\t信号时间\t信号\n" % (len(_strategyList),) \
+               + "\n".join(["\t".join([i[0],i[3],i[2],i[1]]) for i in _strategyStatus])
+    _mail.SendTo(to=list(config.base.monitorMail.group), subject="策略运行监控",
+                 content=_content, attaches=[])
 
 def _parse_config(config_args, config_path=None, click_type = True):
     conf = configpk.load_config(config_path)
