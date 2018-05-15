@@ -280,9 +280,13 @@ class TgwAccount():
 
     def afterTrading(self):
         system_log.info("push order:{} to TGW account:{} ", str(self._openOrders),self._accountid)
+        if len(self._openOrders) <1:
+            return
         self._orderShare(self._openOrders)
 
     def _orderShare(self, code_Cnt=[]):
+        if len(code_Cnt) <1:
+            return None
         _orderList = []
         _ticks = self.getTick([code for code,volume in code_Cnt])
         _code2Ticks = dict((item['SecuCode'],item) for item in _ticks)
