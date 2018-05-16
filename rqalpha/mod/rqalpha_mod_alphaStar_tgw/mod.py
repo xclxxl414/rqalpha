@@ -13,7 +13,7 @@ from rqalpha.interface import AbstractMod
 from rqalpha.utils.i18n import gettext as _
 from .tgw_broker import TgwBroker
 from .tgw_event_source import TGWEventSource
-
+from .tgw_price_board import TGWPriceBoard
 
 class TGWMod(AbstractMod):
     def __init__(self):
@@ -24,9 +24,10 @@ class TGWMod(AbstractMod):
         if env.config.base.frequency != "1d":
             raise NotImplementedError(_("Frequency {} is not support.").format(env.config.base.frequency))
 
-        env.set_broker(TgwBroker(env, mod_config))
+        env.set_broker(TgwBroker(env,mod_config))
         event_source = TGWEventSource(env)
         env.set_event_source(event_source)
+        env.set_price_board(TGWPriceBoard())
 
     def tear_down(self, code, exception=None):
         pass

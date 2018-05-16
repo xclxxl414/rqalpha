@@ -66,7 +66,7 @@ def _dailyProcess(**kwargs):
     from rqalpha.data.data_proxy import DataProxy
     from .taskMgr import StrategyRunner
     _dp = DataProxy(BaseDataSource(config.base.data_bundle_path))
-    StrategyRunner.verifyLatestTradingDay(_dp,config)
+    StrategyRunner.adjustTradingDay(_dp, config)
 
     #check bundle update
     _file = os.path.join(config.base.data_bundle_path,"stocks.bcolz")
@@ -570,7 +570,7 @@ def _monitor(**kwargs):
     from rqalpha.data.data_proxy import DataProxy
     from .taskMgr import StrategyRunner
     _dp = DataProxy(BaseDataSource(config.base.data_bundle_path))
-    StrategyRunner.verifyLatestTradingDay(_dp, config)
+    StrategyRunner.adjustTradingDay(_dp, config)
 
     _admin = Admin(db=config.base.adminDB)
     from .sendMail import SendMail
