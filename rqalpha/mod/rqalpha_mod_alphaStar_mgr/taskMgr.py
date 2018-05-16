@@ -13,6 +13,7 @@ from rqalpha.mod.rqalpha_mod_alphaStar_factors.factor_data import FactorData
 from datetime import *
 import os
 import sys
+import pytz
 import datetime
 from pprint import pformat
 import six
@@ -144,6 +145,8 @@ class TaskMgr():
                     system_log.info("strategy {} run Finshed till {}", sname, config.base.end_date)
                 except  Exception as e:
                     system_log.error("_runAStrategy failed,fname;{0},error:{1}", sname, e)
+                    import traceback
+                    traceback.print_exc()
             system_log.info("runStrategys Finshed for: {0}", config.base.end_date)
             runner.clear()
         except Exception as e:
@@ -243,8 +246,10 @@ class StrategyRunner():
             env.set_data_proxy(DataProxy(env.data_source))
 
             # TODO 校验交易日
-            config.base.end_date = self.verifyLatestTradingDay(env.data_proxy, config)
+            config.base.start_date,config.base.end_date = self.adjustTradingDay(env.data_proxy, config)
             config.base.start_date = config.base.end_date
+            config.base.trading_calendar = env.data_proxy.get_trading_dates(config.base.start_date, config.base.end_date)
+            config.base.timezone = pytz.utc
 
             Scheduler.set_trading_dates_(env.data_source.get_trading_calendar())
             scheduler = Scheduler(config.base.frequency)
@@ -273,12 +278,12 @@ class StrategyRunner():
             mod_handler.tear_down(code, user_exc)
 
     @classmethod
-    def verifyLatestTradingDay(cls, dataproxy, config):
+    def adjustTradingDay(cls, dataproxy, config):
         _start = config.base.end_date + timedelta(days = -20)
         b = dataproxy.get_trading_dates(_start, config.base.end_date)
         if b[-1].date() != config.base.end_date:
             raise CustomException("enddate is not TradingDay")
-        return b[-2].date()
+        return b[-2].date(),b[-1].date()
 
     def clear(self):
         result = self.mod_handler.tear_down(const.EXIT_CODE.EXIT_SUCCESS)
@@ -288,7 +293,6 @@ class StrategyRunner():
     def run(self,config):
         env = self.env
         env.set_strategy_loader(FileStrategyLoader(config.base.strategy_file))
-        _adjust_start_date(env.config, env.data_proxy)
         _validate_benchmark(env.config, env.data_proxy)
 
         # FIXME
