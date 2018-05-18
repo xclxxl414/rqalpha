@@ -594,7 +594,7 @@ def _monitor(**kwargs):
     _strategyList = _admin.getPublishedStrategys()
     _strategyStatus = _admin.getStrategyLog(_now.date())
     _content = "已发布策略数：%d\n\n今日策略信号：\n策略\t开发者\t信号时间\t信号\n" % (len(_strategyList),) \
-               + "\n".join(["\t".join([i[0],i[3],i[2],i[1]]) for i in _strategyStatus])
+               + "\n".join(["\t".join([i[0],i[3],str(i[2]),i[1]]) for i in _strategyStatus])
     _mail.SendTo(to=list(config.base.monitorMail.group), subject="策略运行监控",
                  content=_content, attaches=[])
 
