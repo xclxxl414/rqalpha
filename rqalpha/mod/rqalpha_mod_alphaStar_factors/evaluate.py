@@ -229,7 +229,8 @@ def getFactorsTmp(env=None,config=None,fname = "name"):
     scope = env.strategy_loader.load(scope)
     user_factor = Factor(scope,FactorContext(config.mod.alphaStar_factors))
 
-    res = user_factor.compute(env.trading_dt,config.base.end_date)
+    a = config.base.end_date
+    res = user_factor.compute(env.trading_dt,datetime.datetime(a.year,a.month,a.day))
     return res
 
 def Prices(env):
