@@ -2,6 +2,14 @@
 CHANGELOG
 ==================
 
+4.0.0
+==================
+
+- 增加 :code:`rqalpha_mod_alphaStar_factors`
+- 增加 :code:`rqalpha_mod_alphaStar_mgr`
+- 增加 :code:`rqalpha_mod_alphaStar_tgw`
+- 增加 :code:`rqalpha_mod_alphaStar_utils`
+- 修改next_bar回测逻辑
 3.0.9
 ==================
 
