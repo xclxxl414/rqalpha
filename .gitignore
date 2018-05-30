@@ -20,3 +20,8 @@ persist/
 .tox
 rqalpha_test_coverage_report/
 .tmp.pkl
+*.csv
+*.xls
+*.xlsx
+_test*.*
+*Untitled*
