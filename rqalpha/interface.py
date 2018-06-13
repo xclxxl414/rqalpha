@@ -39,11 +39,16 @@ class AbstractAccount(with_metaclass(abc.ABCMeta)):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def order(self, order_book_id, quantity, style, target=False):
+    def order(self, order_book_id, quantity, price=None, style=None):
         """
         [Required]
+        """
+        raise NotImplementedError
 
-        系统下单函数会调用该函数来完成下单操作
+    @abc.abstractmethod
+    def order_to(self, order_book_id, quantity, price=None, style=None):
+        """
+        [Required]
         """
         raise NotImplementedError
 
