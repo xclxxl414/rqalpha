@@ -91,6 +91,14 @@ class AbstractAccount(with_metaclass(abc.ABCMeta)):
         """
         raise NotImplementedError
 
+    def name(self):
+        """
+        [Required]
+
+        返回 String 类型的账户名称
+        """
+        raise NotImplementedError
+
     @abc.abstractproperty
     def type(self):
         """

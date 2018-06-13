@@ -37,7 +37,8 @@ class BaseAccount(AbstractAccount):
 
     __repr__ = property_repr
 
-    def __init__(self, total_cash, positions, backward_trade_set=set(), register_event=True):
+    def __init__(self, name,total_cash, positions, backward_trade_set=set(), register_event=True):
+        self._name = name
         self._positions = positions
         self._frozen_cash = 0
         self._total_cash = total_cash
@@ -63,6 +64,10 @@ class BaseAccount(AbstractAccount):
         :param trades: 交易列表，基于Trades 将当前Positions ==> 最新Positions
         """
         raise NotImplementedError
+
+    @property
+    def name(self):
+        return self._name
 
     @property
     def type(self):
