@@ -120,19 +120,17 @@ class Environment(object):
             raise RuntimeError(_(u"Unknown Account Type {}").format(account_type))
         return self._position_model_dict[account_type]
 
-    def can_submit_order(self, order):
+    def can_submit_order(self,account, order):
         if Environment.get_instance().config.extra.is_hold:
             return False
-        account = self.get_account(order.order_book_id)
         for v in self._frontend_validators:
             if not v.can_submit_order(account, order):
                 return False
         return True
 
-    def can_cancel_order(self, order):
+    def can_cancel_order(self,account, order):
         if order.is_final():
             return False
-        account = self.get_account(order.order_book_id)
         for v in self._frontend_validators:
             if not v.can_cancel_order(account, order):
                 return False

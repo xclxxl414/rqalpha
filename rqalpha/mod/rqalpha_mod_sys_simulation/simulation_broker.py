@@ -51,7 +51,7 @@ class SimulationBroker(AbstractBroker, Persistable):
     def get_portfolio(self):
         return init_portfolio(self._env)
 
-    def get_open_orders(self, order_book_id=None):
+    def get_open_orders(self,order_book_id=None):
         if order_book_id is None:
             return [order for account, order in self._open_orders]
         else:
@@ -79,8 +79,7 @@ class SimulationBroker(AbstractBroker, Persistable):
             account = self._env.get_account(o.order_book_id)
             self._delayed_orders.append((account, o))
 
-    def submit_order(self, order):
-        account = self._env.get_account(order.order_book_id)
+    def submit_order(self,account, order):
         self._env.event_bus.publish_event(Event(EVENT.ORDER_PENDING_NEW, account=account, order=order))
         if order.is_final():
             return
@@ -93,9 +92,7 @@ class SimulationBroker(AbstractBroker, Persistable):
         if self._match_immediately:
             self._match()
 
-    def cancel_order(self, order):
-        account = self._env.get_account(order.order_book_id)
-
+    def cancel_order(self, account,order):
         self._env.event_bus.publish_event(Event(EVENT.ORDER_PENDING_CANCEL, account=account, order=order))
 
         order.mark_cancelled(_(u"{order_id} order has been cancelled by user.").format(order_id=order.order_id))

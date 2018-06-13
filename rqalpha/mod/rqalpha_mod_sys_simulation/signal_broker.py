@@ -42,8 +42,7 @@ class SignalBroker(AbstractBroker):
     def get_open_orders(self, order_book_id=None):
         return []
 
-    def submit_order(self, order):
-        account = self._env.get_account(order.order_book_id)
+    def submit_order(self, account,order):
         self._env.event_bus.publish_event(Event(EVENT.ORDER_PENDING_NEW, account=account, order=copy(order)))
         if order.is_final():
             return
@@ -51,7 +50,7 @@ class SignalBroker(AbstractBroker):
         self._env.event_bus.publish_event(Event(EVENT.ORDER_CREATION_PASS, account=account, order=copy(order)))
         self._match(account, order)
 
-    def cancel_order(self, order):
+    def cancel_order(self, account,order):
         user_system_log.error(_(u"cancel_order function is not supported in signal mode"))
         return None
 

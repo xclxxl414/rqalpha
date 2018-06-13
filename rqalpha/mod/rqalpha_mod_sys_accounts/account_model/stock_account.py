@@ -633,8 +633,8 @@ class StockAccount(BaseAccount):
             return r_order
         if r_order.type == ORDER_TYPE.MARKET:
             r_order.set_frozen_price(price)
-        if env.can_submit_order(r_order):
-            env.broker.submit_order(r_order)
+        if env.can_submit_order(self,r_order):
+            env.broker.submit_order(self,r_order)
         return r_order
 
     def _sell_all_stock(self, order_book_id, quantity, style):
@@ -644,6 +644,6 @@ class StockAccount(BaseAccount):
             order.mark_rejected(_(u"Order Creation Failed: 0 order quantity"))
             return order
 
-        if env.can_submit_order(order):
-            env.broker.submit_order(order)
+        if env.can_submit_order(self,order):
+            env.broker.submit_order(self,order)
         return order

@@ -99,10 +99,10 @@ class TgwBroker(AbstractBroker):
                                      SIDE.BUY if quantity > 0 else SIDE.SELL,
                                      POSITION_EFFECT.OPEN, order_book_id)
 
-    def get_open_orders(self, order_book_id=None):
+    def get_open_orders(self,order_book_id=None):
         return self._tgwAccont.openOrders()
 
-    def submit_order(self, order):
+    def submit_order(self, account,order):
         account = self._env.get_account(order.order_book_id)
         self._env.event_bus.publish_event(Event(EVENT.ORDER_PENDING_NEW, account=account, order=copy(order)))
         if order.is_final():
@@ -111,7 +111,7 @@ class TgwBroker(AbstractBroker):
         self._env.event_bus.publish_event(Event(EVENT.ORDER_CREATION_PASS, account=account, order=copy(order)))
         self._tgwAccont.orderPending(order.order_book_id, order.quantity if order.side == SIDE.BUY else -1 * order.quantity)
 
-    def cancel_order(self, order):
+    def cancel_order(self,account, order):
         system_log.error(_(u"cancel_order function is not supported in signal mode"))
         return None
 

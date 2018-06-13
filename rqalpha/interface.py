@@ -53,6 +53,27 @@ class AbstractAccount(with_metaclass(abc.ABCMeta)):
         raise NotImplementedError
 
     @abc.abstractmethod
+    def get_order(self,order_id):
+        """
+        [Required]
+        """
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_open_orders(self):
+        """
+        [Required]
+        """
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def cancel_order(self,order_id):
+        """
+        [Required]
+        """
+        raise NotImplementedError
+
+    @abc.abstractmethod
     def get_state(self):
         """
         [Required]
@@ -485,7 +506,7 @@ class AbstractBroker(with_metaclass(abc.ABCMeta)):
         """
 
     @abc.abstractmethod
-    def submit_order(self, order):
+    def submit_order(self,account, order):
         """
         [Required]
 
@@ -495,7 +516,7 @@ class AbstractBroker(with_metaclass(abc.ABCMeta)):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def cancel_order(self, order):
+    def cancel_order(self,account, order):
         """
         [Required]
 
@@ -507,7 +528,7 @@ class AbstractBroker(with_metaclass(abc.ABCMeta)):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_open_orders(self, order_book_id=None):
+    def get_open_orders(self,order_book_id=None):
         """
         [Required]
 

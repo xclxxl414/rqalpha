@@ -634,8 +634,8 @@ class FutureAccount(BaseAccount):
         for o in orders:
             if o.type == ORDER_TYPE.MARKET:
                 o.set_frozen_price(price)
-            if env.can_submit_order(o):
-                env.broker.submit_order(o)
+            if env.can_submit_order(self,o):
+                env.broker.submit_order(self,o)
 
         # 向前兼容，如果创建的order_list 只包含一个订单的话，直接返回对应的订单，否则返回列表
         if len(orders) == 1:
