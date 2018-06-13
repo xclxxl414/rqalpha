@@ -46,8 +46,7 @@ mod:
     enabled: false
   alphaStar_utils:
     enabled: true
-  sys_simulation:msyh
-
+  sys_simulation:
     enabled: true
 
 extra:
