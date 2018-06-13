@@ -44,6 +44,10 @@ class BaseAccount(AbstractAccount):
         self._transaction_cost = 0
         if register_event:
             self.register_event()
+        self._broker = None
+
+    def set_broker(self,broker):
+        self._broker = broker
 
     def register_event(self):
         """
