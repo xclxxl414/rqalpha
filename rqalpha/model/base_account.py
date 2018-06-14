@@ -44,9 +44,11 @@ class BaseAccount(AbstractAccount):
         self._total_cash = total_cash
         self._backward_trade_set = backward_trade_set
         self._transaction_cost = 0
+
         if register_event:
             self.register_event()
         self._broker = None
+
 
     def set_broker(self,broker):
         self._broker = broker

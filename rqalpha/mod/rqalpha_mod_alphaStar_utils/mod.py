@@ -34,9 +34,9 @@ class UtilsMod(AbstractMod):
                                         EXECUTION_PHASE.ON_BAR,
                                         EXECUTION_PHASE.AFTER_TRADING,
                                         EXECUTION_PHASE.SCHEDULED)
-        def equalWeight_order(tobe_holding_codes=[], context=None):
+        def equalWeight_order(tobe_holding_codes=[], context=None,accountname= None):
             user_system_log.info("equalWeight_order:{}",str(tobe_holding_codes))
-            account = context.stock_account
+            account = context.get_account(accountname)
             if len(tobe_holding_codes) < 1:
                 for code, pos in context.portfolio.positions.items():
                     if pos.sellable > 0:
@@ -50,8 +50,7 @@ class UtilsMod(AbstractMod):
                 if pos.sellable > 0:
                     account.order_shares(pos.order_book_id, -1 * pos.sellable)
             for code in tobe_holding_codes:
-                _acount = context.portfolio.stock_account
-                _cash_percent = round(_acount.cash / _acount.total_value, 2)
+                _cash_percent = round(account.cash / account.total_value, 2)
                 _real_percent = min(_cash_percent, _target_percent)
                 #         print(_acount.cash,_acount.total_value,_cash_percent,_real_percent)
                 if _real_percent > 0:

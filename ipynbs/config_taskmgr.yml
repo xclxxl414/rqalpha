@@ -24,11 +24,10 @@ base:
   persist_mode: real_time
   # 设置策略可交易品种，目前支持 `stock` (股票账户)、`future` (期货账户)，您也可以自行扩展
   accounts:
-    # 如果想设置使用某个账户，只需要增加对应的初始资金即可
-    stock: 1000000
-    future: ~
-  # 设置初始仓位
-  init_positions: {}
+    # 配置账户：包括其实类型、起始资金、起始仓位、手续费等配置
+    {
+      "STOCK":{"type":"STOCK","cash_base":1000000,"position_base":[]},
+    }
   sourcePath: E:\evilAlpha\staralpha\ipynbs
   adminDB: {"host":"172.18.44.231","port": 3306,"db": "Test","user": "test","passwd": "test"}
   monitorMail:
@@ -63,9 +62,6 @@ mod:
 
     # 账户信息
     uid: 63790
-    combid: ~
-    accountid: ~
-    starting_cash: 10000000
 #  alphaStar_mgr:
 #    enabled: true
   alphaStar_factors:

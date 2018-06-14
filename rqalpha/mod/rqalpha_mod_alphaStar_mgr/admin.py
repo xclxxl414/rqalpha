@@ -103,7 +103,7 @@ class Admin():
 
     def _signaturePass(self,passwd):
         #TODO implement this function
-        return passwd;
+        return passwd
 
     def registerFactor(self,fname,uname,adminPass):
         if not self.checkAdmin(adminPass):

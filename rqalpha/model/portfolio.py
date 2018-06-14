@@ -72,19 +72,11 @@ class Portfolio(object):
         """
         return self._accounts
 
-    @property
-    def stock_account(self):
-        """
-        [StockAccount] 股票账户
-        """
-        return self._accounts.get(DEFAULT_ACCOUNT_TYPE.STOCK.name, None)
-
-    @property
-    def future_account(self):
-        """
-        [FutureAccount] 期货账户
-        """
-        return self._accounts.get(DEFAULT_ACCOUNT_TYPE.FUTURE.name, None)
+    def get_account(self,name = None):
+        if name is None and len(self._accounts) == 1:
+            #默认返回唯一账户
+            return list(self._accounts.values())[0]
+        return self._accounts.get(name)
 
     @property
     def start_date(self):

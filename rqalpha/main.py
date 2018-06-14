@@ -107,9 +107,9 @@ def create_benchmark_portfolio(env):
     BenchmarkPosition = env.get_position_model(const.DEFAULT_ACCOUNT_TYPE.BENCHMARK.name)
 
     start_date = env.config.base.start_date
-    total_cash = sum(env.config.base.accounts.values())
+    total_cash = sum([account.cash_base for name,account in six.iteritems(env.config.base.accounts)])
     accounts = {
-        const.DEFAULT_ACCOUNT_TYPE.BENCHMARK.name: BenchmarkAccount(total_cash, Positions(BenchmarkPosition))
+        const.DEFAULT_ACCOUNT_TYPE.BENCHMARK.name: BenchmarkAccount(const.DEFAULT_ACCOUNT_TYPE.BENCHMARK.name,total_cash, Positions(BenchmarkPosition))
     }
     return Portfolio(start_date, 1, total_cash, accounts)
 

@@ -59,8 +59,8 @@ class SimulationBroker(AbstractBroker, Persistable):
 
     def get_state(self):
         return jsonpickle.dumps({
-            'open_orders': [o.get_state() for account, o in self._open_orders],
-            'delayed_orders': [o.get_state() for account, o in self._delayed_orders]
+            'open_orders': [{"account":account.name,"order":o.get_state()} for account, o in self._open_orders],
+            'delayed_orders': [{"account":account.name,"order":o.get_state()} for account, o in self._delayed_orders]
         }).encode('utf-8')
 
     def set_state(self, state):
@@ -69,14 +69,16 @@ class SimulationBroker(AbstractBroker, Persistable):
 
         value = jsonpickle.loads(state.decode('utf-8'))
         for v in value['open_orders']:
+            account_name = v['account']
             o = Order()
-            o.set_state(v)
-            account = self._env.get_account(o.order_book_id)
+            o.set_state(v['order'])
+            account = self._env.portfolio.get_account(account_name)
             self._open_orders.append((account, o))
         for v in value['delayed_orders']:
+            account_name = v['account']
             o = Order()
-            o.set_state(v)
-            account = self._env.get_account(o.order_book_id)
+            o.set_state(['order'])
+            account = self._env.portfolio.get_account(account_name)
             self._delayed_orders.append((account, o))
 
     def submit_order(self,account, order):

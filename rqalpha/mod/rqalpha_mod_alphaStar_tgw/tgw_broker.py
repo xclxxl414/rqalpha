@@ -36,11 +36,6 @@ class TgwBroker(AbstractBroker):
         self._tgwTick = TgwTick(tickUrl=mod_config.tickurl, secretId_TICK=mod_config.secretId_TICK
                                 , secretKey_TICK=mod_config.secretKey_TICK)
 
-    def setAccount(self,mod_config):
-        self.mod_config = mod_config
-        self._tgwAccont = TgwAccount(tradeUrl=mod_config.tgwurl, secretId=mod_config.secretId
-                                     , secretKey=mod_config.secretKey,uid=mod_config.uid,accountid = mod_config.accountid)
-
     def beforeTrading(self, event):
         self._tgwAccont.beforeTrading()
 
@@ -48,15 +43,18 @@ class TgwBroker(AbstractBroker):
         self._tgwAccont.afterTrading()
 
     def get_portfolio(self):
+        self._tgwAccont = TgwAccount(tradeUrl=self.mod_config.tgwurl, secretId=self.mod_config.secretId
+                                     , secretKey=self.mod_config.secretKey, uid=self.mod_config.uid,
+                                     accountid= list(self._env.config.base.accounts.values())[0].accountid)
         accounts = {}
         config = self._env.config
         units = 0
 
-        account_type = "STOCK"
-        starting_cash = self.mod_config.starting_cash
+        name,account_info = list(config.base.accounts.items())[0]
+        starting_cash = account_info.cash_base
 
-        account_model = self._env.get_account_model(account_type)
-        position_model = self._env.get_position_model(account_type)
+        account_model = self._env.get_account_model(account_info.type)
+        position_model = self._env.get_position_model(account_info.type)
         positions = Positions(position_model)
 
         _hodings = self._tgwAccont.getHoldsList(holdingType=HoldingType.Holding)
@@ -85,8 +83,8 @@ class TgwBroker(AbstractBroker):
 
         _earning = self._tgwAccont.earningsData()
         _availableCash = _earning.get("BalanceAmount")
-        account = account_model(_availableCash, positions)
-        accounts[account_type] = account
+        account = account_model(name,_availableCash, positions)
+        accounts[name] = account
         # print("get_portfolio",account.cash,account.total_value,positions)
         return Portfolio(config.base.start_date, account.total_value/starting_cash, starting_cash, accounts)
 
@@ -103,7 +101,6 @@ class TgwBroker(AbstractBroker):
         return self._tgwAccont.openOrders()
 
     def submit_order(self, account,order):
-        account = self._env.get_account(order.order_book_id)
         self._env.event_bus.publish_event(Event(EVENT.ORDER_PENDING_NEW, account=account, order=copy(order)))
         if order.is_final():
             return

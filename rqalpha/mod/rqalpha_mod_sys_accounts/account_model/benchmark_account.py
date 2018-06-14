@@ -22,8 +22,8 @@ from .stock_account import StockAccount
 
 
 class BenchmarkAccount(StockAccount):
-    def __init__(self, total_cash, positions, backward_trade_set=set(), dividend_receivable=None):
-        super(BenchmarkAccount, self).__init__(total_cash, positions, backward_trade_set, dividend_receivable)
+    def __init__(self,name, total_cash, positions, backward_trade_set=set(), dividend_receivable=None):
+        super(BenchmarkAccount, self).__init__(name,total_cash, positions, backward_trade_set, dividend_receivable)
         self.benchmark = Environment.get_instance().config.base.benchmark
 
     def register_event(self):

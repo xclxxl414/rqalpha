@@ -55,6 +55,6 @@ def testMonitor():
 
 if __name__ == "__main__":
     # print("haha")
-    testRunFile()
+    testCallStrategys()
 
 
