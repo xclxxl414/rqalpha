@@ -120,19 +120,17 @@ class Environment(object):
             raise RuntimeError(_(u"Unknown Account Type {}").format(account_type))
         return self._position_model_dict[account_type]
 
-    def can_submit_order(self, order):
+    def can_submit_order(self,account, order):
         if Environment.get_instance().config.extra.is_hold:
             return False
-        account = self.get_account(order.order_book_id)
         for v in self._frontend_validators:
             if not v.can_submit_order(account, order):
                 return False
         return True
 
-    def can_cancel_order(self, order):
+    def can_cancel_order(self,account, order):
         if order.is_final():
             return False
-        account = self.get_account(order.order_book_id)
         for v in self._frontend_validators:
             if not v.can_cancel_order(account, order):
                 return False
@@ -164,14 +162,6 @@ class Environment(object):
 
     def get_instrument(self, order_book_id):
         return self.data_proxy.instruments(order_book_id)
-
-    def get_account_type(self, order_book_id):
-        # 如果新的account_type 可以通过重写该函数来进行扩展
-        return get_account_type(order_book_id)
-
-    def get_account(self, order_book_id):
-        account_type = get_account_type(order_book_id)
-        return self.portfolio.accounts[account_type]
 
     def get_open_orders(self, order_book_id=None):
         return self.broker.get_open_orders(order_book_id)

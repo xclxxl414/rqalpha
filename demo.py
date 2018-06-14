@@ -54,6 +54,6 @@ def testMonitor():
     _monitor(config_path="E:\\evilAlpha\\staralpha\\ipynbs\config_taskmgr.yml")
 
 if __name__ == "__main__":
-    testRunFile()
+    testCallStrategys()
 
 

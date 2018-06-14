@@ -209,14 +209,12 @@ class TaskMgr():
             traceback.print_exc()
             system_log.error("runAStrategy failed:{0},{1}",sname,e)
 
-    def _runAStrategy(self, sname,accountid,  config,runner):
+    def _runAStrategy(self, sname,accountid,config,runner):
         # print(type(sname),sname)
         config.base.strategy_file = os.path.join(self.sourcePath, "strategys/"+ sname + ".ipynb")
-        config.mod.alphaStar_tgw.combid = accountid
-        config.mod.alphaStar_tgw.accountid = accountid
 
-        config.base.accounts ={"STOCK":config.mod.alphaStar_tgw.starting_cash}
-        config.base.init_positions = {}
+        for name,account in six.iteritems(config.base.accounts):
+            account.update({"combid":accountid,"accountid":accountid})
         orders = runner.run(config)
         self.adminConsole.dumpStrategyLog(sname,config.base.end_date,str(orders))
         return orders
@@ -302,7 +300,6 @@ class StrategyRunner():
 
         broker = env.broker
         assert broker is not None
-        broker.setAccount(config.mod.alphaStar_tgw)
         env.portfolio = broker.get_portfolio()
         env.benchmark_portfolio = create_benchmark_portfolio(env)
 

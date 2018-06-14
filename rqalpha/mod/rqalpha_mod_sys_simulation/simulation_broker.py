@@ -51,7 +51,7 @@ class SimulationBroker(AbstractBroker, Persistable):
     def get_portfolio(self):
         return init_portfolio(self._env)
 
-    def get_open_orders(self, order_book_id=None):
+    def get_open_orders(self,order_book_id=None):
         if order_book_id is None:
             return [order for account, order in self._open_orders]
         else:
@@ -59,8 +59,8 @@ class SimulationBroker(AbstractBroker, Persistable):
 
     def get_state(self):
         return jsonpickle.dumps({
-            'open_orders': [o.get_state() for account, o in self._open_orders],
-            'delayed_orders': [o.get_state() for account, o in self._delayed_orders]
+            'open_orders': [{"account":account.name,"order":o.get_state()} for account, o in self._open_orders],
+            'delayed_orders': [{"account":account.name,"order":o.get_state()} for account, o in self._delayed_orders]
         }).encode('utf-8')
 
     def set_state(self, state):
@@ -69,18 +69,19 @@ class SimulationBroker(AbstractBroker, Persistable):
 
         value = jsonpickle.loads(state.decode('utf-8'))
         for v in value['open_orders']:
+            account_name = v['account']
             o = Order()
-            o.set_state(v)
-            account = self._env.get_account(o.order_book_id)
+            o.set_state(v['order'])
+            account = self._env.portfolio.get_account(account_name)
             self._open_orders.append((account, o))
         for v in value['delayed_orders']:
+            account_name = v['account']
             o = Order()
-            o.set_state(v)
-            account = self._env.get_account(o.order_book_id)
+            o.set_state(['order'])
+            account = self._env.portfolio.get_account(account_name)
             self._delayed_orders.append((account, o))
 
-    def submit_order(self, order):
-        account = self._env.get_account(order.order_book_id)
+    def submit_order(self,account, order):
         self._env.event_bus.publish_event(Event(EVENT.ORDER_PENDING_NEW, account=account, order=order))
         if order.is_final():
             return
@@ -93,9 +94,7 @@ class SimulationBroker(AbstractBroker, Persistable):
         if self._match_immediately:
             self._match()
 
-    def cancel_order(self, order):
-        account = self._env.get_account(order.order_book_id)
-
+    def cancel_order(self, account,order):
         self._env.event_bus.publish_event(Event(EVENT.ORDER_PENDING_CANCEL, account=account, order=order))
 
         order.mark_cancelled(_(u"{order_id} order has been cancelled by user.").format(order_id=order.order_id))

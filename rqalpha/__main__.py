@@ -90,8 +90,8 @@ def update_bundle(data_bundle_path, locale):
 @click.option('-e', '--end-date', 'base__end_date', type=Date())
 @click.option('-bm', '--benchmark', 'base__benchmark', type=click.STRING, default=None)
 @click.option('-mm', '--margin-multiplier', 'base__margin_multiplier', type=click.FLOAT)
+#TODO
 @click.option('-a', '--account', 'base__accounts', nargs=2, multiple=True, help="set account type with starting cash")
-@click.option('--position', 'base__init_positions', type=click.STRING, help="set init position")
 @click.option('-fq', '--frequency', 'base__frequency', type=click.Choice(['1d', '1m', 'tick']))
 @click.option('-rt', '--run-type', 'base__run_type', type=click.Choice(['b', 'p', 'r']), default="b")
 @click.option('--resume', 'base__resume_mode', is_flag=True)

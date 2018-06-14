@@ -20,7 +20,8 @@ from rqalpha.interface import AbstractAccount
 from rqalpha.utils.repr import property_repr
 from rqalpha.utils.i18n import gettext as _
 from rqalpha.utils.logger import user_system_log
-
+from rqalpha.environment import Environment
+from rqalpha.utils.exception import patch_user_exc
 
 class BaseAccount(AbstractAccount):
 
@@ -36,15 +37,18 @@ class BaseAccount(AbstractAccount):
 
     __repr__ = property_repr
 
-    def __init__(self, total_cash, positions, backward_trade_set=set(), register_event=True):
+    def __init__(self, name,total_cash, positions, backward_trade_set=set(), register_event=True):
+        self._name = name
         self._positions = positions
         self._frozen_cash = 0
         self._total_cash = total_cash
         self._backward_trade_set = backward_trade_set
         self._transaction_cost = 0
+
         if register_event:
             self.register_event()
         self._broker = None
+
 
     def set_broker(self,broker):
         self._broker = broker
@@ -62,6 +66,10 @@ class BaseAccount(AbstractAccount):
         :param trades: 交易列表，基于Trades 将当前Positions ==> 最新Positions
         """
         raise NotImplementedError
+
+    @property
+    def name(self):
+        return self._name
 
     @property
     def type(self):
@@ -159,3 +167,31 @@ class BaseAccount(AbstractAccount):
         """
         user_system_log.warn(_(u"[abandon] {} is no longer used.").format('account.pnl'))
         return 0
+
+    def get_order(self, order_id):
+        order = None
+        for _order in Environment.get_instance().broker.get_open_orders():
+            if _order.order_id == order_id:
+                order = _order
+                break
+        return order
+
+    def get_open_orders(self):
+        return Environment.get_instance().broker.get_open_orders()
+
+    def cancel_order(self, order_id):
+        """
+        撤单
+        """
+        env = Environment.get_instance()
+        order = None
+        for _order in env.broker.get_open_orders():
+            if _order.order_id == order_id:
+                order = _order
+                break
+        if order is None:
+            patch_user_exc(KeyError(_(u"Cancel order fail: invalid order id")))
+        if env.can_cancel_order(order):
+            env.broker.cancel_order(order)
+        return order
+

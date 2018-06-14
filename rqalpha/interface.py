@@ -53,6 +53,27 @@ class AbstractAccount(with_metaclass(abc.ABCMeta)):
         raise NotImplementedError
 
     @abc.abstractmethod
+    def get_order(self,order_id):
+        """
+        [Required]
+        """
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_open_orders(self):
+        """
+        [Required]
+        """
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def cancel_order(self,order_id):
+        """
+        [Required]
+        """
+        raise NotImplementedError
+
+    @abc.abstractmethod
     def get_state(self):
         """
         [Required]
@@ -67,6 +88,14 @@ class AbstractAccount(with_metaclass(abc.ABCMeta)):
         [Requried]
 
         主要用于持久化恢复时，根据提供的持久化数据进行恢复Account的实现
+        """
+        raise NotImplementedError
+
+    def name(self):
+        """
+        [Required]
+
+        返回 String 类型的账户名称
         """
         raise NotImplementedError
 
@@ -485,7 +514,7 @@ class AbstractBroker(with_metaclass(abc.ABCMeta)):
         """
 
     @abc.abstractmethod
-    def submit_order(self, order):
+    def submit_order(self,account, order):
         """
         [Required]
 
@@ -495,7 +524,7 @@ class AbstractBroker(with_metaclass(abc.ABCMeta)):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def cancel_order(self, order):
+    def cancel_order(self,account, order):
         """
         [Required]
 
@@ -507,7 +536,7 @@ class AbstractBroker(with_metaclass(abc.ABCMeta)):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_open_orders(self, order_book_id=None):
+    def get_open_orders(self,order_book_id=None):
         """
         [Required]
 

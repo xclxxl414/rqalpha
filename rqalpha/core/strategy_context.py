@@ -211,13 +211,8 @@ class StrategyContext(object):
         """
         return Environment.get_instance().portfolio
 
-    @property
-    def stock_account(self):
-        return self.portfolio.accounts[DEFAULT_ACCOUNT_TYPE.STOCK.name]
-
-    @property
-    def future_account(self):
-        return self.portfolio.accounts[DEFAULT_ACCOUNT_TYPE.FUTURE.name]
+    def get_account(self,name = None):
+        return self.portfolio.get_account(name)
 
     @property
     def config(self):
