@@ -37,7 +37,9 @@ from rqalpha.utils.i18n import gettext as _
 from rqalpha.utils.scheduler import Scheduler
 from rqalpha.utils.logger import system_log, basic_system_log
 from rqalpha.main import create_base_scope,set_loggers,_adjust_start_date,_validate_benchmark,create_benchmark_portfolio,_exception_handler
-
+import multiprocessing
+from multiprocessing import cpu_count
+import threading
 
 class TaskMgr():
     def __init__(self, db= None, sourcePath ="", fdataPath =""):
@@ -59,23 +61,10 @@ class TaskMgr():
                 system_log.error("runAFactor failed,create facor obj failed:fname;{0},error:{1}", fname, e)
         priQueue = self._priQueueFactor(_fobjs)
         for listPi in priQueue:
+            _taskRunner = LocalTaskMgr()  # 每个优先级先完成
             for fobj in listPi:
-                try:
-                    fname = fobj.name
-                    _dataObj = FactorData(fname, self.factorDataPath, defaultInitDate=dataInitDt)
-                    _latestUpdt = _dataObj.getLatestDate()
-                    if _latestUpdt >= enddt:
-                        continue
-                    _startDt = _latestUpdt + timedelta(days=1)
-
-                    res = fobj.compute(_startDt, enddt)
-                    if len(res) > 0:
-                        _dataObj.append(res)
-                    system_log.info("factor {0} run Finshed till {1}", fname, enddt)
-                except  Exception as e:
-                    system_log.error("runFactor failed,fname;{0},error:{1}",fname,e)
-                    import traceback
-                    traceback.print_exc()
+                _taskRunner.addTaskFactorRun(fobj,self.factorDataPath,dataInitDt,enddt)
+            _taskRunner.wait()
         system_log.info("runFactors Finshed for: {0},{1}", dataInitDt, enddt)
         return
 
@@ -344,3 +333,61 @@ class StrategyRunner():
         return env.broker.get_open_orders()
 
 
+class LocalTaskMgr(object):
+    def __init__(self):
+        _cpu_cnt = cpu_count()
+        _cnt = 0
+        _cnt = _cpu_cnt/2 if _cpu_cnt >=8 else _cpu_cnt - 1
+        _cnt = max(1,_cnt)
+        self._procs = multiprocessing.Pool(_cnt)  # 默认个数与cpu数相同
+        self._lock = threading.Lock()  # 对象锁，任务只能依次添加
+
+    def wait(self):
+        with self._lock:
+            self._procs.close()
+            self._procs.join()
+            print("LocalTaskMgr finished")
+
+    @staticmethod
+    def factorRun(fobj,factorDataPath,dataInitDt,enddt):
+        try:
+            fname = fobj.name
+            _dataObj = FactorData(fname, factorDataPath, defaultInitDate=dataInitDt)
+            _latestUpdt = _dataObj.getLatestDate()
+            if _latestUpdt >= enddt:
+                system_log.info("factor {0} already uptodate: {1}", fname, enddt)
+                return
+            _startDt = _latestUpdt + timedelta(days=1)
+
+            res = fobj.compute(_startDt, enddt)
+            if len(res) > 0:
+                _dataObj.append(res)
+            system_log.info("factor {0} run Finshed till {1}", fname, enddt)
+        except  Exception as e:
+            system_log.error("runFactor failed,fname;{0},error:{1}", fname, e)
+            import traceback
+            traceback.print_exc()
+
+    @staticmethod
+    def factorRunCallBack(res=()):
+        pass
+        # _LOG = LogMgr.getLog("server")
+        # _LOG.info("factorRunCallBack:%s", res)
+
+    def addTaskFactorRun(self, fobj,factorDataPath,dataInitDt,enddt):
+        '''
+        Args:
+            fname: factor name
+            tradingDt:  交易日
+            enddt: 交易日因子值可以去数据的截止时间，一般是下个交易日0点
+        Returns:
+        '''
+        with self._lock:
+            _res = self._procs.apply_async(
+                self.factorRun
+                , args=(fobj,factorDataPath,dataInitDt,enddt)
+                , callback=self.factorRunCallBack)
+            return True
+
+if __name__ == "__main__":
+    pass
