@@ -338,7 +338,7 @@ class LocalTaskMgr(object):
         _cpu_cnt = cpu_count()
         _cnt = 0
         _cnt = _cpu_cnt/2 if _cpu_cnt >=8 else _cpu_cnt - 1
-        _cnt = max(1,_cnt)
+        _cnt = int(max(1,_cnt))
         self._procs = multiprocessing.Pool(_cnt)  # 默认个数与cpu数相同
         self._lock = threading.Lock()  # 对象锁，任务只能依次添加
 
