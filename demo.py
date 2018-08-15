@@ -9,10 +9,12 @@
 
 import IPython
 from matplotlib import rcParams, gridspec, ticker, image as mpimg, pyplot as plt
+import os
 
-conf_file = "E:\\evilAlpha\\staralpha\\ipynbs\config.yml"
-conf_file_factor = "E:\\evilAlpha\\staralpha\\ipynbs\config_factor.yml"
-conf_file_taskmgr = "E:\\evilAlpha\\staralpha\\ipynbs\config_taskmgr.yml"
+ipynbpath = "E:\\evilAlpha\\staralpha\\ipynbs\\"
+conf_file = os.join(ipynbpath, "config.yml")
+conf_file_factor = os.join(ipynbpath, "onfig_factor.yml")
+conf_file_taskmgr = os.join(ipynbpath, "onfig_taskmgr.yml")
 
 def testRunFile():
     from rqalpha import run_file
@@ -29,7 +31,7 @@ def testRunFile():
         }
     }
     # config = None
-    file_path = "E:\\evilAlpha\\staralpha\\ipynbs\\strategys\\testStrategy.ipynb"
+    file_path = os.join(ipynbpath,"strategys/testStrategy.ipynb")
     run_file(file_path, config, config_file=conf_file)
 
 def testEvaluateFile():
@@ -39,21 +41,21 @@ def testEvaluateFile():
 
 def testCallFactor():
     from rqalpha.mod.rqalpha_mod_alphaStar_mgr import _callFactors
-    _callFactors(config_path="E:\\evilAlpha\\staralpha\\ipynbs\config_taskmgr.yml", base__end_date="2018-05-16")
+    _callFactors(config_path=conf_file_taskmgr, base__end_date="2018-08-14")
 
 def testCallStrategys():
     from rqalpha.mod.rqalpha_mod_alphaStar_mgr import _callStrategys
-    _callStrategys(config_path="E:\\evilAlpha\\staralpha\\ipynbs\config_taskmgr.yml", base__end_date="2018-05-16")
+    _callStrategys(config_path=conf_file_taskmgr, base__end_date="2018-05-16")
 
 def testDailyProcess():
     from rqalpha.mod.rqalpha_mod_alphaStar_mgr import _dailyProcess
-    _dailyProcess(config_path="E:\\evilAlpha\\staralpha\\ipynbs\config_taskmgr.yml")
+    _dailyProcess(config_path=conf_file_taskmgr)
 
 def testMonitor():
     from rqalpha.mod.rqalpha_mod_alphaStar_mgr import _monitor
-    _monitor(config_path="E:\\evilAlpha\\staralpha\\ipynbs\config_taskmgr.yml")
+    _monitor(config_path=conf_file_taskmgr)
 
 if __name__ == "__main__":
-    testCallStrategys()
+    testCallFactor()
 
 
