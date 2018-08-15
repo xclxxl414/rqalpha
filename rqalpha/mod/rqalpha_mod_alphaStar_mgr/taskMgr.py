@@ -41,6 +41,22 @@ import multiprocessing
 from multiprocessing import cpu_count
 import threading
 
+
+def getFactorObj(sourcePath, fname, modconf):
+    _file = os.path.join(sourcePath, "factors/" + fname + ".ipynb")
+    scope = create_base_scope()
+    scope.update({
+        "g": GlobalVars(),
+        "name": fname,
+    })
+    apis = api_helper.get_apis()
+    scope.update(apis)
+
+    scope = FileStrategyLoader(_file).load(scope)
+    user_factor = Factor(scope, FactorContext(modconf))
+    return user_factor
+
+
 class TaskMgr():
     def __init__(self, db= None, sourcePath ="", fdataPath =""):
         '''
@@ -56,14 +72,14 @@ class TaskMgr():
         _fobjs = []
         for fname, user in self.adminConsole.getPublishedFactors():
             try:
-                _fobjs.append(self._factorObj(fname,modconf))
+                _fobjs.append(getFactorObj(self.sourcePath,fname,modconf))
             except Exception as e:
                 system_log.error("runAFactor failed,create facor obj failed:fname;{0},error:{1}", fname, e)
         priQueue = self._priQueueFactor(_fobjs)
         for listPi in priQueue:
             _taskRunner = LocalTaskMgr()  # 每个优先级先完成
             for fobj in listPi:
-                _taskRunner.addTaskFactorRun(fobj,self.factorDataPath,dataInitDt,enddt)
+                _taskRunner.addTaskFactorRun(fobj.name,self.sourcePath,modconf,self.factorDataPath,dataInitDt,enddt)
             _taskRunner.wait()
         system_log.info("runFactors Finshed for: {0},{1}", dataInitDt, enddt)
         return
@@ -160,25 +176,11 @@ class TaskMgr():
             return
         _startDt = _latestUpdt + timedelta(days=1)
 
-        user_factor = self._factorObj(fname,modconf)
+        user_factor = getFactorObj(self.sourcePath,fname,modconf)
         res = user_factor.compute(_startDt,endDt)
         if len(res) > 0:
             _dataObj.append(res)
         return
-
-    def _factorObj(self,fname,modconf):
-        _file = os.path.join(self.sourcePath, "factors/" + fname + ".ipynb")
-        scope = create_base_scope()
-        scope.update({
-            "g": GlobalVars(),
-            "name":fname,
-        })
-        apis = api_helper.get_apis()
-        scope.update(apis)
-
-        scope = FileStrategyLoader(_file).load(scope)
-        user_factor = Factor(scope, FactorContext(modconf))
-        return user_factor
 
     def runAStrategy(self, sname, config):
         sinfo = self.adminConsole.getStrategy(sname)
@@ -349,16 +351,15 @@ class LocalTaskMgr(object):
             print("LocalTaskMgr finished")
 
     @staticmethod
-    def factorRun(fobj,factorDataPath,dataInitDt,enddt):
+    def factorRun(fname,sourcepath,modconf,factorDataPath,dataInitDt,enddt):
         try:
-            fname = fobj.name
             _dataObj = FactorData(fname, factorDataPath, defaultInitDate=dataInitDt)
             _latestUpdt = _dataObj.getLatestDate()
             if _latestUpdt >= enddt:
                 system_log.info("factor {0} already uptodate: {1}", fname, enddt)
                 return
             _startDt = _latestUpdt + timedelta(days=1)
-
+            fobj = getFactorObj(sourcepath,fname,modconf)
             res = fobj.compute(_startDt, enddt)
             if len(res) > 0:
                 _dataObj.append(res)
@@ -374,7 +375,7 @@ class LocalTaskMgr(object):
         # _LOG = LogMgr.getLog("server")
         # _LOG.info("factorRunCallBack:%s", res)
 
-    def addTaskFactorRun(self, fobj,factorDataPath,dataInitDt,enddt):
+    def addTaskFactorRun(self, fname,sourcepath,modconf,factorDataPath,dataInitDt,enddt):
         '''
         Args:
             fname: factor name
@@ -385,7 +386,7 @@ class LocalTaskMgr(object):
         with self._lock:
             _res = self._procs.apply_async(
                 self.factorRun
-                , args=(fobj,factorDataPath,dataInitDt,enddt)
+                , args=(fname,sourcepath,modconf,factorDataPath,dataInitDt,enddt)
                 , callback=self.factorRunCallBack)
             return True
 

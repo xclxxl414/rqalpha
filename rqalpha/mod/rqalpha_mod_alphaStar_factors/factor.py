@@ -45,11 +45,3 @@ class Factor(object):
         with ModifyExceptionFromType(EXC_TYPE.USER_EXC):
             return self._compute(startdt, enddt,self._ucontext)
 
-    def __setstate__(self, state):
-        self.__dict__.update(state)
-        self._ucontext = FactorContext.__setstate__(state.get("_ucontext"))
-
-    def __getstate__(self):
-        state = self.__dict__.copy()
-        state.update({"_ucontext":self._ucontext.__getstate__})
-        return state
