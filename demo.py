@@ -11,10 +11,11 @@ import IPython
 from matplotlib import rcParams, gridspec, ticker, image as mpimg, pyplot as plt
 import os
 
-ipynbpath = "E:\\evilAlpha\\staralpha\\ipynbs\\"
-conf_file = os.join(ipynbpath, "config.yml")
-conf_file_factor = os.join(ipynbpath, "onfig_factor.yml")
-conf_file_taskmgr = os.join(ipynbpath, "onfig_taskmgr.yml")
+#ipynbpath = "E:\\evilAlpha\\staralpha\\ipynbs\\"
+ipynbpath = "/home/online/release_ipynbs/"
+conf_file = os.path.join(ipynbpath, "config.yml")
+conf_file_factor = os.path.join(ipynbpath, "config_factor.yml")
+conf_file_taskmgr = os.path.join(ipynbpath, "config_taskmgr.yml")
 
 def testRunFile():
     from rqalpha import run_file
@@ -31,7 +32,7 @@ def testRunFile():
         }
     }
     # config = None
-    file_path = os.join(ipynbpath,"strategys/testStrategy.ipynb")
+    file_path = os.path.join(ipynbpath,"strategys/testStrategy.ipynb")
     run_file(file_path, config, config_file=conf_file)
 
 def testEvaluateFile():
