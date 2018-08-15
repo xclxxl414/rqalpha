@@ -34,3 +34,11 @@ class FactorContext(object):
     @property
     def dependency(self):
         return self._dependency
+
+    def __setstate__(self, state):
+        self._config = state.get("conf")
+        self._dependency = state.get("dependency")
+
+    def __getstate__(self):
+        state = {"conf":self._config,"dependency":self._dependency}
+        return state

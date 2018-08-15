@@ -10,8 +10,9 @@
 from rqalpha.utils.exception import ModifyExceptionFromType
 from rqalpha.const import EXC_TYPE
 from rqalpha.utils.logger import user_system_log
+from rqalpha.mod.rqalpha_mod_alphaStar_factors.factor_context import FactorContext
 
-class Factor():
+class Factor(object):
     def __init__(self, scope,ucontext):
         self._ucontext = ucontext
         self._name = scope.get('name', None)
@@ -44,3 +45,11 @@ class Factor():
         with ModifyExceptionFromType(EXC_TYPE.USER_EXC):
             return self._compute(startdt, enddt,self._ucontext)
 
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        self._ucontext = FactorContext.__setstate__(state.get("_ucontext"))
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        state.update({"_ucontext":self._ucontext.__getstate__})
+        return state
