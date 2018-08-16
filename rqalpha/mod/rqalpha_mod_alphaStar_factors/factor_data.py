@@ -110,8 +110,11 @@ class DependingData():
         if fname not in self.dependency:
             raise NotImplementedError(" not regiester as dependency")
         modconfig = self._ucontext.modconfig
-        return FactorData(fname=fname,path=modconfig.factor_data_path,defaultInitDate=modconfig.factor_data_init_date)\
+        res = FactorData(fname=fname,path=modconfig.factor_data_path,defaultInitDate=modconfig.factor_data_init_date)\
             .load(startdt,enddt)
+        if res.index.max().strftime("%Y%m%d") != enddt.strftime("%Y%m%d"):
+            raise Exception("depending data not updated to %s"%(enddt))
+        return res
 
 class FactorDataInterface():
     '''
@@ -135,7 +138,10 @@ class FactorDataInterface():
 if __name__ == "__main__":
     obj = FactorData("pe","E:\\evilAlpha\\test" )#)"Z:\\factor_datas"
     data = obj.load(datetime(2017, 1,25), datetime(2018, 12, 31))
-    print(data)
+    a = data.index.max()
+    if a.strftime("%Y%m%d") == datetime(2018,5,15).date().strftime("%Y%m%d"):
+        print("ha")
+    print(a,type(a))
 
     # obj = FactorData("testF1","E:\\evilAlpha\\rqalpha\\test")
     # print(obj.name)
