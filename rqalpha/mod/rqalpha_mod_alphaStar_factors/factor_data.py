@@ -47,7 +47,7 @@ class FactorData():
         _fileList = sorted(_fileList)  # 按时间顺序取数据
         if len(_fileList) > 0:
             df1 = pd.read_hdf(_fileList[-1])
-            return df1.index[-1].date()
+            return df1.index[-1]
         else:
             return self._defaultInitDate
 
