@@ -124,18 +124,22 @@ class TaskMgr():
         _ret = []
         _lastPi = 0
         _lastRes = []
+        _handleNames = set({})
         for fname,pi in _res:
             if pi != _lastPi:
                 if len(_lastRes) > 0:
                     # print(_lastRes)
                     _ret.append(_lastRes)
+                    _handleNames.add(fname)
                     _lastRes = [_name2Factors.get(fname)]
                 _lastPi = pi
             else:
+                _handleNames.add(fname)
                 _lastRes.append(_name2Factors.get(fname))
         if len(_lastRes) > 0:
             # print(_lastRes)
             _ret.append(_lastRes)
+        system_log.error("missing pre factors:{}",_name2Factors.keys()-_handleNames)
         return _ret
 
     def runStrategys(self,config):
