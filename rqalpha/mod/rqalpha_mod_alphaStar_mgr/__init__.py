@@ -90,7 +90,7 @@ def _dailyProcess(**kwargs):
     obj = TaskMgr(db=config.base.adminDB, sourcePath=config.base.sourcePath,
                   fdataPath=config.mod.alphaStar_factors.factor_data_path)
 
-    obj.runFactors(dataInitDt=_to_date(config.mod.alphaStar_factors.factor_data_init_date),enddt=config.base.end_date,modconf= config.mod.alphaStar_factors)
+    obj.runFactors(dataInitDt=pd.Timestamp(config.mod.alphaStar_factors.factor_data_init_date),enddt=config.base.end_date,modconf= config.mod.alphaStar_factors)
     # obj.runStrategys(config=config)
 
 @cli.command()
@@ -119,7 +119,7 @@ def _callAFactor(**kwargs):
     _dataInitDt = config.mod.alphaStar_factors.factor_data_init_date
     _endDt = config.base.end_date
     # _endDt = _dataInitDt if _endDt is None else _endDt
-    obj.runAFactor(fname=config.base.fname, dataInitDt=_to_date(_dataInitDt), endDt=_to_date(_endDt),
+    obj.runAFactor(fname=config.base.fname, dataInitDt=pd.Timestamp(_dataInitDt), endDt=pd.Timestamp(_endDt),
                    modconf= config.mod.alphaStar_factors)
 
 @cli.command()
@@ -147,7 +147,7 @@ def _callFactors(**kwargs):
     _dataInitDt = config.mod.alphaStar_factors.factor_data_init_date
     _endDt = config.base.end_date
     # _endDt = _dataInitDt if _endDt is None else _endDt
-    obj.runFactors(dataInitDt=_to_date(_dataInitDt), enddt=_to_date(_endDt),
+    obj.runFactors(dataInitDt=pd.Timestamp(_dataInitDt), enddt=pd.Timestamp(_endDt),
                    modconf= config.mod.alphaStar_factors)
 
 @cli.command()
@@ -582,7 +582,7 @@ def _monitor(**kwargs):
     from rqalpha.mod.rqalpha_mod_alphaStar_factors.factor_data import FactorData
     for fname, user in _factorList:
         _fdata =FactorData(fname = fname,path=config.mod.alphaStar_factors.factor_data_path
-                           ,defaultInitDate=_to_date(config.mod.alphaStar_factors.factor_data_init_date))
+                           ,defaultInitDate=pd.Timestamp(config.mod.alphaStar_factors.factor_data_init_date))
         latestDt = _fdata.getLatestDate()
         _factorStatus.append("\t".join([str(latestDt),fname,user]))
     _content = "已发布因子数：%d\n\n最新因子数据截止日：\n最新数据日\t因子\t开发者\n"%(len(_factorList),) \
@@ -624,8 +624,8 @@ def _parse_config(config_args, config_path=None, click_type = True):
     config = RqAttrDict(conf)
     configpk.set_locale(config.extra.locale)
 
-    config.base.start_date = _to_date(config.base.start_date)
-    config.base.end_date = _to_date(config.base.end_date)
+    config.base.start_date = pd.Timestamp(config.base.start_date)
+    config.base.end_date = pd.Timestamp(config.base.end_date)
 
     return config
 
