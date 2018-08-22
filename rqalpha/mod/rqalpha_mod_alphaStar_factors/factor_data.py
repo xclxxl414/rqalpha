@@ -68,7 +68,8 @@ class FactorData():
         for _file in _fileList:
             df1 = pd.read_hdf(_file)
             df = df.append(df1)
-        return df.loc[_startDt:_endDt]
+        _end = _endDt + timedelta(days = 1)
+        return df.loc[_startDt:_end]
 
     def append(self,datas=pd.DataFrame()):
         if len(datas) < 1:
