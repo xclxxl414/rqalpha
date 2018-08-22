@@ -12,7 +12,7 @@ from matplotlib import rcParams, gridspec, ticker, image as mpimg, pyplot as plt
 import os
 
 #ipynbpath = "E:\\evilAlpha\\staralpha\\ipynbs\\"
-ipynbpath = "/home/online/release_ipynbs/"
+ipynbpath = "/home/online/pre_ipynbs/"
 conf_file = os.path.join(ipynbpath, "config.yml")
 conf_file_factor = os.path.join(ipynbpath, "config_factor.yml")
 conf_file_taskmgr = os.path.join(ipynbpath, "config_taskmgr.yml")

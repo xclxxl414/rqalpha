@@ -90,7 +90,7 @@ def _dailyProcess(**kwargs):
     obj = TaskMgr(db=config.base.adminDB, sourcePath=config.base.sourcePath,
                   fdataPath=config.mod.alphaStar_factors.factor_data_path)
 
-    obj.runFactors(dataInitDt=pd.Timestamp(config.mod.alphaStar_factors.factor_data_init_date),enddt=config.base.end_date,modconf= config.mod.alphaStar_factors)
+    obj.runFactors(dataInitDt=pd.Timestamp(config.mod.alphaStar_factors.factor_data_init_date),enddt=pd.Timestamp(config.base.end_date),modconf= config.mod.alphaStar_factors)
     # obj.runStrategys(config=config)
 
 @cli.command()

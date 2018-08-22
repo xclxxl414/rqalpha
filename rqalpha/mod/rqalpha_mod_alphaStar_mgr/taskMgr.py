@@ -139,7 +139,8 @@ class TaskMgr():
         if len(_lastRes) > 0:
             # print(_lastRes)
             _ret.append(_lastRes)
-        system_log.error("missing pre factors:{}",_name2Factors.keys()-_handleNames)
+        if len(_name2Factors) > len(_handleNames):
+            system_log.error("missing pre factors:{}",_name2Factors.keys()-_handleNames)
         return _ret
 
     def runStrategys(self,config):
