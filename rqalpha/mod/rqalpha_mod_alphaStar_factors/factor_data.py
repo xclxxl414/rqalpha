@@ -11,6 +11,7 @@ import pandas as pd
 from datetime import datetime,date,timedelta
 import shutil
 import os
+from rqalpha.utils.logger import system_log
 
 class FactorData():
     def __init__(self,fname,path="",defaultInitDate = date(1990,1,1)):
@@ -68,8 +69,7 @@ class FactorData():
         for _file in _fileList:
             df1 = pd.read_hdf(_file)
             df = df.append(df1)
-        _end = _endDt + timedelta(days = 1)
-        return df.loc[_startDt:_end]
+        return df.loc[_startDt:_endDt]
 
     def append(self,datas=pd.DataFrame()):
         if len(datas) < 1:
@@ -114,7 +114,8 @@ class DependingData():
         res = FactorData(fname=fname,path=modconfig.factor_data_path,defaultInitDate=modconfig.factor_data_init_date)\
             .load(startdt,enddt)
         if res.index.max().strftime("%Y%m%d") != enddt.strftime("%Y%m%d"):
-            raise Exception("depending data not updated to %s"%(enddt))
+            system_log.error("{} is not tradingday or depending data not updated to {}",enddt,enddt)
+            # raise Exception("depending data not updated to %s"%(enddt))
         return res
 
 class FactorDataInterface():
