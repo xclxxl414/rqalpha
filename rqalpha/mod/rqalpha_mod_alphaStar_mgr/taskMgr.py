@@ -40,7 +40,7 @@ from rqalpha.main import create_base_scope,set_loggers,_adjust_start_date,_valid
 import multiprocessing
 from multiprocessing import cpu_count
 import threading
-
+import time
 
 def getFactorObj(sourcePath, fname, modconf):
     _file = os.path.join(sourcePath, "factors/" + fname + ".ipynb")
@@ -75,15 +75,32 @@ class TaskMgr():
                 _fobjs.append(getFactorObj(self.sourcePath,fname,modconf))
             except Exception as e:
                 system_log.error("runAFactor failed,create facor obj failed:fname;{0},error:{1}", fname, e)
-        priQueue = self._priQueueFactor(_fobjs)
-        for listPi in priQueue:
-            _taskRunner = LocalTaskMgr()  # 每个优先级先完成
-            for fobj in listPi:
-                _taskRunner.addTaskFactorRun(fobj.name,self.sourcePath,modconf,self.factorDataPath,dataInitDt,enddt)
-            _taskRunner.wait()
+        #不做优先队列，直接轮询查询依赖序列更能利用多核，优先队列不适用以下情形：高优先级有一个极慢因子且没有被依赖。
+        _taskRunner = FactorMultiProcessRunner()  # 每个优先级先完成
+        while len(_taskRunner.finished_set) >= len(_fobjs):
+            for _fobj in _fobjs:
+                time.sleep(0.001) #
+                if _fobj.name in _taskRunner.finished_set:
+                    continue
+                elif len(set(_fobj.dependency()) - _taskRunner.finished_set) > 0:
+                    #has unfinished dependency
+                    continue
+                else:
+                    _taskRunner.addTaskFactorRun(_fobj.name,self.sourcePath,modconf,self.factorDataPath,dataInitDt,enddt)
+            time.sleep(1)
+        _taskRunner.wait()
+
+        #version priQueue
+        # priQueue = self._priQueueFactor(_fobjs)
+        # for listPi in priQueue:
+        #     _taskRunner = FactorMultiProcessRunner()  # 每个优先级先完成
+        #     for fobj in listPi:
+        #         _taskRunner.addTaskFactorRun(fobj.name,self.sourcePath,modconf,self.factorDataPath,dataInitDt,enddt)
+        #     _taskRunner.wait()
         system_log.info("runFactors Finshed for: {0},{1}", dataInitDt, enddt)
         return
 
+    @DeprecationWarning
     def _priQueueFactor(self,factorObjs):
         '''
         因子任务优先队列
@@ -340,12 +357,13 @@ class StrategyRunner():
         return env.broker.get_open_orders()
 
 
-class LocalTaskMgr(object):
+class FactorMultiProcessRunner(object):
+
+    finished_set = set()
+
     def __init__(self):
         _cpu_cnt = cpu_count()
-        _cnt = 0
-        _cnt = _cpu_cnt/2 if _cpu_cnt >=8 else _cpu_cnt - 1
-        _cnt = int(max(1,_cnt))
+        _cnt = _cpu_cnt - 4 if _cpu_cnt >=8 else _cpu_cnt
         self._procs = multiprocessing.Pool(_cnt)  # 默认个数与cpu数相同
         self._lock = threading.Lock()  # 对象锁，任务只能依次添加
 
@@ -362,7 +380,7 @@ class LocalTaskMgr(object):
             _latestUpdt = _dataObj.getLatestDate()
             if _latestUpdt >= enddt:
                 system_log.info("factor {0} already uptodate: {1}", fname, enddt)
-                return
+                return fname
             _startDt = _latestUpdt + timedelta(days=1)
             fobj = getFactorObj(sourcepath,fname,modconf)
             res = fobj.compute(_startDt, enddt)
@@ -373,10 +391,12 @@ class LocalTaskMgr(object):
             system_log.error("runFactor failed,fname;{0},error:{1}", fname, e)
             import traceback
             traceback.print_exc()
+        finally:
+            return fname
 
     @staticmethod
     def factorRunCallBack(res=()):
-        pass
+        FactorMultiProcessRunner.add(res)
         # _LOG = LogMgr.getLog("server")
         # _LOG.info("factorRunCallBack:%s", res)
 
