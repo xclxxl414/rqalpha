@@ -118,6 +118,20 @@ class DependingData():
             # raise Exception("depending data not updated to %s"%(enddt))
         return res
 
+class SelfHistoryData():
+    '''
+    self dependency of factor
+    '''
+    def __init__(self,ucontext):
+        self._ucontext = ucontext
+        self.fname = ucontext.fname
+
+    def getData(self,startdt,enddt):
+        modconfig = self._ucontext.modconfig
+        res = FactorData(fname=self.fname,path=modconfig.factor_data_path,defaultInitDate=modconfig.factor_data_init_date)\
+            .load(startdt,enddt)
+        return res
+
 class FactorDataInterface():
     '''
     API getFactor的实现

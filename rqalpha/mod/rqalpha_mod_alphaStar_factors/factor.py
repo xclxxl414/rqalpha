@@ -19,6 +19,7 @@ class Factor(object):
         self._dependency = scope.get('dependency', None)
         self._compute = scope.get('compute',None)
         self._ucontext.registerDepending(self.dependency())
+        self._ucontext.fname = self.name
 
     @property
     def name(self):
