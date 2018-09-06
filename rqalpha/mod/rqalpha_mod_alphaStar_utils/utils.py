@@ -16,9 +16,9 @@ def neutralize(factor = None,size = None,industry = None,beta = None):
     if size is None and industry is None and beta is None:
         return newData
     #TODO index校验
-    _size = size.apply(lambda x: (x - x.mean()) / x.std(),axis=1)
-    _sec = industry
-    _beta = beta
+    _size = size.dropna(how='all',axis=1).apply(lambda x: (x - x.mean()) / x.std(),axis=1) if size is not None else None
+    _sec = industry.dropna(how='all',axis=1) if industry is not None else None
+    _beta = beta.dropna(how='all',axis=1) if beta is not None else None
     getSec = lambda dt:(_sec.loc[dt].apply(lambda x: 1 if x==v else 0).rename(str(v)) for v in set(_sec.loc[dt].values) \
                         if not np.isnan(v)) if _sec is not None and dt in _sec.index else ()
     getBeta = lambda dt:_beta.loc[dt].rename("beta") if _beta is not None and dt in _beta.index else None
