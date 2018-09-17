@@ -10,6 +10,7 @@ import pandas as pd
 import numpy as np
 from tqdm import tqdm
 import statsmodels.api as sm
+from scipy.stats.mstats import winsorize
 
 def neutralize(factor = None,size = None,industry = None,beta = None):
     newData = pd.DataFrame(columns=factor.columns)
@@ -40,3 +41,29 @@ def neutralize(factor = None,size = None,industry = None,beta = None):
         newData.loc[dt] = resid
     newData = newData.reindex(index=factor.index, columns=factor.columns)
     return newData
+
+def winsorized(df,limit=(0.01,0.01)):
+    df=df.dropna(how='all')
+    col=df.columns
+    newdf=df.apply(lambda x: pd.Series(winsorize(x.dropna().values,limit),index=x.dropna().index),axis=1)
+    newdf=newdf.reindex(columns=col)
+    return newdf
+
+standardize = lambda x: x.sub(x.mean(axis=1), axis=0).divide(x.std(axis=1), axis=0)
+
+
+def orth_schmidt(df, orders=[]):
+    '''
+    df.index：因子s，df.columns:codes; orders正交化顺序:df.index的某个排列
+    '''
+    res = pd.DataFrame(columns=df.columns)
+    if len(orders) < 1:
+        return res
+    res.loc[orders[0]] = df.loc[orders[0]]
+    dots = {orders[0]: res.loc[orders[0]].dot(res.loc[orders[0]])}
+    for idx in orders[1:]:
+        a = res.apply(lambda x: x.dot(df.loc[idx]) * x / dots[x.name], axis=1)
+        b = df.loc[idx] - a.sum().T
+        res.loc[idx] = b
+        dots[idx] = b.dot(b)
+    return res
