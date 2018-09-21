@@ -392,7 +392,7 @@ def debug(config,*args):
     ucontext = StrategyContext()
     user_strategy = Strategy(env.event_bus, scope, ucontext)
     scheduler.set_user_context(ucontext)
-
+    user_strategy.init()
     init_succeed = True
     res = user_strategy.debug(*args)
 
