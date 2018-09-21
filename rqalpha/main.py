@@ -394,7 +394,7 @@ def debug(config,*args):
     scheduler.set_user_context(ucontext)
 
     init_succeed = True
-    res = user_strategy.debug(args)
+    res = user_strategy.debug(*args)
 
     result = mod_handler.tear_down(const.EXIT_CODE.EXIT_SUCCESS)
     system_log.debug(_(u"strategy run successfully, normal exit"))

@@ -98,4 +98,4 @@ class Strategy(object):
                 self._after_trading(self._user_context)
 
     def debug(self,*args):
-        return self._debug(self._user_context,args)
+        return self._debug(self._user_context,*args)
