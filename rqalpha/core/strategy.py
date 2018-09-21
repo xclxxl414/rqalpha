@@ -31,6 +31,7 @@ class Strategy(object):
         self._init = scope.get('init', None)
         self._handle_bar = scope.get('handle_bar', None)
         self._handle_tick = scope.get('handle_tick', None)
+        self._debug = scope.get('debug', None)
         func_before_trading = scope.get('before_trading', None)
         if func_before_trading is not None and func_before_trading.__code__.co_argcount > 1:
             self._before_trading = lambda context: func_before_trading(context, None)
@@ -95,3 +96,11 @@ class Strategy(object):
         with ExecutionContext(EXECUTION_PHASE.AFTER_TRADING):
             with ModifyExceptionFromType(EXC_TYPE.USER_EXC):
                 self._after_trading(self._user_context)
+
+    def debug(self,*args):
+        with ExecutionContext(EXECUTION_PHASE.ON_INIT):
+            with ExecutionContext(EXECUTION_PHASE.BEFORE_TRADING):
+                with ExecutionContext(EXECUTION_PHASE.ON_BAR):
+                    with ExecutionContext(EXECUTION_PHASE.ON_TICK):
+                        with ExecutionContext(EXECUTION_PHASE.AFTER_TRADING):
+                            return self._debug(self._user_context,*args)
