@@ -397,7 +397,7 @@ def debug(config,event= None):
         scheduler.set_user_context(ucontext)
 
         init_succeed = True
-        res = user_strategy.handle_bar(event)
+        res = user_strategy.before_trading(event)
     except CustomException as e:
         if init_succeed and env.config.base.persist and persist_helper:
             persist_helper.persist()
