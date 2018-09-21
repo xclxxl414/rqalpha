@@ -323,7 +323,7 @@ def run(config, source_code=None, user_funcs=None):
         system_log.debug(_(u"strategy run successfully, normal exit"))
         return result
 
-def debug(config,*args):
+def debug(config,):
     env = Environment(config)
     persist_helper = None
     init_succeed = False
@@ -394,7 +394,7 @@ def debug(config,*args):
     scheduler.set_user_context(ucontext)
     user_strategy.init()
     init_succeed = True
-    res = user_strategy.debug(*args)
+    res = user_strategy.before_trading()
 
     result = mod_handler.tear_down(const.EXIT_CODE.EXIT_SUCCESS)
     system_log.debug(_(u"strategy run successfully, normal exit"))
