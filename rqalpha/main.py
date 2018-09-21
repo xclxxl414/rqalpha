@@ -323,7 +323,7 @@ def run(config, source_code=None, user_funcs=None):
         system_log.debug(_(u"strategy run successfully, normal exit"))
         return result
 
-def debug(config, dubugfunc=None, *args):
+def debug(config,event= None):
     env = Environment(config)
     persist_helper = None
     init_succeed = False
@@ -397,7 +397,7 @@ def debug(config, dubugfunc=None, *args):
         scheduler.set_user_context(ucontext)
 
         init_succeed = True
-        res = dubugfunc(args)
+        res = user_strategy.handle_bar(event)
     except CustomException as e:
         if init_succeed and env.config.base.persist and persist_helper:
             persist_helper.persist()
