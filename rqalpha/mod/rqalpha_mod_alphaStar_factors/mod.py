@@ -32,8 +32,7 @@ class FactorDataMod(AbstractMod):
         from rqalpha.const import EXECUTION_PHASE
 
         @export_as_api
-        @ExecutionContext.enforce_phase(EXECUTION_PHASE.GLOBAL,
-                                        EXECUTION_PHASE.ON_INIT,
+        @ExecutionContext.enforce_phase(EXECUTION_PHASE.ON_INIT,
                                         EXECUTION_PHASE.BEFORE_TRADING,
                                         EXECUTION_PHASE.ON_BAR,
                                         EXECUTION_PHASE.AFTER_TRADING,

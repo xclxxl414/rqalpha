@@ -323,6 +323,106 @@ def run(config, source_code=None, user_funcs=None):
         system_log.debug(_(u"strategy run successfully, normal exit"))
         return result
 
+def debug(config, dubugfunc=None, *args):
+    env = Environment(config)
+    persist_helper = None
+    init_succeed = False
+    mod_handler = ModHandler()
+
+    try:
+        # avoid register handlers everytime
+        # when running in ipython
+        set_loggers(config)
+        basic_system_log.debug("\n" + pformat(config.convert_to_dict()))
+
+        env.set_strategy_loader(FileStrategyLoader(config.base.strategy_file))
+        env.set_global_vars(GlobalVars())
+        mod_handler.set_env(env)
+        mod_handler.start_up()
+
+        if not env.data_source:
+            env.set_data_source(BaseDataSource(config.base.data_bundle_path))
+        env.set_data_proxy(DataProxy(env.data_source))
+
+        Scheduler.set_trading_dates_(env.data_source.get_trading_calendar())
+        scheduler = Scheduler(config.base.frequency)
+        mod_scheduler._scheduler = scheduler
+
+        env._universe = StrategyUniverse()
+
+        _adjust_start_date(env.config, env.data_proxy)
+
+        _validate_benchmark(env.config, env.data_proxy)
+
+        # FIXME
+        start_dt = datetime.datetime.combine(config.base.start_date, datetime.datetime.min.time())
+        env.calendar_dt = start_dt
+        env.trading_dt = start_dt
+
+        broker = env.broker
+        assert broker is not None
+        env.portfolio = broker.get_portfolio()
+        env.benchmark_portfolio = create_benchmark_portfolio(env)
+
+        event_source = env.event_source
+        assert event_source is not None
+
+        bar_dict = BarMap(env.data_proxy, config.base.frequency)
+        env.set_bar_dict(bar_dict)
+
+        if env.price_board is None:
+            from .core.bar_dict_price_board import BarDictPriceBoard
+            env.price_board = BarDictPriceBoard()
+
+        ctx = ExecutionContext(const.EXECUTION_PHASE.GLOBAL)
+        ctx._push()
+
+        env.event_bus.publish_event(Event(EVENT.POST_SYSTEM_INIT))
+
+        scope = create_base_scope()
+        scope.update({
+            "g": env.global_vars
+        })
+
+        apis = api_helper.get_apis()
+        scope.update(apis)
+
+        scope = env.strategy_loader.load(scope)
+
+        if env.config.extra.enable_profiler:
+            enable_profiler(env, scope)
+
+        ucontext = StrategyContext()
+        user_strategy = Strategy(env.event_bus, scope, ucontext)
+        scheduler.set_user_context(ucontext)
+
+        init_succeed = True
+        res = dubugfunc(args)
+    except CustomException as e:
+        if init_succeed and env.config.base.persist and persist_helper:
+            persist_helper.persist()
+
+        code = _exception_handler(e)
+        mod_handler.tear_down(code, e)
+        return None
+    except Exception as e:
+        # import traceback
+        # traceback.print_exc()
+        if init_succeed and env.config.base.persist and persist_helper:
+            persist_helper.persist()
+
+        exc_type, exc_val, exc_tb = sys.exc_info()
+        user_exc = create_custom_exception(exc_type, exc_val, exc_tb, config.base.strategy_file)
+
+        code = _exception_handler(user_exc)
+        mod_handler.tear_down(code, user_exc)
+        return None
+    else:
+        if (env.config.base.persist and persist_helper and env.config.base.persist_mode == const.PERSIST_MODE.ON_NORMAL_EXIT):
+            persist_helper.persist()
+        result = mod_handler.tear_down(const.EXIT_CODE.EXIT_SUCCESS)
+        system_log.debug(_(u"strategy run successfully, normal exit"))
+        return res
 
 def _exception_handler(e):
     better_exceptions.excepthook(e.error.exc_type, e.error.exc_val, e.error.exc_tb)
