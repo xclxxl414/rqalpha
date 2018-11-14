@@ -29,10 +29,14 @@ class BarDictPriceBoard(AbstractPriceBoard):
         return self._env.bar_dict
 
     def get_last_price(self, order_book_id):
+<<<<<<< HEAD
         if self._env.calendar_dt.hour >=15:
             return np.nan if self._bar_dict.dt is None else self._bar_dict[order_book_id].last
         else:
             return np.nan if self._bar_dict.dt is None else self._bar_dict[order_book_id].open
+=======
+        return np.nan if self._bar_dict.dt is None else self._bar_dict[order_book_id].last
+>>>>>>> upstream/master
 
     def get_limit_up(self, order_book_id):
         return np.nan if self._bar_dict.dt is None else self._bar_dict[order_book_id].limit_up

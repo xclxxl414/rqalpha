@@ -15,6 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+<<<<<<< HEAD
 from .test_api_base import get_code_block
 
 
@@ -116,3 +117,84 @@ def test_sell_close():
         # assert order.side == SIDE.SELL
         # assert order.position_effect == POSITION_EFFECT.CLOSE
 test_sell_close_code_new = get_code_block(test_sell_close)
+=======
+from rqalpha.api import *
+
+from ..utils import make_test_strategy_decorator, assert_order
+
+test_strategies = []
+
+as_test_strategy = make_test_strategy_decorator({
+        "base": {
+            "start_date": "2016-03-07",
+            "end_date": "2016-03-08",
+            "frequency": "1d",
+            "accounts": {
+                "future": 10000000000
+            }
+        },
+        "extra": {
+            "log_level": "error",
+        },
+        "mod": {
+            "sys_progress": {
+                "enabled": True,
+                "show": True,
+            },
+        },
+    }, test_strategies)
+
+
+@as_test_strategy()
+def test_buy_open():
+    def init(context):
+        context.f1 = 'P88'
+        subscribe(context.f1)
+
+    def handle_bar(context, _):
+        o = buy_open(context.f1, 1)
+        assert_order(
+            o, order_book_id=context.f1, quantity=1, status=ORDER_STATUS.FILLED, side=SIDE.BUY, position_effect=POSITION_EFFECT.OPEN
+        )
+    return init, handle_bar
+
+
+@as_test_strategy()
+def test_sell_open():
+    def init(context):
+        context.f1 = 'P88'
+        subscribe(context.f1)
+
+    def handle_bar(context, _):
+        o = sell_open(context.f1, 1)
+        assert_order(
+            o, order_book_id=context.f1, quantity=1, status=ORDER_STATUS.FILLED, side=SIDE.SELL, position_effect=POSITION_EFFECT.OPEN
+        )
+    return init, handle_bar
+
+
+@as_test_strategy()
+def test_buy_close():
+    def init(context):
+        context.f1 = 'P88'
+        subscribe(context.f1)
+
+    def handle_bar(context, _):
+        orders = buy_close(context.f1, 1)
+        # TODO: Add More Sell Close Test
+        assert len(orders) == 0
+    return init, handle_bar
+
+
+@as_test_strategy()
+def test_sell_close():
+    def init(context):
+        context.f1 = 'P88'
+        subscribe(context.f1)
+
+    def handle_bar(context, _):
+        orders = sell_close(context.f1, 1)
+        # TODO: Add More Sell Close Test
+        assert len(orders) == 0
+    return init, handle_bar
+>>>>>>> upstream/master

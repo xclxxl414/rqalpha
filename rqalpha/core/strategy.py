@@ -28,6 +28,10 @@ class Strategy(object):
     def __init__(self, event_bus, scope, ucontext):
         self._user_context = ucontext
         self._current_universe = set()
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/master
         self._init = scope.get('init', None)
         self._handle_bar = scope.get('handle_bar', None)
         self._handle_tick = scope.get('handle_tick', None)
@@ -55,6 +59,11 @@ class Strategy(object):
         if self._before_night_trading is not None:
             user_system_log.warn(_(u"[deprecated] before_night_trading is no longer used. use before_trading instead."))
 
+<<<<<<< HEAD
+=======
+        self._force_run_before_trading = Environment.get_instance().config.extra.force_run_init_when_pt_resume
+
+>>>>>>> upstream/master
     @property
     def user_context(self):
         return self._user_context
@@ -71,12 +80,17 @@ class Strategy(object):
 
     @run_when_strategy_not_hold
     def before_trading(self, event):
+<<<<<<< HEAD
+=======
+        self._force_run_before_trading = False
+>>>>>>> upstream/master
         with ExecutionContext(EXECUTION_PHASE.BEFORE_TRADING):
             with ModifyExceptionFromType(EXC_TYPE.USER_EXC):
                 self._before_trading(self._user_context)
 
     @run_when_strategy_not_hold
     def handle_bar(self, event):
+<<<<<<< HEAD
 
         bar_dict = event.bar_dict
         with ExecutionContext(EXECUTION_PHASE.ON_BAR):
@@ -89,6 +103,25 @@ class Strategy(object):
         with ExecutionContext(EXECUTION_PHASE.ON_TICK):
             with ModifyExceptionFromType(EXC_TYPE.USER_EXC):
                 self._handle_tick(self._user_context, tick)
+=======
+        if self._force_run_before_trading and (self._before_trading is not None):
+            self.before_trading(event)
+        else:
+            bar_dict = event.bar_dict
+            with ExecutionContext(EXECUTION_PHASE.ON_BAR):
+                with ModifyExceptionFromType(EXC_TYPE.USER_EXC):
+                    self._handle_bar(self._user_context, bar_dict)
+
+    @run_when_strategy_not_hold
+    def handle_tick(self, event):
+        if self._force_run_before_trading and (self._before_trading is not None):
+            self.before_trading(event)
+        else:
+            tick = event.tick
+            with ExecutionContext(EXECUTION_PHASE.ON_TICK):
+                with ModifyExceptionFromType(EXC_TYPE.USER_EXC):
+                    self._handle_tick(self._user_context, tick)
+>>>>>>> upstream/master
 
     @run_when_strategy_not_hold
     def after_trading(self, event):

@@ -17,6 +17,7 @@ mod:
   # 技术分析API
   sys_funcat:
     enabled: false
+<<<<<<< HEAD
   # 接收实时行情运行
   sys_stock_realtime:
     enabled: false
@@ -27,3 +28,7 @@ mod:
   alphaStar_mgr:
     enabled: true
 
+=======
+  sys_transaction_cost:
+    enabled: true
+>>>>>>> upstream/master

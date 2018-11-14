@@ -16,6 +16,7 @@
 
 from __future__ import division
 import six
+<<<<<<< HEAD
 import numpy as np
 
 from rqalpha.api.api_base import decorate_api_exc, instruments, cal_style
@@ -24,6 +25,16 @@ from rqalpha.environment import Environment
 from rqalpha.model.order import Order, MarketOrder, LimitOrder, OrderStyle
 from rqalpha.const import EXECUTION_PHASE, SIDE, POSITION_EFFECT, ORDER_TYPE, RUN_TYPE
 from rqalpha.model.instrument import Instrument
+=======
+
+from rqalpha.api.api_base import decorate_api_exc, cal_style
+from rqalpha.execution_context import ExecutionContext
+from rqalpha.environment import Environment
+from rqalpha.model.order import Order, MarketOrder, LimitOrder, OrderStyle
+from rqalpha.const import EXECUTION_PHASE, SIDE, POSITION_EFFECT, ORDER_TYPE, RUN_TYPE, POSITION_DIRECTION
+from rqalpha.model.instrument import Instrument
+from rqalpha.utils import is_valid_price
+>>>>>>> upstream/master
 from rqalpha.utils.exception import RQInvalidArgument
 from rqalpha.utils.logger import user_system_log
 from rqalpha.utils.i18n import gettext as _
@@ -70,7 +81,11 @@ def order(id_or_ins, amount, side, position_effect, style):
             raise RQInvalidArgument(_(u"Index Future contracts[99] are not supported in paper trading."))
 
     price = env.get_last_price(order_book_id)
+<<<<<<< HEAD
     if np.isnan(price):
+=======
+    if not is_valid_price(price):
+>>>>>>> upstream/master
         user_system_log.warn(
             _(u"Order Creation Failed: [{order_book_id}] No market data").format(order_book_id=order_book_id)
         )
@@ -78,11 +93,16 @@ def order(id_or_ins, amount, side, position_effect, style):
 
     amount = int(amount)
 
+<<<<<<< HEAD
     position = Environment.get_instance().portfolio.positions[order_book_id]
+=======
+    env = Environment.get_instance()
+>>>>>>> upstream/master
 
     orders = []
     if position_effect == POSITION_EFFECT.CLOSE:
         if side == SIDE.BUY:
+<<<<<<< HEAD
             # 如果平仓量大于持仓量，则 Warning 并 取消订单创建
             if amount > position.sell_quantity:
                 user_system_log.warn(
@@ -91,6 +111,23 @@ def order(id_or_ins, amount, side, position_effect, style):
                 )
                 return []
             sell_old_quantity = position.sell_old_quantity
+=======
+            if env.portfolio:
+                position = env.portfolio.positions[order_book_id]
+                sell_quantity, sell_old_quantity = position.sell_quantity, position.sell_old_quantity
+            else:
+                position = env.booking.get_position(order_book_id, POSITION_DIRECTION.SHORT)
+                sell_quantity, sell_old_quantity = position.quantity, position.old_quantity
+
+            # 如果平仓量大于持仓量，则 Warning 并 取消订单创建
+            if amount > sell_quantity:
+                user_system_log.warn(
+                    _(u"Order Creation Failed: close amount {amount} is larger than position "
+                      u"quantity {quantity}").format(amount=amount, quantity=sell_quantity)
+                )
+                return []
+            sell_old_quantity = sell_old_quantity
+>>>>>>> upstream/master
             if amount > sell_old_quantity:
                 if sell_old_quantity != 0:
                     # 如果有昨仓，则创建一个 POSITION_EFFECT.CLOSE 的平仓单
@@ -119,6 +156,7 @@ def order(id_or_ins, amount, side, position_effect, style):
                     POSITION_EFFECT.CLOSE
                 ))
         else:
+<<<<<<< HEAD
             if amount > position.buy_quantity:
                 user_system_log.warn(
                     _(u"Order Creation Failed: close amount {amount} is larger than position "
@@ -126,6 +164,22 @@ def order(id_or_ins, amount, side, position_effect, style):
                 )
                 return []
             buy_old_quantity = position.buy_old_quantity
+=======
+            if env.portfolio:
+                position = env.portfolio.positions[order_book_id]
+                buy_quantity, buy_old_quantity = position.buy_quantity, position.buy_old_quantity
+            else:
+                position = env.booking.get_position(order_book_id, POSITION_DIRECTION.LONG)
+                buy_quantity, buy_old_quantity = position.quantity, position.old_quantity
+
+            if amount > buy_quantity:
+                user_system_log.warn(
+                    _(u"Order Creation Failed: close amount {amount} is larger than position "
+                      u"quantity {quantity}").format(amount=amount, quantity=buy_quantity)
+                )
+                return []
+            buy_old_quantity = buy_old_quantity
+>>>>>>> upstream/master
             if amount > buy_old_quantity:
                 if buy_old_quantity != 0:
                     orders.append(Order.__from_create__(
@@ -159,6 +213,7 @@ def order(id_or_ins, amount, side, position_effect, style):
             position_effect
         ))
 
+<<<<<<< HEAD
     if np.isnan(price) or price == 0:
         user_system_log.warn(
             _(u"Order Creation Failed: [{order_book_id}] No market data").format(order_book_id=order_book_id))
@@ -166,12 +221,23 @@ def order(id_or_ins, amount, side, position_effect, style):
             o.mark_rejected(
                 _(u"Order Creation Failed: [{order_book_id}] No market data").format(order_book_id=order_book_id))
         return orders
+=======
+    if not is_valid_price(price):
+        user_system_log.warn(
+            _(u"Order Creation Failed: [{order_book_id}] No market data").format(order_book_id=order_book_id))
+        return []
+>>>>>>> upstream/master
 
     for o in orders:
         if o.type == ORDER_TYPE.MARKET:
             o.set_frozen_price(price)
         if env.can_submit_order(o):
             env.broker.submit_order(o)
+<<<<<<< HEAD
+=======
+        else:
+            orders.remove(o)
+>>>>>>> upstream/master
 
     # 向前兼容，如果创建的order_list 只包含一个订单的话，直接返回对应的订单，否则返回列表
     if len(orders) == 1:
@@ -195,7 +261,11 @@ def buy_open(id_or_ins, amount, price=None, style=None):
     :param style: 下单类型, 默认是市价单。目前支持的订单类型有 :class:`~LimitOrder` 和 :class:`~MarketOrder`
     :type style: `OrderStyle` object
 
+<<<<<<< HEAD
     :return: :class:`~Order` object
+=======
+    :return: :class:`~Order` object | None
+>>>>>>> upstream/master
 
     :example:
 
@@ -224,7 +294,11 @@ def buy_close(id_or_ins, amount, price=None, style=None, close_today=False):
 
     :param bool close_today: 是否指定发平进仓单，默认为False，发送平仓单
 
+<<<<<<< HEAD
     :return: :class:`~Order` object | list[:class:`~Order`]
+=======
+    :return: :class:`~Order` object | list[:class:`~Order`] | None
+>>>>>>> upstream/master
 
     :example:
 
@@ -252,7 +326,11 @@ def sell_open(id_or_ins, amount, price=None, style=None):
     :param style: 下单类型, 默认是市价单。目前支持的订单类型有 :class:`~LimitOrder` 和 :class:`~MarketOrder`
     :type style: `OrderStyle` object
 
+<<<<<<< HEAD
     :return: :class:`~Order` object
+=======
+    :return: :class:`~Order` object | None
+>>>>>>> upstream/master
     """
     return order(id_or_ins, amount, SIDE.SELL, POSITION_EFFECT.OPEN, cal_style(price, style))
 
@@ -274,7 +352,11 @@ def sell_close(id_or_ins, amount, price=None, style=None, close_today=False):
 
     :param bool close_today: 是否指定发平进仓单，默认为False，发送平仓单
 
+<<<<<<< HEAD
     :return: :class:`~Order` object | list[:class:`~Order`]
+=======
+    :return: :class:`~Order` object | list[:class:`~Order`] | None
+>>>>>>> upstream/master
     """
     position_effect = POSITION_EFFECT.CLOSE_TODAY if close_today else POSITION_EFFECT.CLOSE
     return order(id_or_ins, amount, SIDE.SELL, position_effect, cal_style(price, style))
@@ -322,4 +404,8 @@ def get_future_contracts(underlying_symbol):
             ['IF1612', 'IF1701', 'IF1703', 'IF1706']
     """
     env = Environment.get_instance()
+<<<<<<< HEAD
     return env.data_proxy.get_future_contracts(underlying_symbol, env.trading_dt)
+=======
+    return env.data_proxy.get_future_contracts(underlying_symbol, env.trading_dt)
+>>>>>>> upstream/master

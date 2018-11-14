@@ -15,17 +15,25 @@
 # limitations under the License.
 
 import codecs
+<<<<<<< HEAD
 from rqalpha.interface import AbstractStrategyLoader
 from rqalpha.utils.strategy_loader_help import compile_strategy
 import os
 from rqalpha.utils.logger import system_log
 from rqalpha.utils.i18n import gettext as _
+=======
+
+from rqalpha.interface import AbstractStrategyLoader
+from rqalpha.utils.strategy_loader_help import compile_strategy
+
+>>>>>>> upstream/master
 
 class FileStrategyLoader(AbstractStrategyLoader):
     def __init__(self, strategy_file_path):
         self._strategy_file_path = strategy_file_path
 
     def load(self, scope):
+<<<<<<< HEAD
         if os.path.basename(self._strategy_file_path).split(".")[1] == "ipynb":
             import io
             from nbformat import read
@@ -42,6 +50,10 @@ class FileStrategyLoader(AbstractStrategyLoader):
         else:
             with codecs.open(self._strategy_file_path, encoding="utf-8") as f:
                 source_code = f.read()
+=======
+        with codecs.open(self._strategy_file_path, encoding="utf-8") as f:
+            source_code = f.read()
+>>>>>>> upstream/master
 
         return compile_strategy(source_code, self._strategy_file_path, scope)
 

@@ -10,7 +10,11 @@ sys_funcat Mod
 
 .. code-block:: bash
 
+<<<<<<< HEAD
     pip install -i https://pypi.tuna.tsinghua.edu.cn/simple funcat
+=======
+    pip install -i https://pypi.douban.com/simple funcat
+>>>>>>> upstream/master
 
 
 开启或关闭 Mod

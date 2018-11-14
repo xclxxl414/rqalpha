@@ -27,7 +27,11 @@ import pandas as pd
 import numpy as np
 import coverage
 
+<<<<<<< HEAD
 from rqalpha import run
+=======
+from rqalpha import run, run_func
+>>>>>>> upstream/master
 from rqalpha.utils.logger import system_log
 
 TEST_DIR = os.path.abspath("./tests/")
@@ -137,6 +141,7 @@ def is_enable_coverage():
     return os.environ.get('COVERAGE') == "enabled"
 
 
+<<<<<<< HEAD
 def test_api():
     # FIXME: Error msg is hard to understand @zjuguxi
     # return
@@ -278,6 +283,20 @@ def test_api():
     for cfg, source_code, name in tasks:
         print("running", name)
         run(cfg, source_code)
+=======
+def test_api(specific_test=None):
+    # FIXME: Error msg is hard to understand @zjuguxi
+    print(u"Testing API......")
+
+    from tests.api import test_strategies as test_api_strategies
+    from tests.mod import test_strategies as test_mod_strategies
+
+    for strategy in test_api_strategies + test_mod_strategies:
+        if specific_test and strategy["name"] != specific_test:
+            continue
+        print("running", strategy["name"])
+        run_func(**strategy)
+>>>>>>> upstream/master
 
     print(u"API test ends.")
 
@@ -297,6 +316,7 @@ def write_csv(path, fields):
         for row in reader:
             old_test_times.append(row)
 
+<<<<<<< HEAD
     if performance_path is None:
         if len(old_test_times) != 0 and time_spend > float(old_test_times[-1]["time_spend"]) * 1.1:
             system_log.error("代码咋写的，太慢了！")
@@ -307,6 +327,9 @@ def write_csv(path, fields):
                 writer = csv.DictWriter(csv_file, fieldnames=fields)
                 writer.writerow({'date_time': end_time, 'time_spend': time_spend})
     else:
+=======
+    if performance_path is not None:
+>>>>>>> upstream/master
         if 0 < len(old_test_times) < 5 and time_spend > float(sum(float(i['time_spend']) for i in old_test_times)) / len(old_test_times) * 1.1:
             print('Average time of last 5 runs:', float(sum(float(i['time_spend']) for i in old_test_times))/len(old_test_times))
             print('Now time spend:', time_spend)
@@ -322,6 +345,17 @@ def write_csv(path, fields):
                 writer.writerow({'date_time': end_time, 'time_spend': time_spend})
 
 
+<<<<<<< HEAD
+=======
+def run_unit_tests():
+    from unittest import TextTestRunner
+
+    from tests.unittest import load_tests
+
+    TextTestRunner(verbosity=2).run(load_tests())
+
+
+>>>>>>> upstream/master
 if __name__ == '__main__':
     if is_enable_coverage():
         print("enable coverage")
@@ -335,7 +369,14 @@ if __name__ == '__main__':
 
     if len(sys.argv) >= 2:
         if sys.argv[1] == 'api':
+<<<<<<< HEAD
             test_api()
+=======
+            try:
+                test_api(sys.argv[2])
+            except IndexError:
+                test_api()
+>>>>>>> upstream/master
             end_time = datetime.now()
 
         elif sys.argv[1] == 'strategy':
@@ -343,19 +384,34 @@ if __name__ == '__main__':
             end_time = datetime.now()
 
         elif sys.argv[1] == 'performance':
+<<<<<<< HEAD
             test_api()
+=======
+            # test_api()
+>>>>>>> upstream/master
             test_strategy()
             end_time = datetime.now()
             performance_path = sys.argv[2]
             time_spend = (end_time - start_time).total_seconds()
             write_csv(performance_path, field_names)
 
+<<<<<<< HEAD
+=======
+        elif sys.argv[1] == 'unittest':
+            run_unit_tests()
+            end_time = datetime.now()
+
+>>>>>>> upstream/master
         else:
             target_file = sys.argv[1]
             run_tests(target_file)
             end_time = datetime.now()
 
     else:
+<<<<<<< HEAD
+=======
+        run_unit_tests()
+>>>>>>> upstream/master
         test_api()
         error_count = run_tests()
         end_time = datetime.now()

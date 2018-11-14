@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+<<<<<<< HEAD
 import six
 import datetime
 import numpy as np
@@ -23,6 +24,15 @@ from rqalpha.model.tick import Tick
 
 
 class SnapshotObject(object):
+=======
+import numpy as np
+
+from rqalpha.utils.logger import system_log
+from rqalpha.model.tick import TickObject
+
+
+class SnapshotObject(TickObject):
+>>>>>>> upstream/master
     _STOCK_FIELDS = [
         ('datetime', np.uint64),
         ('open', np.float64),
@@ -44,6 +54,7 @@ class SnapshotObject(object):
     _NANDict = {_n: np.nan for _n in _FUTURE_FIELD_NAMES}
 
     def __init__(self, instrument, data, dt=None):
+<<<<<<< HEAD
         self._dt = dt
         if data is None:
             self._data = self._NANDict
@@ -57,6 +68,16 @@ class SnapshotObject(object):
             return SnapshotObject._FUTURE_FIELD_NAMES
         else:
             return SnapshotObject._STOCK_FIELD_NAMES
+=======
+        system_log.warn("[deprecated] SnapshotObject class is no longer used. use TickObject class instead.")
+        if data is None:
+            data = self._NANDict
+
+        if dt:
+            data["datetime"] = dt
+
+        super(SnapshotObject, self).__init__(instrument, data)
+>>>>>>> upstream/master
 
     @staticmethod
     def dtype_for_(instrument):
@@ -65,6 +86,7 @@ class SnapshotObject(object):
         else:
             return SnapshotObject._STOCK_FIELD_DTYPE
 
+<<<<<<< HEAD
     @property
     def open(self):
         """
@@ -179,3 +201,11 @@ class SnapshotObject(object):
 
     def __getitem__(self, key):
         return self.__dict__[key]
+=======
+    @staticmethod
+    def fields_for_(instrument):
+        if instrument.type == 'Future':
+            return SnapshotObject._FUTURE_FIELD_NAMES
+        else:
+            return SnapshotObject._STOCK_FIELD_NAMES
+>>>>>>> upstream/master

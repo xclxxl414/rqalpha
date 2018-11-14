@@ -130,3 +130,11 @@ class RQInvalidArgument(RQUserError):
 
 class RQTypeError(RQUserError):
     pass
+<<<<<<< HEAD
+=======
+
+
+class RQApiNotSupportedError(RQUserError):
+    pass
+
+>>>>>>> upstream/master

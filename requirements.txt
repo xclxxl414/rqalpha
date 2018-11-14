@@ -5,8 +5,13 @@ python-dateutil>=2.5.3
 pytz>=2016.4
 six>=1.10.0
 pytest>=2.9.2
+<<<<<<< HEAD
 logbook==1.0.0
 click>=6.6
+=======
+logbook>=1.0.0
+click>=7.0
+>>>>>>> upstream/master
 bcolz>=1.1.0
 matplotlib>=1.5.1
 jsonpickle==0.9.4
@@ -16,6 +21,10 @@ XlsxWriter>=0.9.6
 line-profiler>=2.0
 PyYAML>=3.12
 
+<<<<<<< HEAD
 better_exceptions
 tabulate
 colorama>=0.3.9
+=======
+tabulate
+>>>>>>> upstream/master

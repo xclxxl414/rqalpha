@@ -113,6 +113,18 @@ class AbstractAccount(with_metaclass(abc.ABCMeta)):
         raise NotImplementedError
 
     @abc.abstractproperty
+<<<<<<< HEAD
+=======
+    def total_value(self):
+        """
+        [Required]
+
+        返回当前账户的总权益
+        """
+        raise NotImplementedError
+
+    @abc.abstractproperty
+>>>>>>> upstream/master
     def transaction_cost(self):
         """
         [Required]
@@ -122,6 +134,22 @@ class AbstractAccount(with_metaclass(abc.ABCMeta)):
         raise NotImplementedError
 
 
+<<<<<<< HEAD
+=======
+class AbstractBookingPosition(with_metaclass(abc.ABCMeta)):
+
+    @property
+    @abc.abstractmethod
+    def order_book_id(self):
+        raise NotImplementedError
+
+    @property
+    @abc.abstractmethod
+    def direction(self):
+        raise NotImplementedError
+
+
+>>>>>>> upstream/master
 class AbstractPosition(with_metaclass(abc.ABCMeta)):
     """
     仓位接口，主要用于构建仓位信息
@@ -388,6 +416,26 @@ class AbstractDataSource(object):
         """
         raise NotImplementedError
 
+<<<<<<< HEAD
+=======
+    def history_ticks(self, instrument, count, dt):
+        """
+        获取历史tick数据
+
+        :param instrument: 合约对象
+        :type instrument: :class:`~Instrument`
+
+        :param int count: 获取的历史数据数量
+        :param str fields: 返回数据字段
+
+        :param datetime.datetime dt: 时间
+
+        :return: list of `Tick`
+
+        """
+        raise NotImplementedError
+
+>>>>>>> upstream/master
     def current_snapshot(self, instrument, frequency, dt):
         """
         获得当前市场快照数据。只能在日内交易阶段调用，获取当日调用时点的市场快照数据。
@@ -446,6 +494,17 @@ class AbstractDataSource(object):
         """
         raise NotImplementedError
 
+<<<<<<< HEAD
+=======
+    def get_tick_size(self, instrument):
+        """
+        获取合约的 tick size
+        :param instrument:
+        :return:
+        """
+        raise NotImplementedError
+
+>>>>>>> upstream/master
     def get_merge_ticks(self, order_book_id_list, trading_date, last_dt=None):
         """
         获取合并的 ticks
@@ -454,7 +513,11 @@ class AbstractDataSource(object):
         :param datetime.date trading_date: 交易日
         :param datetime.datetime last_dt: 仅返回 last_dt 之后的时间
 
+<<<<<<< HEAD
         :return: Tick
+=======
+        :return: Iterable object of Tick
+>>>>>>> upstream/master
         """
         raise NotImplementedError
 
@@ -478,6 +541,14 @@ class AbstractBroker(with_metaclass(abc.ABCMeta)):
 
         :return: Portfolio
         """
+<<<<<<< HEAD
+=======
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_booking(self):
+        raise NotImplementedError
+>>>>>>> upstream/master
 
     @abc.abstractmethod
     def submit_order(self, order):
@@ -592,11 +663,36 @@ class Persistable(with_metaclass(abc.ABCMeta)):
 
 class AbstractFrontendValidator(with_metaclass(abc.ABCMeta)):
     @abc.abstractmethod
+<<<<<<< HEAD
     def can_submit_order(self, account, order):
+=======
+    def can_submit_order(self, order, account=None):
+>>>>>>> upstream/master
         # FIXME: need a better name
         raise NotImplementedError
 
     @abc.abstractmethod
+<<<<<<< HEAD
     def can_cancel_order(self, account, order):
         # FIXME: need a better name
         raise NotImplementedError
+=======
+    def can_cancel_order(self, order, account=None):
+        # FIXME: need a better name
+        raise NotImplementedError
+
+
+class AbstractTransactionCostDecider((with_metaclass(abc.ABCMeta))):
+    @abc.abstractmethod
+    def get_trade_tax(self, trade):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_trade_commission(self, trade):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_order_transaction_cost(self, order):
+        raise NotImplementedError
+
+>>>>>>> upstream/master

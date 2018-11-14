@@ -19,9 +19,15 @@ import datetime
 from rqalpha.interface import AbstractEventSource
 from rqalpha.events import Event, EVENT
 from rqalpha.utils import get_account_type
+<<<<<<< HEAD
 from rqalpha.utils.exception import CustomException, CustomError, patch_user_exc
 from rqalpha.utils.datetime_func import convert_int_to_datetime
 from rqalpha.const import DEFAULT_ACCOUNT_TYPE,MATCHING_TYPE
+=======
+from rqalpha.utils.exception import patch_user_exc
+from rqalpha.utils.datetime_func import convert_int_to_datetime
+from rqalpha.const import DEFAULT_ACCOUNT_TYPE, MARKET
+>>>>>>> upstream/master
 from rqalpha.utils.i18n import gettext as _
 
 
@@ -29,6 +35,7 @@ ONE_MINUTE = datetime.timedelta(minutes=1)
 
 
 class SimulationEventSource(AbstractEventSource):
+<<<<<<< HEAD
     def __init__(self, env,match_type):
         self._env = env
         self._config = env.config
@@ -37,11 +44,21 @@ class SimulationEventSource(AbstractEventSource):
         self._env.event_bus.add_listener(EVENT.POST_UNIVERSE_CHANGED, self._on_universe_changed)
 
     def _on_universe_changed(self, event):
+=======
+    def __init__(self, env):
+        self._env = env
+        self._config = env.config
+        self._universe_changed = False
+        self._env.event_bus.add_listener(EVENT.POST_UNIVERSE_CHANGED, self._on_universe_changed)
+
+    def _on_universe_changed(self, _):
+>>>>>>> upstream/master
         self._universe_changed = True
 
     def _get_universe(self):
         universe = self._env.get_universe()
         if len(universe) == 0 and DEFAULT_ACCOUNT_TYPE.STOCK.name not in self._config.base.accounts:
+<<<<<<< HEAD
             raise patch_user_exc(RuntimeError(_("Current universe is empty. Please use subscribe function before trade")), force=True)
         return universe
 
@@ -53,6 +70,30 @@ class SimulationEventSource(AbstractEventSource):
         am_end_dt = current_dt.replace(hour=11, minute=30)
         pm_start_dt = current_dt.replace(hour=13, minute=1)
         pm_end_dt = current_dt.replace(hour=15, minute=0)
+=======
+            raise patch_user_exc(RuntimeError(_(
+                "Current universe is empty. Please use subscribe function before trade"
+            )), force=True)
+        return universe
+
+    # [BEGIN] minute event helper
+    def _get_stock_trading_minutes(self, trading_date):
+        trading_minutes = set()
+
+        if self._env.config.base.market == MARKET.CN:
+            current_dt = datetime.datetime.combine(trading_date, datetime.time(9, 31))
+            am_end_dt = current_dt.replace(hour=11, minute=30)
+            pm_start_dt = current_dt.replace(hour=13, minute=1)
+            pm_end_dt = current_dt.replace(hour=15, minute=0)
+        elif self._env.config.base.market == MARKET.HK:
+            current_dt = datetime.datetime.combine(trading_date, datetime.time(9, 31))
+            am_end_dt = current_dt.replace(hour=12, minute=0)
+            pm_start_dt = current_dt.replace(hour=13, minute=1)
+            pm_end_dt = current_dt.replace(hour=16, minute=0)
+        else:
+            raise NotImplementedError(_("Unsupported market {}".format(self._env.config.base.market)))
+
+>>>>>>> upstream/master
         delta_minute = datetime.timedelta(minutes=1)
         while current_dt <= am_end_dt:
             trading_minutes.add(current_dt)
@@ -83,6 +124,7 @@ class SimulationEventSource(AbstractEventSource):
         return sorted(list(trading_minutes))
     # [END] minute event helper
 
+<<<<<<< HEAD
     def events(self, start_date, end_date, frequency):
         if frequency == "1d":
             if MATCHING_TYPE.CURRENT_BAR_CLOSE == self._match_type:
@@ -110,6 +152,37 @@ class SimulationEventSource(AbstractEventSource):
 
                     yield Event(EVENT.AFTER_TRADING, calendar_dt=dt_after_trading, trading_dt=dt_after_trading)
                     yield Event(EVENT.SETTLEMENT, calendar_dt=dt_settlement, trading_dt=dt_settlement)
+=======
+    def _get_day_bar_dt(self, date):
+        if self._env.config.base.market == MARKET.CN:
+            return date.replace(hour=15, minute=0)
+        elif self._env.config.base.market == MARKET.HK:
+            return date.replace(hour=16, minute=0)
+        else:
+            raise NotImplementedError(_("Unsupported market {}".format(self._env.config.base.market)))
+
+    def _get_after_trading_dt(self, date):
+        if self._env.config.base.market == MARKET.CN:
+            return date.replace(hour=15, minute=30)
+        elif self._env.config.base.market == MARKET.HK:
+            return date.replace(hour=16, minute=30)
+        else:
+            raise NotImplementedError(_("Unsupported market {}".format(self._env.config.base.market)))
+
+    def events(self, start_date, end_date, frequency):
+        if frequency == "1d":
+            # 根据起始日期和结束日期，获取所有的交易日，然后再循环获取每一个交易日
+            for day in self._env.data_proxy.get_trading_dates(start_date, end_date):
+                date = day.to_pydatetime()
+                dt_before_trading = date.replace(hour=0, minute=0)
+
+                dt_bar = self._get_day_bar_dt(date)
+                dt_after_trading = self._get_after_trading_dt(date)
+
+                yield Event(EVENT.BEFORE_TRADING, calendar_dt=dt_before_trading, trading_dt=dt_before_trading)
+                yield Event(EVENT.BAR, calendar_dt=dt_bar, trading_dt=dt_bar)
+                yield Event(EVENT.AFTER_TRADING, calendar_dt=dt_after_trading, trading_dt=dt_after_trading)
+>>>>>>> upstream/master
         elif frequency == '1m':
             for day in self._env.data_proxy.get_trading_dates(start_date, end_date):
                 before_trading_flag = True
@@ -129,16 +202,28 @@ class SimulationEventSource(AbstractEventSource):
                             continue
 
                         if calendar_dt < dt_before_day_trading:
+<<<<<<< HEAD
                             trading_dt = calendar_dt.replace(year=date.year,
                                                              month=date.month,
                                                              day=date.day)
+=======
+                            trading_dt = calendar_dt.replace(year=date.year, month=date.month, day=date.day)
+>>>>>>> upstream/master
                         else:
                             trading_dt = calendar_dt
                         if before_trading_flag:
                             before_trading_flag = False
+<<<<<<< HEAD
                             yield Event(EVENT.BEFORE_TRADING,
                                         calendar_dt=calendar_dt - datetime.timedelta(minutes=30),
                                         trading_dt=trading_dt - datetime.timedelta(minutes=30))
+=======
+                            yield Event(
+                                EVENT.BEFORE_TRADING,
+                                calendar_dt=calendar_dt - datetime.timedelta(minutes=30),
+                                trading_dt=trading_dt - datetime.timedelta(minutes=30)
+                            )
+>>>>>>> upstream/master
                         if self._universe_changed:
                             self._universe_changed = False
                             last_dt = calendar_dt
@@ -149,11 +234,16 @@ class SimulationEventSource(AbstractEventSource):
                     if exit_loop:
                         done = True
 
+<<<<<<< HEAD
                 dt = date.replace(hour=15, minute=30)
                 yield Event(EVENT.AFTER_TRADING, calendar_dt=dt, trading_dt=dt)
 
                 dt = date.replace(hour=17, minute=0)
                 yield Event(EVENT.SETTLEMENT, calendar_dt=dt, trading_dt=dt)
+=======
+                dt = self._get_after_trading_dt(date)
+                yield Event(EVENT.AFTER_TRADING, calendar_dt=dt, trading_dt=dt)
+>>>>>>> upstream/master
         elif frequency == "tick":
             data_proxy = self._env.data_proxy
             for day in data_proxy.get_trading_dates(start_date, end_date):
@@ -164,6 +254,7 @@ class SimulationEventSource(AbstractEventSource):
                 while True:
                     for tick in data_proxy.get_merge_ticks(self._get_universe(), date, last_dt):
                         # find before trading time
+<<<<<<< HEAD
                         if last_tick is None:
                             last_tick = tick
                             dt = tick.datetime
@@ -192,5 +283,36 @@ class SimulationEventSource(AbstractEventSource):
 
                 dt = date.replace(hour=17, minute=0)
                 yield Event(EVENT.SETTLEMENT, calendar_dt=dt, trading_dt=dt)
+=======
+
+                        calendar_dt = tick.datetime
+
+                        if calendar_dt < dt_before_day_trading:
+                            trading_dt = calendar_dt.replace(year=date.year, month=date.month, day=date.day)
+                        else:
+                            trading_dt = calendar_dt
+
+                        if last_tick is None:
+                            last_tick = tick
+
+                            yield Event(
+                                EVENT.BEFORE_TRADING,
+                                calendar_dt=calendar_dt - datetime.timedelta(minutes=30),
+                                trading_dt=trading_dt - datetime.timedelta(minutes=30)
+                            )
+
+                        if self._universe_changed:
+                            self._universe_changed = False
+                            break
+
+                        last_dt = calendar_dt
+                        yield Event(EVENT.TICK, calendar_dt=calendar_dt, trading_dt=trading_dt, tick=tick)
+
+                    else:
+                        break
+
+                dt = self._get_after_trading_dt(date)
+                yield Event(EVENT.AFTER_TRADING, calendar_dt=dt, trading_dt=dt)
+>>>>>>> upstream/master
         else:
             raise NotImplementedError(_("Frequency {} is not support.").format(frequency))

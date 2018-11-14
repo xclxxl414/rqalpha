@@ -14,9 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+<<<<<<< HEAD
 import numpy as np
 from rqalpha.environment import Environment
 from rqalpha.events import EVENT
+=======
+from rqalpha.environment import Environment
+from rqalpha.events import EVENT
+from rqalpha.utils import is_valid_price
+>>>>>>> upstream/master
 
 from .stock_account import StockAccount
 
@@ -36,11 +42,19 @@ class BenchmarkAccount(StockAccount):
     def _on_bar(self, event):
         # run once
         if len(self._positions) == 0:
+<<<<<<< HEAD
             price = event.bar_dict[self.benchmark].close if event.calendar_dt.hour >=15 else event.bar_dict[self.benchmark].open
             if np.isnan(price):
                 return
             position = self._positions.get_or_create(self.benchmark)
             quantity = int(self._total_cash / price)
+=======
+            price = event.bar_dict[self.benchmark].close
+            if not is_valid_price(price):
+                return
+            position = self._positions.get_or_create(self.benchmark)
+            quantity = self._total_cash / price
+>>>>>>> upstream/master
             position._quantity = quantity
             position._avg_price = price
             self._total_cash -= quantity * price
@@ -53,7 +67,11 @@ class BenchmarkAccount(StockAccount):
                 return
             price = tick.last
             position = self._positions.get_or_create(self.benchmark)
+<<<<<<< HEAD
             quantity = int(self._total_cash / price)
+=======
+            quantity = self._total_cash / price
+>>>>>>> upstream/master
             position._quantity = quantity
             position._avg_price = price
             self._total_cash -= quantity * price

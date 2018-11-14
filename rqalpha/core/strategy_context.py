@@ -17,6 +17,11 @@
 import six
 import pickle
 
+<<<<<<< HEAD
+=======
+import numpy as np
+
+>>>>>>> upstream/master
 from rqalpha.const import DEFAULT_ACCOUNT_TYPE
 from rqalpha.environment import Environment
 from rqalpha.utils.logger import user_system_log, system_log
@@ -41,9 +46,23 @@ class RunInfo(object):
         self._run_type = config.base.run_type
 
         # For Mod
+<<<<<<< HEAD
         self._matching_type = config.mod.sys_simulation.matching_type
         self._slippage = config.mod.sys_simulation.slippage
         self._commission_multiplier = config.mod.sys_simulation.commission_multiplier
+=======
+
+        # FIXME: deprecationwarning
+        self._matching_type = None
+        self._slippage = np.nan
+        self._commission_multiplier = np.nan
+        try:
+            self._matching_type = config.mod.sys_simulation.matching_type
+            self._slippage = config.mod.sys_simulation.slippage
+            self._commission_multiplier = config.mod.sys_transaction_cost.commission_multiplier
+        except:
+            pass
+>>>>>>> upstream/master
 
     @property
     def start_date(self):
@@ -172,6 +191,7 @@ class StrategyContext(object):
         return Environment.get_instance().calendar_dt
 
     @property
+<<<<<<< HEAD
     def prev_trading_dt(self):
         """
         [datetime.datetime] 当前 Bar 前一交易日（若有）收盘时间
@@ -179,6 +199,8 @@ class StrategyContext(object):
         return Environment.get_instance().data_proxy.get_previous_trading_date(self.now)
 
     @property
+=======
+>>>>>>> upstream/master
     def run_info(self):
         """
         [:class:`~RunInfo`] 运行信息

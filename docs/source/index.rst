@@ -88,6 +88,7 @@ Mod名                      说明
 
     如果您基于 RQAlpha 进行了 Mod 扩展，欢迎告知我们。在审核通过后，会在 Mod 列表中添加相关信息。
 
+<<<<<<< HEAD
 Feature Status
 ============================
 
@@ -132,6 +133,8 @@ Feature Status
     * 🚫 BitcoinAccount
     * 🚫 BitcoinPosition
 
+=======
+>>>>>>> upstream/master
 获取帮助
 ============================
 

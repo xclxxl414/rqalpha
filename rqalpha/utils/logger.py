@@ -15,11 +15,16 @@
 # limitations under the License.
 
 from datetime import datetime
+<<<<<<< HEAD
 import traceback
 import logbook
 import better_exceptions
 from logbook import Logger
 from logbook.more import ColorizedStderrHandler
+=======
+import logbook
+from logbook import Logger, StderrHandler
+>>>>>>> upstream/master
 
 from rqalpha.utils.py2 import to_utf8, from_utf8
 
@@ -30,6 +35,7 @@ logbook.set_datetime_format("local")
 logbook.base._level_names[logbook.base.WARNING] = 'WARN'
 
 
+<<<<<<< HEAD
 # better_exceptions hot patch
 def format_exception(exc, value, tb):
     formatted, colored_source = better_exceptions.format_traceback(tb)
@@ -46,6 +52,8 @@ def format_exception(exc, value, tb):
 better_exceptions.format_exception = format_exception
 
 
+=======
+>>>>>>> upstream/master
 __all__ = [
     "user_log",
     "system_log",
@@ -70,7 +78,11 @@ def user_std_handler_log_formatter(record, handler):
     return log
 
 
+<<<<<<< HEAD
 user_std_handler = ColorizedStderrHandler(bubble=True)
+=======
+user_std_handler = StderrHandler(bubble=True)
+>>>>>>> upstream/master
 user_std_handler.formatter = user_std_handler_log_formatter
 
 
@@ -98,7 +110,11 @@ user_system_log = Logger("user_system_log")
 
 # 用于用户异常的详细日志打印
 user_detail_log = Logger("user_detail_log")
+<<<<<<< HEAD
 # user_detail_log.handlers.append(ColorizedStderrHandler(bubble=True))
+=======
+# user_detail_log.handlers.append(StderrHandler(bubble=True))
+>>>>>>> upstream/master
 
 # 系统日志
 system_log = Logger("system_log")
@@ -109,9 +125,15 @@ std_log = Logger("std_log")
 
 
 def init_logger():
+<<<<<<< HEAD
     system_log.handlers = [ColorizedStderrHandler(bubble=True)]
     basic_system_log.handlers = [ColorizedStderrHandler(bubble=True)]
     std_log.handlers = [ColorizedStderrHandler(bubble=True)]
+=======
+    system_log.handlers = [StderrHandler(bubble=True)]
+    basic_system_log.handlers = [StderrHandler(bubble=True)]
+    std_log.handlers = [StderrHandler(bubble=True)]
+>>>>>>> upstream/master
     user_log.handlers = []
     user_system_log.handlers = []
 

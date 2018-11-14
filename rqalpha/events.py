@@ -31,6 +31,7 @@ class EventBus(object):
     def __init__(self):
         self._listeners = defaultdict(list)
 
+<<<<<<< HEAD
     def add_listener(self, event, listener):
         self._listeners[event].append(listener)
 
@@ -41,6 +42,18 @@ class EventBus(object):
         for l in self._listeners[event.event_type]:
             # 如果返回 True ，那么消息不再传递下去
             if l(event):
+=======
+    def add_listener(self, event_type, listener):
+        self._listeners[event_type].append(listener)
+
+    def prepend_listener(self, event_type, listener):
+        self._listeners[event_type].insert(0, listener)
+
+    def publish_event(self, event):
+        for listener in self._listeners[event.event_type]:
+            # 如果返回 True ，那么消息不再传递下去
+            if listener(event):
+>>>>>>> upstream/master
                 break
 
 
@@ -50,6 +63,10 @@ class EVENT(Enum):
     POST_SYSTEM_INIT = 'post_system_init'
 
     # 在实盘时，你可能需要在此事件后根据其他信息源对系统状态进行调整
+<<<<<<< HEAD
+=======
+    BEFORE_SYSTEM_RESTORED = 'before_system_restored'
+>>>>>>> upstream/master
     POST_SYSTEM_RESTORED = 'post_system_restored'
 
     # 策略执行完init函数后触发
@@ -140,7 +157,11 @@ class EVENT(Enum):
 
     ON_LINE_PROFILER_RESULT = 'on_line_profiler_result'
 
+<<<<<<< HEAD
     # persist immediantly
+=======
+    # persist immediately
+>>>>>>> upstream/master
     DO_PERSIST = 'do_persist'
 
     # 策略被暂停
@@ -148,6 +169,15 @@ class EVENT(Enum):
     # 策略被恢复
     STRATEGY_HOLD_CANCELLED = 'strategy_hold_canceled'
 
+<<<<<<< HEAD
 
 def parse_event(event_str):
     return EVENT.__members__.get(event_str.upper(), None)
+=======
+    # 心跳事件，用于触发定时任务
+    HEARTBEAT = 'heartbeat'
+
+
+def parse_event(event_str):
+    return EVENT[event_str.upper()]
+>>>>>>> upstream/master
