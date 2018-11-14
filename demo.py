@@ -1,7 +1,7 @@
 #coding=utf-8
 
 """
-@author: evilXu
+@author: evilXua
 @file: demo.py
 @time: 2018/5/4 10:27
 @description: 
