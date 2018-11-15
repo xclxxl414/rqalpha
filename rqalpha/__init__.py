@@ -21,11 +21,7 @@ RQAlpha - a Algorithm Trading System
 import pkgutil
 
 from rqalpha.__main__ import cli
-<<<<<<< HEAD
-from rqalpha.api.api_base import export_as_api
-=======
 from rqalpha.api.api_base import export_as_api, subscribe_event
->>>>>>> upstream/master
 
 __all__ = [
     '__version__',
@@ -49,10 +45,6 @@ def load_ipython_extension(ipython):
 
     ipython.register_magic_function(run_ipython_cell, 'line_cell', 'rqalpha')
 
-<<<<<<< HEAD
-=======
-
->>>>>>> upstream/master
 def update_bundle(data_bundle_path=None, locale="zh_Hans_CN", confirm=True):
     from rqalpha import main
     main.update_bundle(data_bundle_path=data_bundle_path, locale=locale, confirm=confirm)
@@ -80,11 +72,7 @@ def run_ipython_cell(line, cell=None):
         pass
 
 
-<<<<<<< HEAD
-def run_file(strategy_file_path, config=None,config_file=None):
-=======
 def run_file(strategy_file_path, config=None):
->>>>>>> upstream/master
     from rqalpha.utils.config import parse_config
     from rqalpha.utils.py2 import clear_all_cached_functions
     from rqalpha import main
@@ -103,12 +91,7 @@ def run_file(strategy_file_path, config=None):
             config["base"] = {
                 "strategy_file": strategy_file_path
             }
-<<<<<<< HEAD
-    config = parse_config(config,config_file)
-    # print(config)
-=======
     config = parse_config(config)
->>>>>>> upstream/master
     clear_all_cached_functions()
     return main.run(config)
 
@@ -157,18 +140,3 @@ def run_func(**kwargs):
     config = parse_config(config, user_funcs=user_funcs)
     clear_all_cached_functions()
     return main.run(config, user_funcs=user_funcs)
-<<<<<<< HEAD
-
-
-def subscribe_event(event_type, handler):
-    import types
-    from rqalpha.events import EVENT
-    from rqalpha.environment import Environment
-
-    assert isinstance(handler, types.FunctionType)
-    assert isinstance(event_type, EVENT)
-
-    env = Environment.get_instance()
-    env.event_bus.add_listener(event_type, handler)
-=======
->>>>>>> upstream/master

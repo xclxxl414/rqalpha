@@ -55,11 +55,7 @@ RQAlpha 安装
 
 .. code-block:: bash
 
-<<<<<<< HEAD
-    $ rqalpha update_bundle
-=======
     $ rqalpha update-bundle
->>>>>>> upstream/master
 
 生成样例策略
 ==================

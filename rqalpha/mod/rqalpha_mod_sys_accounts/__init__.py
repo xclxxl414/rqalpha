@@ -20,9 +20,6 @@ from rqalpha import cli
 
 __config__ = {
     # 开启/关闭 股票 T+1， 默认开启
-<<<<<<< HEAD
-    "stock_t1": True
-=======
     "stock_t1": True,
     # 分红再投资
     "dividend_reinvestment": False,
@@ -30,7 +27,6 @@ __config__ = {
     "future_forced_liquidation": True,
     # 当持仓股票退市时，按照退市价格返还现金
     "cash_return_by_stock_delisted": True
->>>>>>> upstream/master
 }
 
 
@@ -47,8 +43,6 @@ cli.commands['run'].params.append(
         default=None,
         help="[sys_accounts] enable/disable stock T+1"
     )
-<<<<<<< HEAD
-=======
 )
 
 cli.commands['run'].params.append(
@@ -69,5 +63,4 @@ cli.commands['run'].params.append(
         default=True,
         help="[sys_simulation] return cash when stock delisted"
     )
->>>>>>> upstream/master
 )

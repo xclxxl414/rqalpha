@@ -15,10 +15,7 @@
 # limitations under the License.
 
 import errno
-<<<<<<< HEAD
-=======
 import sys
->>>>>>> upstream/master
 import os
 import shutil
 import six
@@ -98,11 +95,8 @@ def update_bundle(data_bundle_path, locale):
 @click.option('--position', 'base__init_positions', type=click.STRING, help="set init position")
 @click.option('-fq', '--frequency', 'base__frequency', type=click.Choice(['1d', '1m', 'tick']))
 @click.option('-rt', '--run-type', 'base__run_type', type=click.Choice(['b', 'p', 'r']), default="b")
-<<<<<<< HEAD
-=======
 @click.option('-rp', '--round-price', 'base__round_price', is_flag=True)
 @click.option('-mk', '--market', 'base__market', type=click.Choice(['cn', 'hk']), default=None)
->>>>>>> upstream/master
 @click.option('--resume', 'base__resume_mode', is_flag=True)
 @click.option('--source-code', 'base__source_code')
 # -- Extra Configuration
@@ -113,10 +107,6 @@ def update_bundle(data_bundle_path, locale):
 @click.option('--locale', 'extra__locale', type=click.Choice(['cn', 'en']), default="cn")
 @click.option('--extra-vars', 'extra__context_vars', type=click.STRING, help="override context vars")
 @click.option("--enable-profiler", "extra__enable_profiler", is_flag=True, help="add line profiler to profile your strategy")
-<<<<<<< HEAD
-@click.option("--dividend-reinvestment", "extra__dividend_reinvestment", is_flag=True, help="enable dividend reinvestment")
-=======
->>>>>>> upstream/master
 @click.option('--config', 'config_path', type=click.STRING, help="config file path")
 # -- Mod Configuration
 @click.option('-mc', '--mod-config', 'mod_configs', nargs=2, multiple=True, type=click.STRING, help="mod extra config")
@@ -147,12 +137,8 @@ def run(**kwargs):
         ipy.user_global_ns["results"] = results
         ipy.user_global_ns["report"] = RqAttrDict(report)
 
-<<<<<<< HEAD
-=======
     if results is None:
         sys.exit(1)
-
->>>>>>> upstream/master
 
 @cli.command()
 @click.option('-d', '--directory', default="./", type=click.Path(), required=True)
@@ -214,34 +200,14 @@ def mod(cmd, params):
         """
         List all mod configuration
         """
-<<<<<<< HEAD
-        from colorama import init, Fore
         from tabulate import tabulate
         from rqalpha.utils.config import get_mod_conf
-        init()
-=======
-        from tabulate import tabulate
-        from rqalpha.utils.config import get_mod_conf
->>>>>>> upstream/master
 
         mod_config = get_mod_conf()
         table = []
 
         for mod_name, mod in six.iteritems(mod_config['mod']):
             table.append([
-<<<<<<< HEAD
-                Fore.RESET + mod_name,
-                (Fore.GREEN + "enabled" if mod['enabled'] else Fore.RED + "disabled") + Fore.RESET
-            ])
-
-        headers = [
-            Fore.CYAN + "name",
-            Fore.CYAN + "status" + Fore.RESET
-        ]
-
-        six.print_(tabulate(table, headers=headers, tablefmt="psql"))
-        six.print_(Fore.LIGHTYELLOW_EX + "You can use `rqalpha mod list/install/uninstall/enable/disable` to manage your mods")
-=======
                 mod_name,
                 ("enabled" if mod['enabled'] else "disabled")
             ])
@@ -253,31 +219,21 @@ def mod(cmd, params):
 
         six.print_(tabulate(table, headers=headers, tablefmt="psql"))
         six.print_("You can use `rqalpha mod list/install/uninstall/enable/disable` to manage your mods")
->>>>>>> upstream/master
 
     def install(params):
         """
         Install third-party Mod
         """
-<<<<<<< HEAD
-        from pip import main as pip_main
-        from pip.commands.install import InstallCommand
-=======
         try:
             from pip._internal import main as pip_main
             from pip._internal.commands.install import InstallCommand
         except ImportError:
             from pip import main as pip_main
             from pip.commands.install import InstallCommand
->>>>>>> upstream/master
-
         params = [param for param in params]
 
         options, mod_list = InstallCommand().parse_args(params)
-<<<<<<< HEAD
-=======
         mod_list = [mod_name for mod_name in mod_list if mod_name != "."]
->>>>>>> upstream/master
 
         params = ["install"] + params
 
@@ -310,11 +266,7 @@ def mod(cmd, params):
                     *   必须以 `rqalpha-mod-` 来开头，比如 `rqalpha-mod-xxx-yyy`
                     *   对应import的库名必须要 `rqalpha_mod_` 来开头，并且需要和包名后半部分一致，但是 `-` 需要替换为 `_`, 比如 `rqalpha_mod_xxx_yyy`
                 """
-<<<<<<< HEAD
-                mod_name = _detect_package_name_from_dir()
-=======
                 mod_name = _detect_package_name_from_dir(params)
->>>>>>> upstream/master
                 mod_name = mod_name.replace("-", "_").replace("rqalpha_mod_", "")
                 mod_list.append(mod_name)
 
@@ -335,10 +287,6 @@ def mod(cmd, params):
         Uninstall third-party Mod
         """
 
-<<<<<<< HEAD
-        from pip import main as pip_main
-        from pip.commands.uninstall import UninstallCommand
-=======
         try:
             from pip._internal import main as pip_main
             from pip._internal.commands.uninstall import UninstallCommand
@@ -346,7 +294,6 @@ def mod(cmd, params):
             # be compatible with pip < 10.0
             from pip import main as pip_main
             from pip.commands.uninstall import UninstallCommand
->>>>>>> upstream/master
 
         params = [param for param in params]
 
@@ -431,13 +378,8 @@ def mod(cmd, params):
     locals()[cmd](params)
 
 
-<<<<<<< HEAD
-def _detect_package_name_from_dir():
-    setup_path = os.path.join(os.path.abspath('.'), 'setup.py')
-=======
 def _detect_package_name_from_dir(params):
     setup_path = os.path.join(os.path.abspath(params[-1]), 'setup.py')
->>>>>>> upstream/master
     if not os.path.exists(setup_path):
         return None
     return os.path.split(os.path.dirname(setup_path))[1]

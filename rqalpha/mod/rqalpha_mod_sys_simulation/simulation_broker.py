@@ -19,19 +19,12 @@ import jsonpickle
 from rqalpha.interface import AbstractBroker, Persistable
 from rqalpha.utils.i18n import gettext as _
 from rqalpha.events import EVENT, Event
-<<<<<<< HEAD
-from rqalpha.const import MATCHING_TYPE, ORDER_STATUS,DEFAULT_ACCOUNT_TYPE
-=======
 from rqalpha.const import MATCHING_TYPE, ORDER_STATUS
->>>>>>> upstream/master
 from rqalpha.model.order import Order
 
 from .matcher import Matcher
 from .utils import init_portfolio
-<<<<<<< HEAD
-=======
 from .booking import SimulationBooking
->>>>>>> upstream/master
 
 
 class SimulationBroker(AbstractBroker, Persistable):
@@ -40,12 +33,7 @@ class SimulationBroker(AbstractBroker, Persistable):
         self._mod_config = mod_config
 
         self._matcher = Matcher(env, mod_config)
-<<<<<<< HEAD
-        self._match_immediately = mod_config.matching_type in [MATCHING_TYPE.CURRENT_BAR_CLOSE,MATCHING_TYPE.NEXT_BAR_OPEN]
-        self.matching_type = mod_config.matching_type
-=======
         self._match_immediately = mod_config.matching_type == MATCHING_TYPE.CURRENT_BAR_CLOSE
->>>>>>> upstream/master
 
         self._open_orders = []
         self._delayed_orders = []
@@ -63,12 +51,9 @@ class SimulationBroker(AbstractBroker, Persistable):
     def get_portfolio(self):
         return init_portfolio(self._env)
 
-<<<<<<< HEAD
-=======
     def get_booking(self):
         return SimulationBooking()
 
->>>>>>> upstream/master
     def get_open_orders(self, order_book_id=None):
         if order_book_id is None:
             return [order for account, order in self._open_orders]

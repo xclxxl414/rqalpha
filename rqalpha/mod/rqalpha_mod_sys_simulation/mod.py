@@ -21,15 +21,9 @@ from rqalpha.utils.i18n import gettext as _
 from rqalpha.utils.exception import patch_user_exc
 from rqalpha.const import MATCHING_TYPE, RUN_TYPE
 
-<<<<<<< HEAD
-from .simulation_broker import SimulationBroker
-from .signal_broker import SignalBroker
-from .simulation_event_source import SimulationEventSource
-=======
 from rqalpha.mod.rqalpha_mod_sys_simulation.simulation_broker import SimulationBroker
 from rqalpha.mod.rqalpha_mod_sys_simulation.signal_broker import SignalBroker
 from rqalpha.mod.rqalpha_mod_sys_simulation.simulation_event_source import SimulationEventSource
->>>>>>> upstream/master
 
 
 class SimulationMod(AbstractMod):
@@ -42,12 +36,7 @@ class SimulationMod(AbstractMod):
             return
 
         mod_config.matching_type = self.parse_matching_type(mod_config.matching_type)
-<<<<<<< HEAD
-        if mod_config.commission_multiplier < 0:
-            raise patch_user_exc(ValueError(_(u"invalid commission multiplier value: value range is [0, +∞)")))
-=======
 
->>>>>>> upstream/master
         if env.config.base.margin_multiplier <= 0:
             raise patch_user_exc(ValueError(_(u"invalid margin multiplier value: value range is (0, +∞]")))
 
@@ -71,11 +60,7 @@ class SimulationMod(AbstractMod):
         else:
             env.set_broker(SimulationBroker(env, mod_config))
 
-<<<<<<< HEAD
-        event_source = SimulationEventSource(env,mod_config.matching_type)
-=======
         event_source = SimulationEventSource(env)
->>>>>>> upstream/master
         env.set_event_source(event_source)
 
     def tear_down(self, code, exception=None):

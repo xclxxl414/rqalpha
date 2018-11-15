@@ -79,15 +79,12 @@ class PersistHelper(object):
             raise RuntimeError('duplicated persist key found: {}'.format(key))
         self._objects[key] = obj
 
-<<<<<<< HEAD
-=======
     def unregister(self, key):
         if key in self._objects:
             del self._objects[key]
             return True
         return False
 
->>>>>>> upstream/master
     def restore(self):
         for key, obj in six.iteritems(self._objects):
             state = self._persist_provider.load(key)

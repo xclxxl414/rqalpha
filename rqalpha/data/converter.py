@@ -45,10 +45,6 @@ class Converter(object):
 
 float64 = np.dtype('float64')
 
-<<<<<<< HEAD
-=======
-
->>>>>>> upstream/master
 StockBarConverter = Converter({
     'open': Rule(float64, 1 / 10000.0, 2),
     'close': Rule(float64, 1 / 10000.0, 2),
@@ -59,10 +55,6 @@ StockBarConverter = Converter({
     'volume': Rule(float64, 1, 0),
 })
 
-<<<<<<< HEAD
-=======
-
->>>>>>> upstream/master
 FutureDayBarConverter = Converter({
     'open': Rule(float64, 1 / 10000.0, 3),
     'close': Rule(float64, 1 / 10000.0, 3),

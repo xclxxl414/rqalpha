@@ -16,14 +16,7 @@
 
 from rqalpha.interface import AbstractMod
 
-<<<<<<< HEAD
-from .price_validator import PriceValidator
-from .position_validator import PositionValidator
-from .cash_validator import CashValidator
-from .is_trading_validator import IsTradingValidator
-=======
 from .validators import CashValidator, StockPositionValidator, FuturePositionValidator, PriceValidator, IsTradingValidator
->>>>>>> upstream/master
 
 
 class RiskManagerMod(AbstractMod):
@@ -34,15 +27,10 @@ class RiskManagerMod(AbstractMod):
             env.add_frontend_validator(IsTradingValidator(env))
         if mod_config.validate_cash:
             env.add_frontend_validator(CashValidator(env))
-<<<<<<< HEAD
-        if mod_config.validate_position:
-            env.add_frontend_validator(PositionValidator())
-=======
         if mod_config.validate_stock_position:
             env.add_frontend_validator(StockPositionValidator())
         if mod_config.validate_future_position:
             env.add_frontend_validator(FuturePositionValidator())
->>>>>>> upstream/master
 
     def tear_down(self, code, exception=None):
         pass

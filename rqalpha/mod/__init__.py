@@ -91,13 +91,5 @@ SYSTEM_MOD_LIST = [
     "sys_funcat",
     "sys_risk",
     "sys_simulation",
-<<<<<<< HEAD
-    "sys_stock_realtime",
-    "alphaStar_factors",
-    "alphaStar_tgw",
-    "alphaStar_mgr",
-    "alphaStar_utils",
-=======
     "sys_transaction_cost"
->>>>>>> upstream/master
 ]

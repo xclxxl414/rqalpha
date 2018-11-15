@@ -19,10 +19,7 @@ import pprint
 import re
 import six
 import collections
-<<<<<<< HEAD
-=======
 from decimal import getcontext, ROUND_FLOOR
->>>>>>> upstream/master
 
 from contextlib import contextmanager
 import numpy as np
@@ -217,17 +214,12 @@ def instrument_type_str2enum(type_str):
         return INSTRUMENT_TYPE.FENJI_B
     elif type_str == 'PublicFund':
         return INSTRUMENT_TYPE.PUBLIC_FUND
-<<<<<<< HEAD
-=======
     elif type_str == "Bond":
         return INSTRUMENT_TYPE.BOND
->>>>>>> upstream/master
     else:
         raise NotImplementedError
 
 
-<<<<<<< HEAD
-=======
 def account_type_str2enum(type_str):
     return {
         DEFAULT_ACCOUNT_TYPE.STOCK.name: DEFAULT_ACCOUNT_TYPE.STOCK,
@@ -236,7 +228,6 @@ def account_type_str2enum(type_str):
     }[type_str]
 
 
->>>>>>> upstream/master
 INST_TYPE_IN_STOCK_ACCOUNT = [
     INSTRUMENT_TYPE.CS,
     INSTRUMENT_TYPE.ETF,
@@ -258,11 +249,8 @@ def get_account_type(order_book_id):
         return DEFAULT_ACCOUNT_TYPE.STOCK.name
     elif enum_type == INSTRUMENT_TYPE.FUTURE:
         return DEFAULT_ACCOUNT_TYPE.FUTURE.name
-<<<<<<< HEAD
-=======
     elif enum_type == INSTRUMENT_TYPE.BOND:
         return DEFAULT_ACCOUNT_TYPE.BOND.name
->>>>>>> upstream/master
     else:
         raise NotImplementedError
 
@@ -344,13 +332,6 @@ def is_run_from_ipython():
         return False
 
 
-<<<<<<< HEAD
-def generate_account_type_dict():
-    account_type_dict = {}
-    for key, a_type in six.iteritems(DEFAULT_ACCOUNT_TYPE.__members__):
-        account_type_dict[key] = a_type.value
-    return account_type_dict
-=======
 def is_valid_price(price):
     return not np.isnan(price) and price > 0 and price is not None
 
@@ -361,4 +342,3 @@ def decimal_rounding_floor():
     getcontext().rounding = ROUND_FLOOR
     yield
     getcontext().rounding = original_rounding_option
->>>>>>> upstream/master

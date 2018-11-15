@@ -19,50 +19,33 @@ from __future__ import division
 import datetime
 import inspect
 import sys
-<<<<<<< HEAD
-=======
 import types
->>>>>>> upstream/master
 from collections import Iterable
 from functools import wraps
 from types import FunctionType
 
 import pandas as pd
-<<<<<<< HEAD
-=======
 import numpy as np
->>>>>>> upstream/master
 import six
 from dateutil.parser import parse
 
 from rqalpha.api import names
 from rqalpha.environment import Environment
 from rqalpha.execution_context import ExecutionContext
-<<<<<<< HEAD
-from rqalpha.utils import to_industry_code, to_sector_name, unwrapper
-=======
 from rqalpha.utils import to_industry_code, to_sector_name, unwrapper, is_valid_price
->>>>>>> upstream/master
 from rqalpha.utils.exception import patch_user_exc, patch_system_exc, EXC_EXT_NAME, RQInvalidArgument
 from rqalpha.utils.i18n import gettext as _
 # noinspection PyUnresolvedReferences
 from rqalpha.utils.logger import user_log as logger
-<<<<<<< HEAD
-=======
 from rqalpha.utils.logger import user_system_log
->>>>>>> upstream/master
 
 from rqalpha.model.instrument import SectorCodeItem, IndustryCodeItem
 from rqalpha.utils.arg_checker import apply_rules, verify_that
 # noinspection PyUnresolvedReferences
 from rqalpha.model.instrument import Instrument, SectorCode as sector_code, IndustryCode as industry_code
 # noinspection PyUnresolvedReferences
-<<<<<<< HEAD
-from rqalpha.const import EXECUTION_PHASE, EXC_TYPE, ORDER_STATUS, SIDE, POSITION_EFFECT, ORDER_TYPE, MATCHING_TYPE, RUN_TYPE
-=======
 from rqalpha.const import (EXECUTION_PHASE, EXC_TYPE, ORDER_STATUS, SIDE, POSITION_EFFECT, ORDER_TYPE, MATCHING_TYPE,
                            RUN_TYPE, POSITION_DIRECTION)
->>>>>>> upstream/master
 # noinspection PyUnresolvedReferences
 from rqalpha.model.order import Order, MarketOrder, LimitOrder, OrderStyle
 # noinspection PyUnresolvedReferences
@@ -78,10 +61,7 @@ __all__ = [
     'ORDER_STATUS',
     'SIDE',
     'POSITION_EFFECT',
-<<<<<<< HEAD
-=======
     'POSITION_DIRECTION',
->>>>>>> upstream/master
     'ORDER_TYPE',
     'RUN_TYPE',
     'MATCHING_TYPE',
@@ -169,10 +149,6 @@ def cal_style(price, style):
 
     if isinstance(price, OrderStyle):
         # 为了 order_xxx('RB1710', 10, MarketOrder()) 这种写法
-<<<<<<< HEAD
-        return price
-
-=======
         if isinstance(price, LimitOrder):
             if np.isnan(price.get_limit_price()):
                 raise RQInvalidArgument(_(u"Limit order price should not be nan."))
@@ -180,8 +156,6 @@ def cal_style(price, style):
 
     if np.isnan(price):
         raise RQInvalidArgument(_(u"Limit order price should not be nan."))
-
->>>>>>> upstream/master
     return LimitOrder(price)
 
 
@@ -211,8 +185,6 @@ def get_open_orders():
 
 
 @export_as_api
-<<<<<<< HEAD
-=======
 @apply_rules(
     verify_that("id_or_ins").is_valid_instrument(),
     verify_that("amount").is_number().is_greater_than(0),
@@ -278,17 +250,13 @@ def submit_order(id_or_ins, amount, side, price=None, position_effect=None):
 
 
 @export_as_api
->>>>>>> upstream/master
 @ExecutionContext.enforce_phase(EXECUTION_PHASE.BEFORE_TRADING,
                                 EXECUTION_PHASE.ON_BAR,
                                 EXECUTION_PHASE.ON_TICK,
                                 EXECUTION_PHASE.AFTER_TRADING,
                                 EXECUTION_PHASE.SCHEDULED,
                                 EXECUTION_PHASE.GLOBAL)
-<<<<<<< HEAD
-=======
 @apply_rules(verify_that('order').is_instance_of(Order))
->>>>>>> upstream/master
 def cancel_order(order):
     """
     撤单
@@ -296,11 +264,6 @@ def cancel_order(order):
     :param order: 需要撤销的order对象
     :type order: :class:`~Order` object
     """
-<<<<<<< HEAD
-    if order is None:
-        patch_user_exc(KeyError(_(u"Cancel order fail: invalid order id")))
-=======
->>>>>>> upstream/master
     env = Environment.get_instance()
     if env.can_cancel_order(order):
         env.broker.cancel_order(order)
@@ -466,30 +429,21 @@ def history_bars(order_book_id, bar_count, frequency, fields=None, skip_suspende
 
     日回测获取日历史数据
 
-    =========================   ===================================================
     调用时间                      返回数据
-    =========================   ===================================================
     T日before_trading            T-1日day bar
     T日handle_bar                T日day bar
-    =========================   ===================================================
 
     分钟回测获取日历史数据
 
-    =========================   ===================================================
     调用时间                      返回数据
-    =========================   ===================================================
     T日before_trading            T-1日day bar
     T日handle_bar                T-1日day bar
-    =========================   ===================================================
 
     分钟回测获取分钟历史数据
 
-    =========================   ===================================================
     调用时间                      返回数据
-    =========================   ===================================================
     T日before_trading            T-1日最后一个minute bar
     T日handle_bar                T日当前minute bar
-    =========================   ===================================================
 
     :param order_book_id: 合约代码
     :type order_book_id: `str`
@@ -498,9 +452,7 @@ def history_bars(order_book_id, bar_count, frequency, fields=None, skip_suspende
     :param str frequency: 获取数据什么样的频率进行。'1d'或'1m'分别表示每日和每分钟，必填项
     :param str fields: 返回数据字段。必填项。见下方列表。
 
-    =========================   ===================================================
     fields                      字段名
-    =========================   ===================================================
     datetime                    时间戳
     open                        开盘价
     high                        最高价
@@ -512,7 +464,6 @@ def history_bars(order_book_id, bar_count, frequency, fields=None, skip_suspende
     basis_spread                期现差（股指期货专用）
     settlement                  结算价（期货日线专用）
     prev_settlement             结算价（期货日线专用）
-    =========================   ===================================================
 
     :param bool skip_suspended: 是否跳过停牌数据
     :param bool include_now: 是否包含当前数据
@@ -536,11 +487,6 @@ def history_bars(order_book_id, bar_count, frequency, fields=None, skip_suspende
     env = Environment.get_instance()
     dt = env.calendar_dt
 
-<<<<<<< HEAD
-    if frequency[-1] == 'm' and env.config.base.frequency == '1d':
-        raise RQInvalidArgument('can not get minute history in day back test')
-
-=======
     if frequency[-1] not in {'m', 'd'}:
         raise RQInvalidArgument('invalid frequency {}'.format(frequency))
 
@@ -550,15 +496,11 @@ def history_bars(order_book_id, bar_count, frequency, fields=None, skip_suspende
     if frequency[-1] == 'd' and frequency != '1d':
         raise RQInvalidArgument('invalid frequency')
 
->>>>>>> upstream/master
     if adjust_type not in {'pre', 'post', 'none'}:
         raise RuntimeError('invalid adjust_type')
 
     if frequency == '1d':
         sys_frequency = Environment.get_instance().config.base.frequency
-<<<<<<< HEAD
-        if ((sys_frequency in ['1m', 'tick'] and not include_now) or ExecutionContext.phase() == EXECUTION_PHASE.BEFORE_TRADING):
-=======
         if ((
                 sys_frequency in ['1m', 'tick'] and
                 not include_now and
@@ -566,7 +508,6 @@ def history_bars(order_book_id, bar_count, frequency, fields=None, skip_suspende
         ) or (
                 ExecutionContext.phase() == EXECUTION_PHASE.BEFORE_TRADING
         )):
->>>>>>> upstream/master
             dt = env.data_proxy.get_previous_trading_date(env.trading_dt.date())
             # 当 EXECUTION_PHASE.BEFORE_TRADING 的时候，强制 include_now 为 False
             include_now = False
@@ -605,9 +546,7 @@ def all_instruments(type=None, date=None):
 
     其中type参数传入的合约类型和对应的解释如下：
 
-    =========================   ===================================================
     合约类型                      说明
-    =========================   ===================================================
     CS                          Common Stock, 即股票
     ETF                         Exchange Traded Fund, 即交易所交易基金
     LOF                         Listed Open-Ended Fund，即上市型开放式基金
@@ -616,12 +555,6 @@ def all_instruments(type=None, date=None):
     FenjiB                      Fenji B Funds, 即分级B类基金
     INDX                        Index, 即指数
     Future                      Futures，即期货，包含股指、国债和商品期货
-<<<<<<< HEAD
-    hour                        int - option [1,4]
-    minute                      int - option [1,240]
-=======
->>>>>>> upstream/master
-    =========================   ===================================================
 
     :example:
 
@@ -663,16 +596,9 @@ def all_instruments(type=None, date=None):
     else:
         types = None
 
-<<<<<<< HEAD
-    result = [i for i in env.data_proxy.all_instruments(types, dt)
-              if i.type != 'CS' or not env.data_proxy.is_suspended(i.order_book_id, dt)]
-    if types is not None and len(types) == 1:
-        return pd.DataFrame([i.__dict__ for i in result])
-=======
     result = env.data_proxy.all_instruments(types, dt)
     if types is not None and len(types) == 1:
         return pd.DataFrame([i._ins_dict for i in result])
->>>>>>> upstream/master
 
     return pd.DataFrame(
         [[i.order_book_id, i.symbol, i.type, i.listed_date, i.de_listed_date] for i in result],
@@ -910,13 +836,8 @@ def get_dividend(order_book_id, start_date, *args, **kwargs):
 @ExecutionContext.enforce_phase(EXECUTION_PHASE.ON_BAR,
                                 EXECUTION_PHASE.ON_TICK,
                                 EXECUTION_PHASE.SCHEDULED)
-<<<<<<< HEAD
-@apply_rules(verify_that('series_name').is_instance_of(str),
-             verify_that('value').is_number())
-=======
 @apply_rules(verify_that('series_name', pre_check=True).is_instance_of(str),
              verify_that('value', pre_check=True).is_number())
->>>>>>> upstream/master
 def plot(series_name, value):
     """
     Add a point to custom series.
@@ -928,28 +849,19 @@ def plot(series_name, value):
 
 
 @export_as_api
-<<<<<<< HEAD
-@ExecutionContext.enforce_phase(EXECUTION_PHASE.ON_BAR,
-                                EXECUTION_PHASE.ON_TICK,
-=======
 @ExecutionContext.enforce_phase(EXECUTION_PHASE.BEFORE_TRADING,
                                 EXECUTION_PHASE.ON_BAR,
                                 EXECUTION_PHASE.ON_TICK,
                                 EXECUTION_PHASE.AFTER_TRADING,
->>>>>>> upstream/master
                                 EXECUTION_PHASE.SCHEDULED)
 @apply_rules(verify_that('id_or_symbol').is_valid_instrument())
 def current_snapshot(id_or_symbol):
     """
-<<<<<<< HEAD
-    获得当前市场快照数据。只能在日内交易阶段调用，获取当日调用时点的市场快照数据。市场快照数据记录了每日从开盘到当前的数据信息，可以理解为一个动态的day bar数据。在目前分钟回测中，快照数据为当日所有分钟线累积而成，一般情况下，最后一个分钟线获取到的快照数据应当与当日的日线行情保持一致。需要注意，在实盘模拟中，该函数返回的是调用当时的市场快照情况，所以在同一个handle_bar中不同时点调用可能返回的数据不同。如果当日截止到调用时候对应股票没有任何成交，那么snapshot中的close, high, low, last几个价格水平都将以0表示。
-=======
     获得当前市场快照数据。只能在日内交易阶段调用，获取当日调用时点的市场快照数据。
     市场快照数据记录了每日从开盘到当前的数据信息，可以理解为一个动态的day bar数据。
     在目前分钟回测中，快照数据为当日所有分钟线累积而成，一般情况下，最后一个分钟线获取到的快照数据应当与当日的日线行情保持一致。
     需要注意，在实盘模拟中，该函数返回的是调用当时的市场快照情况，所以在同一个handle_bar中不同时点调用可能返回的数据不同。
     如果当日截止到调用时候对应股票没有任何成交，那么snapshot中的close, high, low, last几个价格水平都将以0表示。
->>>>>>> upstream/master
 
     :param str order_book_id: 合约代码或简称
 
@@ -971,9 +883,6 @@ def current_snapshot(id_or_symbol):
     env = Environment.get_instance()
     frequency = env.config.base.frequency
     order_book_id = assure_order_book_id(id_or_symbol)
-<<<<<<< HEAD
-    return env.data_proxy.current_snapshot(order_book_id, frequency, env.calendar_dt)
-=======
 
     dt = env.calendar_dt
 
@@ -1014,4 +923,3 @@ def get_position(order_book_id, direction):
 def subscribe_event(event_type, handler):
     env = Environment.get_instance()
     env.event_bus.add_listener(event_type, handler)
->>>>>>> upstream/master

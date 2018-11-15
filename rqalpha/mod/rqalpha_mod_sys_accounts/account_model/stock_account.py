@@ -18,11 +18,8 @@ import six
 import datetime
 from collections import defaultdict
 
-<<<<<<< HEAD
-=======
 import numpy as np
 
->>>>>>> upstream/master
 from rqalpha.model.base_account import BaseAccount
 from rqalpha.events import EVENT
 from rqalpha.environment import Environment
@@ -34,18 +31,11 @@ from ..api.api_stock import order_shares
 
 
 class StockAccount(BaseAccount):
-<<<<<<< HEAD
-
-    __abandon_properties__ = []
-
-    def __init__(self, total_cash, positions, backward_trade_set=set(), dividend_receivable=None, register_event=True):
-=======
     dividend_reinvestment = False
 
     __abandon_properties__ = []
 
     def __init__(self, total_cash, positions, backward_trade_set=None, dividend_receivable=None, register_event=True):
->>>>>>> upstream/master
         super(StockAccount, self).__init__(total_cash, positions, backward_trade_set, register_event)
         self._dividend_receivable = dividend_receivable if dividend_receivable else {}
 
@@ -79,10 +69,6 @@ class StockAccount(BaseAccount):
             'total_cash': self._total_cash,
             'backward_trade_set': list(self._backward_trade_set),
             'dividend_receivable': self._dividend_receivable,
-<<<<<<< HEAD
-            'transaction_cost': self._transaction_cost,
-=======
->>>>>>> upstream/master
         }
 
     def set_state(self, state):
@@ -90,10 +76,6 @@ class StockAccount(BaseAccount):
         self._total_cash = state['total_cash']
         self._backward_trade_set = set(state['backward_trade_set'])
         self._dividend_receivable = state['dividend_receivable']
-<<<<<<< HEAD
-        self._transaction_cost = state['transaction_cost']
-=======
->>>>>>> upstream/master
         self._positions.clear()
         for order_book_id, v in six.iteritems(state['positions']):
             position = self._positions.get_or_create(order_book_id)
@@ -112,11 +94,7 @@ class StockAccount(BaseAccount):
             if o.is_final():
                 continue
             if o.side == SIDE.BUY:
-<<<<<<< HEAD
-                self._frozen_cash += o.frozen_price * o.unfilled_quantity
-=======
                 self._frozen_cash += self._frozen_cash_of_order(o)
->>>>>>> upstream/master
             else:
                 frozen_quantity[o.order_book_id] += o.unfilled_quantity
         for order_book_id, position in six.iteritems(self._positions):
@@ -125,27 +103,14 @@ class StockAccount(BaseAccount):
     def _on_trade(self, event):
         if event.account != self:
             return
-<<<<<<< HEAD
-        self._apply_trade(event.trade)
-
-    def _apply_trade(self, trade):
-=======
         self._apply_trade(event.trade, event.order)
 
     def _apply_trade(self, trade, order=None):
->>>>>>> upstream/master
         if trade.exec_id in self._backward_trade_set:
             return
 
         position = self._positions.get_or_create(trade.order_book_id)
         position.apply_trade(trade)
-<<<<<<< HEAD
-        self._transaction_cost += trade.transaction_cost
-        self._total_cash -= trade.transaction_cost
-        if trade.side == SIDE.BUY:
-            self._total_cash -= trade.last_quantity * trade.last_price
-            self._frozen_cash -= trade.frozen_price * trade.last_quantity
-=======
         self._total_cash -= trade.transaction_cost
         if order:
             if trade.last_quantity != order.quantity:
@@ -154,7 +119,6 @@ class StockAccount(BaseAccount):
                 self._frozen_cash -= self._frozen_cash_of_order(order)
         if trade.side == SIDE.BUY:
             self._total_cash -= trade.last_quantity * trade.last_price
->>>>>>> upstream/master
         else:
             self._total_cash += trade.last_price * trade.last_quantity
         self._backward_trade_set.add(trade.exec_id)
@@ -166,13 +130,7 @@ class StockAccount(BaseAccount):
         position = self._positions.get(order.order_book_id, None)
         if position is not None:
             position.on_order_pending_new_(order)
-<<<<<<< HEAD
-        if order.side == SIDE.BUY:
-            order_value = order.frozen_price * order.quantity
-            self._frozen_cash += order_value
-=======
         self._frozen_cash += self._frozen_cash_of_order(order)
->>>>>>> upstream/master
 
     def _on_order_unsolicited_update(self, event):
         if event.account != self:
@@ -181,16 +139,10 @@ class StockAccount(BaseAccount):
         order = event.order
         position = self._positions.get_or_create(order.order_book_id)
         position.on_order_cancel_(order)
-<<<<<<< HEAD
-        if order.side == SIDE.BUY:
-            unfilled_value = order.unfilled_quantity * order.frozen_price
-            self._frozen_cash -= unfilled_value
-=======
         if order.filled_quantity != 0:
             self._frozen_cash -= order.unfilled_quantity / order.quantity * self._frozen_cash_of_order(order)
         else:
             self._frozen_cash -= self._frozen_cash_of_order(event.order)
->>>>>>> upstream/master
 
     def _before_trading(self, event):
         trading_date = Environment.get_instance().trading_dt.date()
@@ -204,11 +156,7 @@ class StockAccount(BaseAccount):
         for position in list(self._positions.values()):
             order_book_id = position.order_book_id
             if position.is_de_listed() and position.quantity != 0:
-<<<<<<< HEAD
-                if env.config.validator.cash_return_by_stock_delisted:
-=======
                 if env.config.mod.sys_accounts.cash_return_by_stock_delisted:
->>>>>>> upstream/master
                     self._total_cash += position.market_value
                 user_system_log.warn(
                     _(u"{order_book_id} is expired, close all positions by system").format(order_book_id=order_book_id)
@@ -219,10 +167,6 @@ class StockAccount(BaseAccount):
             else:
                 position.apply_settlement()
 
-<<<<<<< HEAD
-        self._transaction_cost = 0
-=======
->>>>>>> upstream/master
         self._backward_trade_set.clear()
 
     def _update_last_price(self, event):
@@ -248,14 +192,11 @@ class StockAccount(BaseAccount):
         y, m = divmod(r, 100)
         return datetime.date(year=y, month=m, day=d)
 
-<<<<<<< HEAD
-=======
     @staticmethod
     def _frozen_cash_of_order(order):
         order_cost = order.frozen_price * order.quantity if order.side == SIDE.BUY else 0
         return order_cost + Environment.get_instance().get_order_transaction_cost(DEFAULT_ACCOUNT_TYPE.STOCK, order)
 
->>>>>>> upstream/master
     def _handle_dividend_book_closure(self, trading_date):
         for order_book_id, position in six.iteritems(self._positions):
             if position.quantity == 0:
@@ -266,19 +207,12 @@ class StockAccount(BaseAccount):
                 continue
 
             dividend_per_share = dividend['dividend_cash_before_tax'] / dividend['round_lot']
-<<<<<<< HEAD
-            position.dividend_(dividend_per_share)
-
-            config = Environment.get_instance().config
-            if config.extra.dividend_reinvestment:
-=======
             if np.isnan(dividend_per_share):
                 raise RuntimeError("Dividend per share of {} is not supposed to be nan.".format(order_book_id))
 
             position.dividend_(dividend_per_share)
 
             if StockAccount.dividend_reinvestment:
->>>>>>> upstream/master
                 last_price = Environment.get_instance().data_proxy.get_bar(order_book_id, trading_date).close
                 shares = position.quantity * dividend_per_share / last_price
                 position._quantity += shares
@@ -286,11 +220,6 @@ class StockAccount(BaseAccount):
                 self._dividend_receivable[order_book_id] = {
                     'quantity': position.quantity,
                     'dividend_per_share': dividend_per_share,
-<<<<<<< HEAD
-                    'payable_date': self._int_to_date(dividend['payable_date']),
-                }
-
-=======
                 }
 
                 try:
@@ -302,7 +231,6 @@ class StockAccount(BaseAccount):
                         dividend['ex_dividend_date']
                     )
 
->>>>>>> upstream/master
     def _handle_split(self, trading_date):
         data_proxy = Environment.get_instance().data_proxy
         for order_book_id, position in six.iteritems(self._positions):

@@ -14,17 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-<<<<<<< HEAD
-import six
-import datetime
-import numpy as np
-
-from rqalpha.utils.datetime_func import convert_int_to_datetime, convert_ms_int_to_datetime
-from rqalpha.model.tick import Tick
-
-
-class SnapshotObject(object):
-=======
 import numpy as np
 
 from rqalpha.utils.logger import system_log
@@ -32,7 +21,6 @@ from rqalpha.model.tick import TickObject
 
 
 class SnapshotObject(TickObject):
->>>>>>> upstream/master
     _STOCK_FIELDS = [
         ('datetime', np.uint64),
         ('open', np.float64),
@@ -54,21 +42,6 @@ class SnapshotObject(TickObject):
     _NANDict = {_n: np.nan for _n in _FUTURE_FIELD_NAMES}
 
     def __init__(self, instrument, data, dt=None):
-<<<<<<< HEAD
-        self._dt = dt
-        if data is None:
-            self._data = self._NANDict
-        else:
-            self._data = data
-        self._instrument = instrument
-
-    @staticmethod
-    def fields_for_(instrument):
-        if instrument.type == 'Future':
-            return SnapshotObject._FUTURE_FIELD_NAMES
-        else:
-            return SnapshotObject._STOCK_FIELD_NAMES
-=======
         system_log.warn("[deprecated] SnapshotObject class is no longer used. use TickObject class instead.")
         if data is None:
             data = self._NANDict
@@ -77,7 +50,6 @@ class SnapshotObject(TickObject):
             data["datetime"] = dt
 
         super(SnapshotObject, self).__init__(instrument, data)
->>>>>>> upstream/master
 
     @staticmethod
     def dtype_for_(instrument):
@@ -86,126 +58,9 @@ class SnapshotObject(TickObject):
         else:
             return SnapshotObject._STOCK_FIELD_DTYPE
 
-<<<<<<< HEAD
-    @property
-    def open(self):
-        """
-        [float] 当日开盘价
-        """
-        return self._data["open"]
-
-    @property
-    def last(self):
-        """
-        [float] 当前最新价
-        """
-        return self._data["last"]
-
-    @property
-    def low(self):
-        """
-        [float] 截止到当前的最低价
-        """
-        return self._data["low"]
-
-    @property
-    def high(self):
-        """
-        [float] 截止到当前的最高价
-        """
-        return self._data["high"]
-
-    @property
-    def prev_close(self):
-        """
-        [float] 昨日收盘价
-        """
-        return self._data['prev_close']
-
-    @property
-    def volume(self):
-        """
-        [float] 截止到当前的成交量
-        """
-        return self._data['volume']
-
-    @property
-    def total_turnover(self):
-        """
-        [float] 截止到当前的成交额
-        """
-        return self._data['total_turnover']
-
-    @property
-    def datetime(self):
-        """
-        [datetime.datetime] 当前快照数据的时间戳
-        """
-        if self._dt is not None:
-            return self._dt
-        if not self.isnan:
-            dt = self._data['datetime']
-            if dt > 10000000000000000:  # ms
-                return convert_ms_int_to_datetime(dt)
-            else:
-                return convert_int_to_datetime(dt)
-        return datetime.datetime.min
-
-    @property
-    def instrument(self):
-        return self._instrument
-
-    @property
-    def order_book_id(self):
-        """
-        [str] 股票代码
-        """
-        return self._instrument.order_book_id
-
-    @property
-    def prev_settlement(self):
-        """
-        [float] 昨日结算价（期货专用）
-        """
-        return self._data['prev_settlement']
-
-    @property
-    def open_interest(self):
-        """
-        [float] 截止到当前的持仓量（期货专用）
-        """
-        return self._data['open_interest']
-
-    @property
-    def isnan(self):
-        return np.isnan(self._data['last'])
-
-    def __repr__(self):
-        base = [
-            ('order_book_id', repr(self._instrument.order_book_id)),
-            ('datetime', repr(self.datetime)),
-        ]
-
-        if self.isnan:
-            base.append(('error', repr('DATA UNAVAILABLE')))
-            return 'Snapshot({0})'.format(', '.join('{0}: {1}'.format(k, v) for k, v in base) + ' NaN SNAPSHOT')
-
-        if isinstance(self._data, dict):
-            # in pt
-            base.extend([k, v] for k, v in six.iteritems(self._data) if k != 'datetime')
-        elif isinstance(self._data, Tick):
-            return repr(self._data).replace('Tick', 'Snapshot')
-        else:
-            base.extend((n, self._data[n]) for n in self._data.dtype.names if n != 'datetime')
-        return "Snapshot({0})".format(', '.join('{0}: {1}'.format(k, v) for k, v in base))
-
-    def __getitem__(self, key):
-        return self.__dict__[key]
-=======
     @staticmethod
     def fields_for_(instrument):
         if instrument.type == 'Future':
             return SnapshotObject._FUTURE_FIELD_NAMES
         else:
             return SnapshotObject._STOCK_FIELD_NAMES
->>>>>>> upstream/master

@@ -27,12 +27,7 @@
         context.fired = False
         context.cnt = 1
 
-
-<<<<<<< HEAD
-    def before_trading(context, bar_dict):
-=======
     def before_trading(context):
->>>>>>> upstream/master
         logger.info("Before Trading", context.cnt)
         context.cnt += 1
 
@@ -251,11 +246,7 @@ Golden Cross算法示例
         return [max_result, min_result]
 
 
-<<<<<<< HEAD
-    def  get_atr_and_unit( atr_array_result,  atr_length_result, portfolio_value_result):
-=======
     def get_atr_and_unit( atr_array_result,  atr_length_result, portfolio_value_result):
->>>>>>> upstream/master
         atr =  atr_array_result[ atr_length_result-1]
         unit = math.floor(portfolio_value_result * .01 / atr)
         return [atr, unit]

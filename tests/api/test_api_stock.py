@@ -15,7 +15,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-<<<<<<< HEAD
 from .test_api_base import get_code_block
 
 
@@ -124,7 +123,6 @@ def test_order_target_value():
         assert order.order_book_id == context.s1, 'Order_book_id is wrong'
         assert order.price == context.limitprice, 'order.price is wrong'
 test_order_target_value_code_new = get_code_block(test_order_target_value)
-=======
 from rqalpha.api import *
 
 from ..utils import make_test_strategy_decorator, assert_order
@@ -232,4 +230,3 @@ def test_order_target_value():
         o = order_target_percent(context.s1, 0.02, style=LimitOrder(bar_dict[context.s1].limit_up))
         assert_order(o, side=SIDE.BUY, order_book_id=context.s1, price=bar_dict[context.s1].limit_up)
     return init, handle_bar
->>>>>>> upstream/master

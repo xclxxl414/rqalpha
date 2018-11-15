@@ -14,13 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-<<<<<<< HEAD
-import six
-import datetime
-
-from rqalpha.environment import Environment
-from rqalpha.utils import instrument_type_str2enum
-=======
 import datetime
 
 import six
@@ -29,7 +22,6 @@ import numpy as np
 from rqalpha.environment import Environment
 from rqalpha.utils import instrument_type_str2enum
 from rqalpha.utils.repr import property_repr
->>>>>>> upstream/master
 
 
 class Instrument(object):
@@ -43,24 +35,6 @@ class Instrument(object):
         year, month, day = ds.split('-')
         return datetime.datetime(int(year), int(month), int(day))
 
-<<<<<<< HEAD
-    def __init__(self, dic):
-        self.__dict__ = dic
-        if 'listed_date' in self.__dict__:
-            self.listed_date = self._fix_date(self.listed_date, self.DEFAULT_LISTED_DATE)
-        if 'de_listed_date' in self.__dict__:
-            self.de_listed_date = self._fix_date(self.de_listed_date, self.DEFAULT_DE_LISTED_DATE)
-        if 'maturity_date' in self.__dict__:
-            self.maturity_date = self._fix_date(self.maturity_date, self.DEFAULT_DE_LISTED_DATE)
-
-    def __repr__(self):
-        return "{}({})".format(type(self).__name__,
-                               ", ".join(["{}={}".format(k, repr(v))
-                                          for k, v in six.iteritems(self.__dict__)]))
-
-    @property
-    def listing(self):
-=======
     __repr__ = property_repr
 
     def __init__(self, dic):
@@ -312,7 +286,6 @@ class Instrument(object):
         [bool] 该合约当前日期是否在交易
         """
 
->>>>>>> upstream/master
         now = Environment.get_instance().calendar_dt
         return self.listed_date <= now <= self.de_listed_date
 
@@ -339,12 +312,9 @@ class Instrument(object):
         days = (self.maturity_date.date() - date).days
         return -1 if days < 0 else days
 
-<<<<<<< HEAD
-=======
     def tick_size(self):
         return Environment.get_instance().data_proxy.get_tick_size(self.order_book_id)
 
->>>>>>> upstream/master
 
 class SectorCodeItem(object):
     def __init__(self, cn, en, name):

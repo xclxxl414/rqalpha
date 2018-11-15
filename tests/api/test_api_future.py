@@ -15,7 +15,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-<<<<<<< HEAD
 from .test_api_base import get_code_block
 
 
@@ -117,7 +116,6 @@ def test_sell_close():
         # assert order.side == SIDE.SELL
         # assert order.position_effect == POSITION_EFFECT.CLOSE
 test_sell_close_code_new = get_code_block(test_sell_close)
-=======
 from rqalpha.api import *
 
 from ..utils import make_test_strategy_decorator, assert_order
@@ -197,4 +195,3 @@ def test_sell_close():
         # TODO: Add More Sell Close Test
         assert len(orders) == 0
     return init, handle_bar
->>>>>>> upstream/master

@@ -28,10 +28,7 @@ import jsonpickle.ext.numpy as jsonpickle_numpy
 import pytz
 import requests
 import six
-<<<<<<< HEAD
-import better_exceptions
-=======
->>>>>>> upstream/master
+
 
 from rqalpha import const
 from rqalpha.api import helper as api_helper
@@ -50,10 +47,7 @@ from rqalpha.mod import ModHandler
 from rqalpha.model.bar import BarMap
 from rqalpha.model.portfolio import Portfolio
 from rqalpha.model.base_position import Positions
-<<<<<<< HEAD
-=======
 from rqalpha.const import RUN_TYPE
->>>>>>> upstream/master
 from rqalpha.utils import create_custom_exception, run_with_user_log_disabled, scheduler as mod_scheduler
 from rqalpha.utils.exception import CustomException, is_user_exc, patch_user_exc
 from rqalpha.utils.i18n import gettext as _
@@ -72,13 +66,6 @@ def _adjust_start_date(config, data_proxy):
 
     config.base.start_date = max(start, config.base.start_date)
     config.base.end_date = min(end, config.base.end_date)
-<<<<<<< HEAD
-    config.base.trading_calendar = data_proxy.get_trading_dates(config.base.start_date, config.base.end_date)
-    if len(config.base.trading_calendar) == 0:
-        raise patch_user_exc(ValueError(_(u"There is no data between {start_date} and {end_date}. Please check your"
-                                          u" data bundle or select other backtest period.").format(
-            start_date=origin_start_date, end_date=origin_end_date)))
-=======
 
     config.base.trading_calendar = data_proxy.get_trading_dates(config.base.start_date, config.base.end_date)
     if len(config.base.trading_calendar) == 0:
@@ -87,7 +74,6 @@ def _adjust_start_date(config, data_proxy):
                 _(u"There is no data between {start_date} and {end_date}. Please check your"
                   u" data bundle or select other backtest period.").format(
                       start_date=origin_start_date, end_date=origin_end_date)))
->>>>>>> upstream/master
     config.base.start_date = config.base.trading_calendar[0].date()
     config.base.end_date = config.base.trading_calendar[-1].date()
     config.base.timezone = pytz.utc
@@ -132,14 +118,6 @@ def create_benchmark_portfolio(env):
     return Portfolio(start_date, 1, total_cash, accounts)
 
 
-<<<<<<< HEAD
-def create_base_scope():
-    import copy
-    from rqalpha.utils.logger import user_print, user_log
-
-    from . import user_module
-    scope = copy.copy(user_module.__dict__)
-=======
 def create_base_scope(copy_scope=False):
     from rqalpha.utils.logger import user_print, user_log
     from . import user_module
@@ -149,7 +127,6 @@ def create_base_scope(copy_scope=False):
         scope = copy(user_module.__dict__)
     else:
         scope = user_module.__dict__
->>>>>>> upstream/master
     scope.update({
         "logger": user_log,
         "print": user_print,
@@ -248,9 +225,6 @@ def run(config, source_code=None, user_funcs=None):
 
         broker = env.broker
         assert broker is not None
-<<<<<<< HEAD
-        env.portfolio = broker.get_portfolio()
-=======
         try:
             env.portfolio = broker.get_portfolio()
         except NotImplementedError:
@@ -261,7 +235,6 @@ def run(config, source_code=None, user_funcs=None):
         except NotImplementedError:
             pass
 
->>>>>>> upstream/master
         env.benchmark_portfolio = create_benchmark_portfolio(env)
 
         event_source = env.event_source
@@ -279,11 +252,7 @@ def run(config, source_code=None, user_funcs=None):
 
         env.event_bus.publish_event(Event(EVENT.POST_SYSTEM_INIT))
 
-<<<<<<< HEAD
-        scope = create_base_scope()
-=======
         scope = create_base_scope(config.base.run_type == RUN_TYPE.BACKTEST)
->>>>>>> upstream/master
         scope.update({
             "g": env.global_vars
         })
@@ -308,33 +277,23 @@ def run(config, source_code=None, user_funcs=None):
             for k, v in six.iteritems(config.extra.context_vars):
                 setattr(ucontext, k, v)
 
-<<<<<<< HEAD
-=======
         from .core.executor import Executor
         executor = Executor(env)
 
->>>>>>> upstream/master
         if config.base.persist:
             persist_provider = env.persist_provider
             if persist_provider is None:
                 raise RuntimeError(_(u"Missing persist provider. You need to set persist_provider before use persist"))
             persist_helper = PersistHelper(persist_provider, env.event_bus, config.base.persist_mode)
-<<<<<<< HEAD
-=======
             env.set_persist_helper(persist_helper)
->>>>>>> upstream/master
             persist_helper.register('core', CoreObjectsPersistProxy(scheduler))
             persist_helper.register('user_context', ucontext)
             persist_helper.register('global_vars', env.global_vars)
             persist_helper.register('universe', env._universe)
             if isinstance(event_source, Persistable):
                 persist_helper.register('event_source', event_source)
-<<<<<<< HEAD
-            persist_helper.register('portfolio', env.portfolio)
-=======
             if env.portfolio:
                 persist_helper.register('portfolio', env.portfolio)
->>>>>>> upstream/master
             if env.benchmark_portfolio:
                 persist_helper.register('benchmark_portfolio', env.benchmark_portfolio)
             for name, module in six.iteritems(env.mod_dict):
@@ -343,13 +302,9 @@ def run(config, source_code=None, user_funcs=None):
             # broker will restore open orders from account
             if isinstance(broker, Persistable):
                 persist_helper.register('broker', broker)
-<<<<<<< HEAD
-
-=======
             persist_helper.register('executor', executor)
 
             env.event_bus.publish_event(Event(EVENT.BEFORE_SYSTEM_RESTORED))
->>>>>>> upstream/master
             persist_helper.restore()
             env.event_bus.publish_event(Event(EVENT.POST_SYSTEM_RESTORED))
 
@@ -360,38 +315,20 @@ def run(config, source_code=None, user_funcs=None):
         if config.extra.force_run_init_when_pt_resume:
             assert config.base.resume_mode == True
             with run_with_user_log_disabled(disabled=False):
-<<<<<<< HEAD
-                user_strategy.init()
-
-        from .core.executor import Executor
-        Executor(env).run(bar_dict)
-=======
                 env._universe._set = set()
                 user_strategy.init()
 
         executor.run(bar_dict)
->>>>>>> upstream/master
-
         if env.profile_deco:
             output_profile_result(env)
     except CustomException as e:
-<<<<<<< HEAD
-        if init_succeed and env.config.base.persist and persist_helper:
-=======
         if init_succeed and env.config.base.persist and persist_helper and env.config.base.persist_mode == const.PERSIST_MODE.ON_CRASH:
->>>>>>> upstream/master
             persist_helper.persist()
 
         code = _exception_handler(e)
         mod_handler.tear_down(code, e)
     except Exception as e:
-<<<<<<< HEAD
-        # import traceback
-        # traceback.print_exc()
-        if init_succeed and env.config.base.persist and persist_helper:
-=======
         if init_succeed and env.config.base.persist and persist_helper and env.config.base.persist_mode == const.PERSIST_MODE.ON_CRASH:
->>>>>>> upstream/master
             persist_helper.persist()
 
         exc_type, exc_val, exc_tb = sys.exc_info()
@@ -408,16 +345,6 @@ def run(config, source_code=None, user_funcs=None):
 
 
 def _exception_handler(e):
-<<<<<<< HEAD
-    better_exceptions.excepthook(e.error.exc_type, e.error.exc_val, e.error.exc_tb)
-    user_system_log.error(e.error)
-    if not is_user_exc(e.error.exc_val):
-        code = const.EXIT_CODE.EXIT_INTERNAL_ERROR
-        system_log.exception(_(u"strategy execute exception"))
-    else:
-        code = const.EXIT_CODE.EXIT_USER_ERROR
-        user_detail_log.exception(_(u"strategy execute exception"))
-=======
     try:
         sys.excepthook(e.error.exc_type, e.error.exc_val, e.error.exc_tb)
     except Exception as e:
@@ -430,7 +357,6 @@ def _exception_handler(e):
     else:
         code = const.EXIT_CODE.EXIT_USER_ERROR
         user_detail_log.error(_(u"strategy execute exception"), exc=e)
->>>>>>> upstream/master
 
     return code
 
@@ -469,17 +395,11 @@ def set_loggers(config):
 
     init_logger()
 
-<<<<<<< HEAD
-    for log in [basic_system_log, system_log, std_log, user_log, user_system_log, user_detail_log]:
-        log.level = getattr(logbook, config.extra.log_level.upper(), logbook.NOTSET)
-
-=======
     for log in [basic_system_log, system_log, std_log, user_system_log, user_detail_log]:
         log.level = getattr(logbook, config.extra.log_level.upper(), logbook.NOTSET)
 
     user_log.level = logbook.DEBUG
 
->>>>>>> upstream/master
     if extra_config.log_level.upper() != "NONE":
         if not extra_config.user_log_disabled:
             user_log.handlers.append(user_std_handler)

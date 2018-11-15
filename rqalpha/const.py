@@ -61,11 +61,8 @@ class DEFAULT_ACCOUNT_TYPE(CustomEnum):
     FUTURE = 3
     # 期权
     OPTION = 4
-<<<<<<< HEAD
-=======
     # 债券
     BOND = 5
->>>>>>> upstream/master
 
 
 # noinspection PyPep8Naming
@@ -115,8 +112,6 @@ class POSITION_EFFECT(CustomEnum):
 
 
 # noinspection PyPep8Naming
-<<<<<<< HEAD
-=======
 class POSITION_DIRECTION(CustomEnum):
     UNKNOWN = "UNKNOWN"
     LONG = "LONG"
@@ -124,7 +119,6 @@ class POSITION_DIRECTION(CustomEnum):
 
 
 # noinspection PyPep8Naming
->>>>>>> upstream/master
 class EXC_TYPE(CustomEnum):
     USER_EXC = "USER_EXC"
     SYSTEM_EXC = "SYSTEM_EXC"
@@ -143,10 +137,7 @@ class INSTRUMENT_TYPE(CustomEnum):
     FENJI_A = "FENJI_A"
     FENJI_B = "FENJI_B"
     PUBLIC_FUND = 'PublicFund'
-<<<<<<< HEAD
-=======
     BOND = "Bond"
->>>>>>> upstream/master
 
 
 # noinspection PyPep8Naming
@@ -188,15 +179,12 @@ class DAYS_CNT(object):
     TRADING_DAYS_A_YEAR = 252
 
 
-<<<<<<< HEAD
-=======
 # noinspection PyPep89Naming
 class MARKET(CustomEnum):
     CN = "CN"
     HK = "HK"
 
 
->>>>>>> upstream/master
 class CURRENCY(CustomEnum):
     CNY = "CNY"     # 人民币
     USD = "USD"     # 美元
@@ -220,8 +208,4 @@ class CURRENCY(CustomEnum):
 UNDERLYING_SYMBOL_PATTERN = "([a-zA-Z]+)\d+"
 
 NIGHT_TRADING_NS = ["CU", "AL", "ZN", "PB", "SN", "NI", "RB", "HC", "BU", "RU", "AU", "AG", "Y", "M", "A", "B", "P",
-<<<<<<< HEAD
-                    "J", "JM", "I", "CF", "SR", "OI", "MA", "ZC", "FG", "RM"]
-=======
                     "J", "JM", "I", "CF", "SR", "OI", "MA", "ZC", "FG", "RM", "CY", "TA", "SC"]
->>>>>>> upstream/master

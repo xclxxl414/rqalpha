@@ -23,11 +23,7 @@ import yaml
 import simplejson as json
 import six
 
-<<<<<<< HEAD
-from rqalpha.const import RUN_TYPE, PERSIST_MODE
-=======
 from rqalpha.const import RUN_TYPE, PERSIST_MODE, MARKET
->>>>>>> upstream/master
 from rqalpha.utils import RqAttrDict, logger
 from rqalpha.utils.i18n import gettext as _, localization
 from rqalpha.utils.dict_func import deep_update
@@ -48,11 +44,6 @@ def load_json(path):
     with codecs.open(path, encoding='utf-8') as f:
         return json.loads(f.read())
 
-<<<<<<< HEAD
-def load_config(path):
-    return load_json(path) if path.endswith('.json') else load_yaml(path)
-=======
->>>>>>> upstream/master
 
 default_config_path = os.path.join(os.path.dirname(__file__), '..', 'config.yml')
 default_mod_config_path = os.path.join(os.path.dirname(__file__), '..', 'mod_config.yml')
@@ -85,10 +76,6 @@ def default_config():
     base = load_yaml(default_config_path)
     base['base']['source_code'] = None
     mod = load_yaml(default_mod_config_path)
-<<<<<<< HEAD
-    # print(default_config_path,default_mod_config_path)
-=======
->>>>>>> upstream/master
     deep_update(mod, base)
     return base
 
@@ -101,46 +88,18 @@ def project_config():
     return load_config_from_folder(os.getcwd())
 
 
-<<<<<<< HEAD
-def code_config(config, source_code=None,file_key = "strategy_file"):
-    try:
-        if source_code is None:
-            _file = config["base"][file_key]
-            if os.path.basename(_file).split(".")[1] == "ipynb":
-                import io
-                from nbformat import read
-                from IPython.core.interactiveshell import InteractiveShell
-                with io.open(_file, 'r', encoding='utf-8') as f:
-                    nb = read(f, 4)
-                try:
-                    for cell in nb.cells:
-                        if cell.cell_type == 'code':
-                            source_code = InteractiveShell.instance().input_transformer_manager.transform_cell(cell.source)
-                            break  # 只取第一个cell,
-                except Exception as e:
-                    system_log.error(_(u"load ipynb {file} failed, exception: {e}").format(file=_file,e=e))
-            else:
-                with codecs.open(_file, encoding="utf-8") as f:
-                    source_code = f.read()
-=======
 def code_config(config, source_code=None):
     try:
         if source_code is None:
             with codecs.open(config["base"]["strategy_file"], encoding="utf-8") as f:
                 source_code = f.read()
->>>>>>> upstream/master
 
         # FIXME: hardcode for parametric mod
         def noop(*args, **kwargs):
             pass
         scope = {'define_parameter': noop}
 
-<<<<<<< HEAD
-        code = compile(source_code,config["base"][file_key] , 'exec')
-        # print(code)
-=======
         code = compile(source_code, config["base"]["strategy_file"], 'exec')
->>>>>>> upstream/master
         six.exec_(code, scope)
 
         return scope.get('__config__', {})
@@ -171,10 +130,6 @@ def set_locale(lc):
 
 def parse_config(config_args, config_path=None, click_type=False, source_code=None, user_funcs=None):
     conf = default_config()
-<<<<<<< HEAD
-    # print("parse_config",conf)
-=======
->>>>>>> upstream/master
     deep_update(user_config(), conf)
     deep_update(project_config(), conf)
     if config_path is not None:
@@ -231,10 +186,7 @@ def parse_config(config_args, config_path=None, click_type=False, source_code=No
     config.base.accounts = parse_accounts(config.base.accounts)
     config.base.init_positions = parse_init_positions(config.base.init_positions)
     config.base.persist_mode = parse_persist_mode(config.base.persist_mode)
-<<<<<<< HEAD
-=======
     config.base.market = parse_market(config.base.market)
->>>>>>> upstream/master
 
     if config.extra.context_vars:
         if isinstance(config.extra.context_vars, six.string_types):
@@ -256,15 +208,10 @@ def parse_accounts(accounts):
             continue
         starting_cash = float(starting_cash)
         a[account_type.upper()] = starting_cash
-<<<<<<< HEAD
-    if len(a) == 0:
-        raise RuntimeError(_(u"None account type has been selected."))
-=======
 
     # if len(a) == 0:
     #     raise RuntimeError(_(u"None account type has been selected."))
 
->>>>>>> upstream/master
     return a
 
 
@@ -311,8 +258,6 @@ def parse_persist_mode(persist_mode):
         return mapping[persist_mode]
     except KeyError:
         raise RuntimeError(_(u"unknown persist mode: {}").format(persist_mode))
-<<<<<<< HEAD
-=======
 
 
 def parse_market(market):
@@ -326,4 +271,3 @@ def parse_market(market):
         return mapping[market.lower()]
     except KeyError:
         raise RuntimeError(_(u"unknown market type: {}".format(market)))
->>>>>>> upstream/master

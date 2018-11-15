@@ -15,10 +15,7 @@
 # limitations under the License.
 
 import sys
-<<<<<<< HEAD
-=======
 import abc
->>>>>>> upstream/master
 import inspect
 import datetime
 import six
@@ -27,11 +24,7 @@ from functools import wraps
 
 from dateutil.parser import parse as parse_date
 
-<<<<<<< HEAD
-from rqalpha.utils.exception import RQInvalidArgument, RQTypeError
-=======
 from rqalpha.utils.exception import RQInvalidArgument, RQTypeError, RQApiNotSupportedError
->>>>>>> upstream/master
 from rqalpha.model.instrument import Instrument
 from rqalpha.environment import Environment
 from rqalpha.const import INSTRUMENT_TYPE, EXC_TYPE
@@ -44,11 +37,6 @@ main_contract_warning_flag = True
 index_contract_warning_flag = True
 
 
-<<<<<<< HEAD
-class ArgumentChecker(object):
-    def __init__(self, arg_name):
-        self._arg_name = arg_name
-=======
 class AbstractChecker(six.with_metaclass(abc.ABCMeta)):
 
     @abc.abstractmethod
@@ -65,7 +53,6 @@ class ArgumentChecker(AbstractChecker):
     def __init__(self, arg_name, pre_check):
         self._arg_name = arg_name
         self._pre_check = pre_check
->>>>>>> upstream/master
         self._rules = []
 
     def is_instance_of(self, types):
@@ -168,11 +155,7 @@ class ArgumentChecker(AbstractChecker):
     def _is_number(self, func_name, value):
         try:
             v = float(value)
-<<<<<<< HEAD
-        except ValueError:
-=======
         except (ValueError, TypeError):
->>>>>>> upstream/master
             raise RQInvalidArgument(
                 _(u"function {}: invalid {} argument, expect a number, got {} (type: {})").format(
                     func_name, self._arg_name, value, type(value))
@@ -318,11 +301,7 @@ class ArgumentChecker(AbstractChecker):
         if valid:
             try:
                 valid = int(value[:-1]) > 0
-<<<<<<< HEAD
-            except ValueError:
-=======
             except (ValueError, TypeError):
->>>>>>> upstream/master
                 valid = False
 
         if not valid:
@@ -343,13 +322,8 @@ class ArgumentChecker(AbstractChecker):
             valid = isinstance(value, six.string_types) and value[-2] == 'q'
             if valid:
                 try:
-<<<<<<< HEAD
-                    valid =  1990 <= int(value[:-2]) <= 2050 and 1 <= int(value[-1]) <= 4
-                except ValueError:
-=======
                     valid =  1990 <= int(value[:-2]) <= 2099 and 1 <= int(value[-1]) <= 4
                 except (ValueError, TypeError):
->>>>>>> upstream/master
                     valid = False
 
         if not valid:
@@ -382,11 +356,7 @@ class ArgumentChecker(AbstractChecker):
         if valid:
             try:
                 valid = int(value[:-1]) > 0
-<<<<<<< HEAD
-            except ValueError:
-=======
             except (ValueError, TypeError):
->>>>>>> upstream/master
                 valid = False
 
         if not valid:
@@ -400,13 +370,9 @@ class ArgumentChecker(AbstractChecker):
         self._rules.append(self._is_valid_frequency)
         return self
 
-<<<<<<< HEAD
-    def verify(self, func_name, value):
-=======
     def verify(self, func_name, call_args):
         value = call_args[self.arg_name]
 
->>>>>>> upstream/master
         for r in self._rules:
             r(func_name, value)
 
@@ -414,11 +380,6 @@ class ArgumentChecker(AbstractChecker):
     def arg_name(self):
         return self._arg_name
 
-<<<<<<< HEAD
-
-def verify_that(arg_name):
-    return ArgumentChecker(arg_name)
-=======
     @property
     def pre_check(self):
         return self._pre_check
@@ -463,15 +424,12 @@ def get_call_args(func, args, kwargs, traceback=None):
         return inspect.getcallargs(unwrapper(func), *args, **kwargs)
     except TypeError as e:
         six.reraise(RQTypeError, RQTypeError(*e.args), traceback)
->>>>>>> upstream/master
 
 
 def apply_rules(*rules):
     def decorator(func):
         @wraps(func)
         def api_rule_check_wrapper(*args, **kwargs):
-<<<<<<< HEAD
-=======
             call_args = None
             for r in rules:
                 if not r.pre_check:
@@ -480,7 +438,6 @@ def apply_rules(*rules):
                     call_args = get_call_args(func, args, kwargs)
                 r.verify(func.__name__, call_args)
 
->>>>>>> upstream/master
             try:
                 return func(*args, **kwargs)
             except RQInvalidArgument:
@@ -489,17 +446,6 @@ def apply_rules(*rules):
                 exc_info = sys.exc_info()
                 t, v, tb = exc_info
 
-<<<<<<< HEAD
-                try:
-                    call_args = inspect.getcallargs(unwrapper(func), *args, **kwargs)
-                except TypeError as e:
-                    six.reraise(RQTypeError, RQTypeError(*e.args), tb)
-                    return
-
-                try:
-                    for r in rules:
-                        r.verify(func.__name__, call_args[r.arg_name])
-=======
                 if call_args is None:
                     call_args = get_call_args(func, args, kwargs, tb)
                 try:
@@ -507,7 +453,6 @@ def apply_rules(*rules):
                         if r.pre_check:
                             continue
                         r.verify(func.__name__, call_args)
->>>>>>> upstream/master
                 except RQInvalidArgument as e:
                     six.reraise(RQInvalidArgument, e, tb)
                     return

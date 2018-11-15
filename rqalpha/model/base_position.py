@@ -14,11 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-<<<<<<< HEAD
-=======
 import numpy as np
 
->>>>>>> upstream/master
 from rqalpha.interface import AbstractPosition
 from rqalpha.environment import Environment
 from rqalpha.utils.i18n import gettext as _
@@ -77,16 +74,11 @@ class BasePosition(AbstractPosition):
 
     @property
     def last_price(self):
-<<<<<<< HEAD
-        return (self._last_price if self._last_price == self._last_price else
-                Environment.get_instance().get_last_price(self._order_book_id))
-=======
         last_price = (self._last_price if self._last_price == self._last_price else
             Environment.get_instance().get_last_price(self._order_book_id))
         if np.isnan(last_price):
             raise RuntimeError("Last price of position {} is not supposed to be nan".format(self.order_book_id))
         return last_price
->>>>>>> upstream/master
 
     def update_last_price(self):
         price = Environment.get_instance().get_last_price(self._order_book_id)
@@ -96,18 +88,7 @@ class BasePosition(AbstractPosition):
 
     # -- Function
     def is_de_listed(self):
-<<<<<<< HEAD
-        """
-        判断合约是否过期
-        """
-        instrument = Environment.get_instance().get_instrument(self._order_book_id)
-        current_date = Environment.get_instance().trading_dt
-        if instrument.de_listed_date is not None and current_date >= instrument.de_listed_date:
-            return True
-        return False
-=======
         raise NotImplementedError
->>>>>>> upstream/master
 
     def apply_settlement(self):
         raise NotImplementedError
@@ -128,7 +109,3 @@ class BasePosition(AbstractPosition):
         """abandon"""
         user_system_log.warn(_(u"[abandon] {} is no longer valid.").format('position.total_trades'))
         return 0
-<<<<<<< HEAD
-
-=======
->>>>>>> upstream/master

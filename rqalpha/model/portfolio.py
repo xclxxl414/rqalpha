@@ -16,10 +16,7 @@
 
 import six
 import jsonpickle
-<<<<<<< HEAD
-=======
 import numpy as np
->>>>>>> upstream/master
 
 from rqalpha.environment import Environment
 from rqalpha.const import DAYS_CNT, DEFAULT_ACCOUNT_TYPE
@@ -34,10 +31,7 @@ class Portfolio(object):
     def __init__(self, start_date, static_unit_net_value, units, accounts, register_event=True):
         self._start_date = start_date
         self._static_unit_net_value = static_unit_net_value
-<<<<<<< HEAD
-=======
         self._last_unit_net_value = static_unit_net_value
->>>>>>> upstream/master
         self._units = units
         self._accounts = accounts
         self._mixed_positions = None
@@ -50,10 +44,7 @@ class Portfolio(object):
         """
         event_bus = Environment.get_instance().event_bus
         event_bus.prepend_listener(EVENT.PRE_BEFORE_TRADING, self._pre_before_trading)
-<<<<<<< HEAD
-=======
         event_bus.prepend_listener(EVENT.POST_SETTLEMENT, self._post_settlement)
->>>>>>> upstream/master
 
     def order(self, order_book_id, quantity, style, target=False):
         account_type = get_account_type(order_book_id)
@@ -63,10 +54,7 @@ class Portfolio(object):
         return jsonpickle.encode({
             'start_date': self._start_date,
             'static_unit_net_value': self._static_unit_net_value,
-<<<<<<< HEAD
-=======
             'last_unit_net_value': self._last_unit_net_value,
->>>>>>> upstream/master
             'units': self._units,
             'accounts': {
                 name: account.get_state() for name, account in six.iteritems(self._accounts)
@@ -78,18 +66,12 @@ class Portfolio(object):
         value = jsonpickle.decode(state)
         self._start_date = value['start_date']
         self._static_unit_net_value = value['static_unit_net_value']
-<<<<<<< HEAD
-=======
         self._last_unit_net_value = value.get('last_unit_net_value', self._static_unit_net_value)
->>>>>>> upstream/master
         self._units = value['units']
         for k, v in six.iteritems(value['accounts']):
             self._accounts[k].set_state(v)
 
     def _pre_before_trading(self, event):
-<<<<<<< HEAD
-        self._static_unit_net_value = self.unit_net_value
-=======
         if not np.isnan(self.unit_net_value):
             self._static_unit_net_value = self.unit_net_value
         else:
@@ -97,7 +79,6 @@ class Portfolio(object):
 
     def _post_settlement(self, event):
         self._last_unit_net_value = self.unit_net_value
->>>>>>> upstream/master
 
     @property
     def accounts(self):
@@ -139,11 +120,8 @@ class Portfolio(object):
         """
         [float] 实时净值
         """
-<<<<<<< HEAD
-=======
         if self._units == 0:
             return np.nan
->>>>>>> upstream/master
         return self.total_value / self._units
 
     @property
@@ -162,11 +140,8 @@ class Portfolio(object):
         """
         [float] 当前最新一天的日收益
         """
-<<<<<<< HEAD
-=======
         if self._static_unit_net_value == 0:
             return np.nan
->>>>>>> upstream/master
         return 0 if self._static_unit_net_value == 0 else self.unit_net_value / self._static_unit_net_value - 1
 
     @property
@@ -181,17 +156,12 @@ class Portfolio(object):
         """
         [float] 累计年化收益率
         """
-<<<<<<< HEAD
-        current_date = Environment.get_instance().trading_dt.date()
-        return self.unit_net_value ** (DAYS_CNT.DAYS_A_YEAR / float((current_date - self.start_date).days + 1)) - 1
-=======
         if self.unit_net_value <= 0:
             return -1
 
         env = Environment.get_instance()
         date_count = float(env.data_proxy.count_trading_dates(env.config.base.start_date, env.trading_dt.date()))
         return self.unit_net_value ** (DAYS_CNT.TRADING_DAYS_A_YEAR / date_count) - 1
->>>>>>> upstream/master
 
     @property
     def total_value(self):

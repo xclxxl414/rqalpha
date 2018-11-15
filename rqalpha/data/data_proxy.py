@@ -18,20 +18,13 @@ import six
 import numpy as np
 import pandas as pd
 
-<<<<<<< HEAD
-=======
 from rqalpha.environment import Environment
->>>>>>> upstream/master
 from rqalpha.data import risk_free_helper
 from rqalpha.data.instrument_mixin import InstrumentMixin
 from rqalpha.data.trading_dates_mixin import TradingDatesMixin
 from rqalpha.model.bar import BarObject
-<<<<<<< HEAD
-from rqalpha.model.snapshot import SnapshotObject
-=======
 from rqalpha.model.tick import TickObject
 from rqalpha.const import MARKET
->>>>>>> upstream/master
 from rqalpha.utils.py2 import lru_cache
 from rqalpha.utils.datetime_func import convert_int_to_datetime, convert_date_to_int
 
@@ -83,10 +76,6 @@ class DataProxy(InstrumentMixin, TradingDatesMixin):
         if table is None or len(table) == 0:
             return
 
-<<<<<<< HEAD
-        dt = date.year * 10000 + date.month * 100 + date.day
-        dates = table['book_closure_date']
-=======
         try:
             dates = table['book_closure_date']
         except ValueError:
@@ -94,7 +83,6 @@ class DataProxy(InstrumentMixin, TradingDatesMixin):
             date = self.get_next_trading_date(date)
 
         dt = date.year * 10000 + date.month * 100 + date.day
->>>>>>> upstream/master
         pos = dates.searchsorted(dt)
         if pos == len(dates) or dt != dates[pos]:
             return None
@@ -174,9 +162,6 @@ class DataProxy(InstrumentMixin, TradingDatesMixin):
                                               skip_suspended=skip_suspended, include_now=include_now,
                                               adjust_type=adjust_type, adjust_orig=adjust_orig)
 
-<<<<<<< HEAD
-    def current_snapshot(self, order_book_id, frequency, dt):
-=======
     def history_ticks(self, order_book_id, count, dt):
         instrument = self.instruments(order_book_id)
         return self._data_source.history_ticks(instrument, count, dt)
@@ -195,24 +180,15 @@ class DataProxy(InstrumentMixin, TradingDatesMixin):
             else:
                 return _FUTURE_FIELD_NAMES
 
->>>>>>> upstream/master
         instrument = self.instruments(order_book_id)
         if frequency == '1d':
             bar = self._data_source.get_bar(instrument, dt, '1d')
             if not bar:
-<<<<<<< HEAD
-                return SnapshotObject(instrument, None, dt)
-            d = {k: bar[k] for k in SnapshotObject.fields_for_(instrument) if k in bar.dtype.names}
-            d['last'] = bar['close']
-            d['prev_close'] = self._get_prev_close(order_book_id, dt)
-            return SnapshotObject(instrument, d)
-=======
                 return None
             d = {k: bar[k] for k in tick_fields_for(instrument) if k in bar.dtype.names}
             d['last'] = bar['close']
             d['prev_close'] = self._get_prev_close(order_book_id, dt)
             return TickObject(instrument, d)
->>>>>>> upstream/master
 
         return self._data_source.current_snapshot(instrument, frequency, dt)
 
@@ -221,16 +197,12 @@ class DataProxy(InstrumentMixin, TradingDatesMixin):
 
     def get_margin_info(self, order_book_id):
         instrument = self.instruments(order_book_id)
-<<<<<<< HEAD
-        return self._data_source.get_margin_info(instrument)
-=======
         margin_info = self._data_source.get_margin_info(instrument)
 
         if "long_margin_ratio" in margin_info and np.isnan(margin_info["long_margin_ratio"]):
             raise RuntimeError("Long margin ratio of {} is not supposed to be nan".format(order_book_id))
 
         return margin_info
->>>>>>> upstream/master
 
     def get_commission_info(self, order_book_id):
         instrument = self.instruments(order_book_id)
@@ -274,10 +246,7 @@ class DataProxy(InstrumentMixin, TradingDatesMixin):
     def public_fund_commission(self, order_book_id, buy):
         instrument = self.instruments(order_book_id)
         return self._data_source.public_fund_commission(instrument, buy)
-<<<<<<< HEAD
-=======
 
     def get_tick_size(self, order_book_id):
         instrument = self.instruments(order_book_id)
         return self._data_source.get_tick_size(instrument)
->>>>>>> upstream/master

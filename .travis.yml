@@ -23,34 +23,19 @@ install:
 
   # Install bcolz
   - pip install Cython
-<<<<<<< HEAD
-  - pip install bcolz
-=======
   - pip install bcolz==1.2.0
->>>>>>> upstream/master
 
   # Install Test Deps
   - pip install TA-Lib
   - pip install coveralls
   - pip install -U setuptools
-<<<<<<< HEAD
-  - pip install funcat
-=======
   - pip install git+https://github.com/Cuizi7/funcat.git
->>>>>>> upstream/master
   - pip install ipython==5.3.0
   - pip install .
 script:
   - ls -al $HOME/.rqalpha/
   - ls -al $HOME/.rqalpha/bundle/
-<<<<<<< HEAD
-  - |
-      if [ ! -d $HOME/.rqalpha/bundle/ex_cum_factor.bcolz ]; then
-        rqalpha update_bundle
-      fi
-=======
   - rqalpha update-bundle
->>>>>>> upstream/master
   - coverage run --source=rqalpha test.py
 cache:
   directories:
